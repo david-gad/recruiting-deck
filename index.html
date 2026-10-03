@@ -5,575 +5,538 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>Recruiting Command Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <style>
+/* =====================================================================
+   RECRUITING COMMAND DECK — light SaaS workspace
+   Stone frame · white canvas · grotesk type · mono micro-labels · lime
+   ===================================================================== */
 :root{
-  --void:#04090b;
-  --panel:#070f13;
-  --panel-2:#0a161b;
-  --line:#12333c;
-  --line-soft:#0d2229;
-  --cy:#29f4ff;
-  --cy-dim:#1a8f9b;
-  --cy-ghost:rgba(41,244,255,.10);
-  --ink:#cfeef3;
-  --ink-2:#7fa9b2;
-  --ink-3:#4d7079;
-  --amber:#ffc24d;
-  --lime:#7dff9b;
-  --rose:#ff5f7a;
-  --mono:"Consolas","Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --frame:#D9D4CD;
+  --canvas:#FFFFFF;
+  --panel:#F5F4F0;
+  --panel-2:#EDEBE5;
+  --line:#E6E3DC;
+  --line-2:#D5D1C9;
+  --ink:#141414;
+  --ink-2:#56534D;
+  --ink-3:#8D897F;
+  --lime:#E1EC3F;
+  --lime-edge:#C9D52E;
+  --lime-soft:#F6FAD3;
+  --green:#147A3F; --green-bg:#E2F3E7;
+  --blue:#2A52BE; --blue-bg:#E8EEFB;
+  --amber:#8F5600; --amber-bg:#FBEFD6;
+  --red:#B42318;  --red-bg:#FCE8E6;
+  --sans:"Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
 }
 *{box-sizing:border-box}
+html{background:var(--frame)}
 body{
-  margin:0;
-  background:var(--void);
-  color:var(--ink);
-  font-family:var(--mono);
-  font-size:13px;
-  line-height:1.5;
+  margin:0;background:var(--frame);color:var(--ink);
+  font-family:var(--sans);font-size:14px;line-height:1.5;
   -webkit-font-smoothing:antialiased;
-  min-height:100vh;
-  position:relative;
 }
-body::before{
-  content:"";
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    linear-gradient(to right,rgba(41,244,255,.045) 1px,transparent 1px),
-    linear-gradient(to bottom,rgba(41,244,255,.045) 1px,transparent 1px);
-  background-size:52px 52px;
-}
-body::after{
-  content:"";
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 90% 55% at 50% -10%,rgba(41,244,255,.10),transparent 70%);
-}
-.deck{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 20px 64px}
+[hidden]{display:none !important}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
-/* ---------- top bar ---------- */
-.topbar{
-  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
-  padding:18px 0 14px;border-bottom:1px solid var(--line);
+/* ---------- shared micro-label ---------- */
+.eyebrow,.k-label,th,.field > label,.ob-title,.tier-head .count,.d-foot,.srcbadge,.kind{
+  font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;
 }
-.brand{
-  font-size:17px;font-weight:700;letter-spacing:.20em;text-transform:uppercase;
-  color:var(--cy);text-shadow:0 0 12px rgba(41,244,255,.55),0 0 34px rgba(41,244,255,.22);
-}
-.brand .slash{color:var(--ink-3);text-shadow:none;margin:0 2px}
-.clockwrap{display:flex;align-items:baseline;gap:12px;font-variant-numeric:tabular-nums}
-.clock{font-size:15px;letter-spacing:.10em;color:var(--cy);text-shadow:0 0 10px rgba(41,244,255,.45)}
-.clock-date{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
 
-/* ---------- status strip ---------- */
-.status{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  padding:9px 12px;margin-top:14px;
-  border:1px solid var(--line-soft);background:var(--panel);
-  font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-2);
+/* ---------- brand mark (own design) ---------- */
+.mark{
+  width:28px;height:28px;border-radius:8px;background:var(--ink);flex:none;
+  display:grid;place-items:center;
 }
-.led{width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex:none}
-.led.ok{background:var(--lime);box-shadow:0 0 8px var(--lime)}
-.led.warn{background:var(--amber);box-shadow:0 0 8px var(--amber)}
-.led.err{background:var(--rose);box-shadow:0 0 8px var(--rose)}
-.led.busy{background:var(--cy);box-shadow:0 0 8px var(--cy);animation:pulse 1.1s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
-.status .spacer{flex:1}
-.status a{color:var(--cy);text-decoration:underline;text-underline-offset:3px}
+.mark svg{display:block}
+.brandline{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14.5px;letter-spacing:-.01em}
 
-/* ---------- gauges ---------- */
-.gauges{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px;
+/* =====================================================================
+   SIGN-IN
+   ===================================================================== */
+.gate{padding:10px;min-height:100vh}
+.gate-card{
+  background:var(--canvas);border-radius:16px;min-height:calc(100vh - 20px);
+  display:flex;flex-direction:column;
 }
-.gauge{
-  display:flex;align-items:center;gap:16px;padding:16px 18px;
-  border:1px solid var(--line-soft);background:linear-gradient(180deg,var(--panel-2),var(--panel));
+.gate-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 28px}
+.gate-nav .eyebrow{font-size:11px;color:var(--ink-3)}
+.gate-hero{
+  flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:56px 24px 40px;
 }
-.gauge svg{flex:none;display:block}
-.ring-bg{fill:none;stroke:#0e262d;stroke-width:7}
-.ring-fg{
-  fill:none;stroke:var(--cy);stroke-width:7;stroke-linecap:round;
-  filter:drop-shadow(0 0 5px rgba(41,244,255,.85));
-  transition:stroke-dashoffset .9s cubic-bezier(.22,.9,.3,1);
+.gate-hero .eyebrow{
+  font-size:11px;color:var(--ink-2);background:var(--panel);border:1px solid var(--line);
+  padding:4px 10px;border-radius:999px;
 }
-.ring-num{
-  fill:var(--cy);font-family:var(--mono);font-size:22px;font-weight:700;
-  text-anchor:middle;dominant-baseline:central;
+.gate h1{
+  margin:22px 0 14px;font-weight:500;font-size:clamp(34px,5.2vw,56px);line-height:1.04;
+  letter-spacing:-.035em;max-width:16ch;text-wrap:balance;
 }
-.g-label{font-size:10px;letter-spacing:.20em;text-transform:uppercase;color:var(--ink-2)}
-.g-sub{font-size:11px;color:var(--ink-3);margin-top:5px}
-.g-sub b{color:var(--ink);font-weight:400}
+.gate .lede{margin:0;color:var(--ink-2);font-size:16px;line-height:1.6;max-width:54ch;text-wrap:pretty}
+.gate-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+.gate-works{margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.gate-msg{
+  margin:18px auto 0;max-width:560px;text-align:left;border:1px solid #F3C7C2;background:var(--red-bg);
+  color:var(--ink);padding:11px 14px;border-radius:10px;font-size:13.5px;line-height:1.6;
+}
+.gate-msg.info{border-color:var(--line);background:var(--panel)}
+.privacy{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+  width:min(920px,100%);margin:44px auto 0;text-align:left;
+}
+.privacy div{background:var(--panel);border-radius:12px;padding:16px 18px;font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.privacy b{display:block;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:6px}
+.heads{width:min(920px,100%);margin:10px auto 0;text-align:left;border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-size:13.5px;color:var(--ink-2);line-height:1.65}
+.heads summary{cursor:pointer;color:var(--ink);font-weight:500}
+.heads p{margin:10px 0 0}
+.heads b{color:var(--ink);font-weight:600}
+
+/* =====================================================================
+   APP SHELL
+   ===================================================================== */
+.deck{
+  margin:10px;min-height:calc(100vh - 20px);background:var(--canvas);border-radius:16px;
+  display:grid;grid-template-columns:236px minmax(0,1fr);overflow:hidden;
+}
+.side{
+  border-right:1px solid var(--line);padding:18px 12px 14px;display:flex;flex-direction:column;gap:22px;
+  position:sticky;top:0;height:calc(100vh - 20px);
+}
+.side .brandline{padding:0 8px}
+.tabs{display:flex;flex-direction:column;gap:2px}
+.tabs .navlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0 10px 6px}
+.tab{
+  appearance:none;border:0;background:none;cursor:pointer;width:100%;text-align:left;
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
+  font-size:13.5px;color:var(--ink-2);font-weight:500;
+}
+.tab svg{flex:none;opacity:.75}
+.tab:hover{background:var(--panel);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--panel-2);color:var(--ink);font-weight:600}
+.tab[aria-selected="true"] svg{opacity:1}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding:14px 6px 0;display:flex;flex-direction:column;gap:10px}
+.acct{display:flex;align-items:center;gap:10px;min-width:0}
+.acct .who{min-width:0;display:flex;flex-direction:column}
+.acct #acct{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kind{font-size:10px;color:var(--ink-3)}
+.side-foot .row{display:flex;gap:8px}
+
+.main{padding:24px 32px 40px;min-width:0}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:28px;font-weight:600;letter-spacing:-.025em;line-height:1.15}
+.status{display:flex;align-items:center;gap:8px;margin-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
+.status #stamp:not(:empty)::before{content:"· "}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+select.win{
+  appearance:none;font-size:13px;color:var(--ink);background:var(--canvas) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2356534D' fill='none' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1px solid var(--line-2);border-radius:8px;padding:7px 28px 7px 11px;cursor:pointer;
+  font-family:var(--sans);text-transform:none;letter-spacing:0;
+}
+.led{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none;display:inline-block}
+.led.ok{background:#22A05B}
+.led.warn{background:#E3A008}
+.led.err{background:#D92D20}
+.led.busy{background:var(--blue);animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+.reconnect{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding:11px 14px;
+  border:1px solid #F1D28F;background:var(--amber-bg);border-radius:10px;font-size:13.5px;
+}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.kpi{background:var(--panel);border-radius:12px;padding:16px 18px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.k-label{font-size:10.5px;color:var(--ink-3)}
+.k-num{font-size:30px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.k-sub{font-size:12.5px;color:var(--ink-2)}
+.k-bar{height:4px;border-radius:99px;background:var(--panel-2);margin-top:8px;overflow:hidden}
+.k-bar i{display:block;height:100%;width:0;background:var(--ink);border-radius:99px;transition:width .6s ease}
+.kpi.hi .k-bar i{background:var(--lime-edge)}
 
 /* ---------- on the books ---------- */
-.onbooks{
-  margin-top:14px;border:1px solid var(--line-soft);
-  background:linear-gradient(90deg,rgba(41,244,255,.055),var(--panel) 55%);
-  display:flex;align-items:stretch;flex-wrap:wrap;
-}
-.onbooks .ob-title{
-  display:flex;align-items:center;gap:9px;padding:12px 16px;
-  border-right:1px solid var(--line-soft);
-  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cy);
-  text-shadow:0 0 10px rgba(41,244,255,.4);white-space:nowrap;
-}
+.onbooks{margin-top:12px;border:1px solid var(--line);border-radius:12px;display:flex;align-items:stretch;flex-wrap:wrap;overflow:hidden}
+.ob-title{display:flex;align-items:center;gap:8px;padding:12px 16px;font-size:10.5px;color:var(--ink-2);background:var(--lime-soft);border-right:1px solid var(--line)}
 .ob-list{display:flex;flex-wrap:wrap;flex:1;min-width:0}
-.ob-item{
-  display:flex;flex-direction:column;gap:3px;padding:10px 18px;
-  border-right:1px solid var(--line-soft);min-width:0;
-}
+.ob-item{display:flex;flex-direction:column;gap:2px;padding:10px 18px;border-right:1px solid var(--line);min-width:0}
 .ob-item:last-child{border-right:0}
-.ob-firm{font-size:12.5px;color:var(--ink);font-weight:700}
+.ob-firm{font-size:13.5px;font-weight:600}
 .ob-firm .who{color:var(--ink-3);font-weight:400}
-.ob-when{
-  font-size:10.5px;letter-spacing:.10em;color:var(--ink-2);
-  font-variant-numeric:tabular-nums;display:flex;gap:9px;align-items:center;
-}
-.ob-rel{
-  color:var(--cy);border:1px solid var(--cy-dim);background:var(--cy-ghost);
-  padding:0 6px;font-size:9.5px;letter-spacing:.12em;
-}
-.ob-rel.soon{color:var(--amber);border-color:var(--amber);background:rgba(255,194,77,.10)}
+.ob-when{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ob-rel{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;padding:1px 7px;border-radius:999px;background:var(--blue-bg);color:var(--blue)}
+.ob-rel.soon{background:var(--amber-bg);color:var(--amber)}
 
-/* ---------- tabs ---------- */
-.tabs{display:flex;gap:2px;margin-top:22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.tab{
-  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
-  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ink-3);padding:10px 16px;cursor:pointer;margin-bottom:-1px;
-}
-.tab:hover{color:var(--ink)}
-.tab[aria-selected="true"]{
-  color:var(--cy);border-bottom-color:var(--cy);
-  text-shadow:0 0 10px rgba(41,244,255,.55);
-  box-shadow:0 6px 18px -12px rgba(41,244,255,.9);
-}
-.tab:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
-.panel{padding-top:20px}
-[hidden]{display:none !important}
-
-/* ---------- section head ---------- */
-.shead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
-.shead h2{
-  margin:0;font-size:12px;letter-spacing:.20em;text-transform:uppercase;font-weight:700;
-  color:var(--cy);text-shadow:0 0 10px rgba(41,244,255,.4);
-}
-.shead p{margin:5px 0 0;font-size:11px;color:var(--ink-3);max-width:70ch;letter-spacing:.02em}
+/* ---------- panels ---------- */
+.panel{padding-top:28px}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.shead h2{margin:0;font-size:18px;font-weight:600;letter-spacing:-.015em}
+.shead p{margin:4px 0 0;font-size:13.5px;color:var(--ink-2);max-width:72ch;line-height:1.55}
+.foot{margin-top:10px;font-size:12px;color:var(--ink-3)}
 
 /* ---------- tables ---------- */
-.tablewrap{overflow-x:auto;border:1px solid var(--line-soft);background:var(--panel)}
-table{border-collapse:collapse;width:100%;min-width:640px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--canvas)}
+table{border-collapse:collapse;width:100%;min-width:680px}
 th{
-  text-align:left;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
-  color:var(--ink-3);padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
-  background:var(--panel-2);
+  text-align:left;font-size:10.5px;font-weight:500;color:var(--ink-3);
+  padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);white-space:nowrap;
 }
-td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:12.5px}
+td{padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13.5px}
 tbody tr:last-child td{border-bottom:0}
-tbody tr:hover{background:rgba(41,244,255,.035)}
-.num{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink-2)}
-.name{color:var(--ink);font-weight:700}
-.firm{color:var(--cy)}
-.role{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
-.snip{color:var(--ink-3);font-size:11px;max-width:46ch;display:block}
-.snip b{display:block;color:var(--ink-2);font-weight:400;font-size:11.5px;margin-bottom:2px}
-
-/* ---------- badges ---------- */
-.badge{
-  display:inline-block;padding:3px 9px;font-size:10px;letter-spacing:.10em;text-transform:uppercase;
-  border:1px solid currentColor;white-space:nowrap;
+tbody tr:hover{background:#FAFAF7}
+.person{display:flex;align-items:center;gap:11px;min-width:0}
+.av{
+  width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-size:12px;font-weight:600;letter-spacing:.01em;
+  background:hsl(var(--h,40) 55% 91%);color:hsl(var(--h,40) 40% 28%);
 }
-.b5{color:var(--lime);background:rgba(125,255,155,.09);box-shadow:0 0 12px -3px var(--lime)}
-.b4{color:var(--cy);background:var(--cy-ghost)}
-.b3{color:var(--amber);background:rgba(255,194,77,.08)}
-.b2{color:var(--ink-2);background:rgba(127,169,178,.07)}
-.b1{color:var(--ink-3)}
-.srcbadge{
-  display:inline-block;margin-left:8px;padding:1px 6px;font-size:9px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line);
+.name{font-weight:600;color:var(--ink)}
+.role{display:block;font-size:12.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34ch}
+.firmcell{display:flex;align-items:center;gap:9px}
+.fmark{
+  width:22px;height:22px;border-radius:6px;flex:none;display:grid;place-items:center;
+  font-family:var(--mono);font-size:10.5px;font-weight:500;background:var(--panel-2);color:var(--ink-2);
 }
+.firm{color:var(--ink);font-weight:500}
+.srcbadge{font-size:10px;color:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:2px;white-space:nowrap}
+.num{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.snip{display:block;font-size:12.5px;color:var(--ink-3);max-width:52ch}
+.snip b{display:block;color:var(--ink);font-weight:500;font-size:13.5px;margin-bottom:1px}
+.via{color:var(--ink-3)}
 
-/* ---------- buttons ---------- */
+/* ---------- pills ---------- */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.b5{background:var(--green-bg);color:var(--green)}
+.b4{background:var(--blue-bg);color:var(--blue)}
+.b3{background:var(--amber-bg);color:var(--amber)}
+.b2{background:var(--panel-2);color:var(--ink-2)}
+.b1{background:transparent;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* ---------- buttons & inputs ---------- */
 .btn{
-  appearance:none;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-2);background:transparent;border:1px solid var(--line);
-  padding:5px 10px;cursor:pointer;
+  appearance:none;display:inline-flex;align-items:center;gap:7px;justify-content:center;
+  font-size:13px;font-weight:500;color:var(--ink);background:var(--canvas);
+  border:1px solid var(--line-2);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap;
 }
-.btn:hover{color:var(--cy);border-color:var(--cy-dim);background:var(--cy-ghost)}
-.btn:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
-.btn.danger:hover{color:var(--rose);border-color:var(--rose);background:rgba(255,95,122,.08)}
-.btn.primary{color:var(--cy);border-color:var(--cy-dim)}
-.btn.primary:hover{box-shadow:0 0 16px -4px var(--cy)}
+.btn:hover{background:var(--panel)}
+.btn.primary{background:var(--lime);border-color:var(--lime-edge)}
+.btn.primary:hover{background:#D7E331}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.dark:hover{background:#2a2a2a}
+.btn.danger:hover{color:var(--red);border-color:#F3C7C2;background:var(--red-bg)}
+.btn.big{font-size:15px;padding:12px 20px;border-radius:10px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--panel);color:var(--ink)}
 
-/* ---------- chips ---------- */
+input[type="text"],input[type="date"],input[type="datetime-local"],textarea,.field select{
+  font-size:13.5px;color:var(--ink);background:var(--canvas);
+  border:1px solid var(--line-2);border-radius:8px;padding:8px 11px;
+}
+input[type="text"]:focus,input[type="date"]:focus,input[type="datetime-local"]:focus,textarea:focus,.field select:focus{
+  outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--lime-soft);
+}
+::placeholder{color:var(--ink-3)}
+input[type="checkbox"]{
+  appearance:none;width:16px;height:16px;border:1.5px solid var(--line-2);border-radius:4px;
+  background:var(--canvas);cursor:pointer;position:relative;flex:none;margin:0;
+}
+input[type="checkbox"]:checked{background:var(--ink);border-color:var(--ink)}
+input[type="checkbox"]:checked::after{
+  content:"";position:absolute;left:4.5px;top:1.5px;width:4px;height:8px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg);
+}
+
+/* ---------- inbox filters ---------- */
 .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .chip{
-  appearance:none;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ink-3);background:var(--panel);border:1px solid var(--line-soft);
-  padding:7px 14px;cursor:pointer;
+  appearance:none;font-size:13px;font-weight:500;color:var(--ink-2);background:var(--canvas);
+  border:1px solid var(--line-2);border-radius:999px;padding:6px 14px;cursor:pointer;
 }
-.chip:hover{color:var(--ink)}
-.chip[aria-pressed="true"]{
-  color:var(--cy);border-color:var(--cy);background:var(--cy-ghost);
-  box-shadow:0 0 16px -5px var(--cy),inset 0 0 18px -12px var(--cy);
-  text-shadow:0 0 8px rgba(41,244,255,.5);
-}
-.chip:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
-input[type="text"],input[type="search"]{
-  font-family:var(--mono);font-size:12px;color:var(--ink);
-  background:var(--panel);border:1px solid var(--line-soft);padding:7px 11px;min-width:240px;
-}
-input[type="text"]:focus,input[type="search"]:focus{
-  outline:none;border-color:var(--cy-dim);box-shadow:0 0 14px -6px var(--cy)
-}
-input[type="text"]::placeholder{color:var(--ink-3)}
-input[type="checkbox"]{
-  appearance:none;width:14px;height:14px;border:1px solid var(--line);background:var(--panel-2);
-  cursor:pointer;position:relative;flex:none;margin:0;
-}
-input[type="checkbox"]:checked{border-color:var(--cy);background:var(--cy-ghost);box-shadow:0 0 12px -3px var(--cy)}
-input[type="checkbox"]:checked::after{
-  content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
-  border:solid var(--cy);border-width:0 2px 2px 0;transform:rotate(42deg);
-}
-input[type="checkbox"]:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
+.chip:hover{background:var(--panel);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chips input[type="text"]{min-width:260px;flex:1;max-width:420px}
+tr.unread .subj{font-weight:600;color:var(--ink)}
+tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue);margin-right:2px;flex:none}
+.dot.off{background:transparent}
 
-/* ---------- target list ---------- */
+/* ---------- top 25 ---------- */
 .tier{margin-bottom:22px}
-.tier-head{
-  display:flex;align-items:baseline;gap:12px;padding-bottom:7px;margin-bottom:10px;
-  border-bottom:1px solid var(--line-soft);
-}
-.tier-head h3{margin:0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);font-weight:700}
-.tier-head .count{font-size:10px;letter-spacing:.14em;color:var(--cy);font-variant-numeric:tabular-nums}
-.tier-head .note{font-size:10.5px;color:var(--ink-3);letter-spacing:.02em;margin-left:auto;text-align:right}
-.tlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
-.trow{display:flex;align-items:center;gap:11px;padding:9px 12px;background:var(--panel)}
-.trow.on{background:linear-gradient(90deg,rgba(41,244,255,.09),var(--panel) 70%);box-shadow:inset 2px 0 0 var(--cy)}
-.trow .fname{
-  flex:1;font-family:var(--mono);font-size:12.5px;color:var(--ink);
-  background:transparent;border:0;border-bottom:1px dashed transparent;padding:1px 0;min-width:0;
-}
-.trow.on .fname{color:var(--cy)}
-.trow .fname:hover{border-bottom-color:var(--line)}
-.trow .fname:focus{outline:none;border-bottom-color:var(--cy);color:var(--ink)}
-.trow .kill{
-  appearance:none;background:none;border:0;color:var(--ink-3);cursor:pointer;
-  font-family:var(--mono);font-size:14px;line-height:1;padding:2px 4px;
-}
-.trow .kill:hover{color:var(--rose)}
-.trow .kill:focus-visible{outline:1px solid var(--rose);outline-offset:1px}
-.addrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tier-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.tier-head h3{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.tier-head .count{font-size:10.5px;color:var(--ink-2);background:var(--panel);border-radius:999px;padding:2px 8px}
+.tier-head .note{font-size:12.5px;color:var(--ink-3);margin-left:auto}
+.tlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.trow{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--canvas)}
+.trow.on{background:var(--lime-soft);border-color:#DCE79B}
+.trow .fname{flex:1;min-width:0;font-size:13.5px;font-weight:500;color:var(--ink);background:transparent;border:0;padding:2px 0;border-radius:0}
+.trow .fname:focus{box-shadow:none;border-bottom:1px solid var(--ink)}
+.kill{appearance:none;border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:15px;line-height:1;padding:3px 5px;border-radius:6px}
+.kill:hover{color:var(--red);background:var(--red-bg)}
+.addrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.addrow input[type="text"]{min-width:240px}
 
-/* ---------- firm dossiers ---------- */
-.dossiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px}
-.dossier{border:1px solid var(--line-soft);background:var(--panel);display:flex;flex-direction:column}
-.dossier.hot{border-color:var(--cy-dim);box-shadow:0 0 26px -16px var(--cy)}
-.d-head{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;
-  border-bottom:1px solid var(--line-soft);background:var(--panel-2);
-}
-.d-head .dfirm{
-  flex:1;min-width:0;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cy);
-  background:transparent;border:0;border-bottom:1px dashed transparent;padding:1px 0;
-}
-.d-head .dfirm:focus{outline:none;border-bottom-color:var(--cy)}
-.d-body{padding:13px 14px;display:flex;flex-direction:column;gap:12px}
-.field{display:flex;flex-direction:column;gap:5px}
-.field > label{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
-.field input[type="text"],.field input[type="date"],.field textarea,.field select{
-  font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--panel-2);
-  border:1px solid var(--line-soft);padding:7px 9px;width:100%;min-width:0;
-}
-.field textarea{resize:vertical;min-height:58px;line-height:1.6}
-.field textarea.prefs{min-height:104px;color:var(--ink)}
-.field input:focus,.field textarea:focus,.field select:focus{
-  outline:none;border-color:var(--cy-dim);box-shadow:0 0 14px -7px var(--cy)
-}
-.field ::placeholder{color:var(--ink-3)}
-.field select{appearance:none;cursor:pointer;letter-spacing:.08em}
-.field select option{background:var(--panel-2);color:var(--ink)}
+/* ---------- dossiers ---------- */
+.dossiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+.dossier{border:1px solid var(--line);border-radius:14px;background:var(--canvas);display:flex;flex-direction:column;overflow:hidden}
+.dossier.hot{border-color:#D3DD72;box-shadow:0 0 0 3px var(--lime-soft)}
+.d-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.d-head .dfirm{flex:1;min-width:0;font-size:16px;font-weight:600;letter-spacing:-.01em;border:0;padding:2px 0;border-radius:0;background:transparent}
+.d-head .dfirm:focus{box-shadow:none;border-bottom:1px solid var(--ink)}
+.d-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field > label{font-size:10.5px;color:var(--ink-3)}
+.field input,.field textarea,.field select{width:100%;min-width:0}
+.field textarea{resize:vertical;min-height:62px;line-height:1.55}
+.field textarea.prefs{min-height:104px}
+.field select{appearance:none;cursor:pointer;background:var(--canvas) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2356534D' fill='none' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 11px center;padding-right:28px}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.detected{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:22px}
-.fund{
-  display:inline-block;padding:2px 8px;font-size:10px;letter-spacing:.08em;
-  color:var(--cy);border:1px solid var(--cy-dim);background:var(--cy-ghost);
-}
-.detected .none{font-size:10.5px;color:var(--ink-3);letter-spacing:.06em}
-.readsel[data-read="Strong"]{color:var(--lime);border-color:var(--lime)}
-.readsel[data-read="Positive"]{color:var(--cy);border-color:var(--cy-dim)}
-.readsel[data-read="Lukewarm"]{color:var(--amber);border-color:var(--amber)}
-.readsel[data-read="Cold"]{color:var(--rose);border-color:var(--rose)}
-.d-foot{
-  display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--line-soft);
-  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
-}
+.detected{display:flex;gap:6px;flex-wrap:wrap;min-height:24px;align-items:center}
+.fund{font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;background:var(--blue-bg);color:var(--blue)}
+.detected .none{font-size:12.5px;color:var(--ink-3)}
+.readsel[data-read="Strong"]{color:var(--green);border-color:#A9D8B8}
+.readsel[data-read="Positive"]{color:var(--blue);border-color:#B7C8F2}
+.readsel[data-read="Lukewarm"]{color:var(--amber);border-color:#EED19A}
+.readsel[data-read="Cold"]{color:var(--red);border-color:#F3C7C2}
+.d-foot{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line);font-size:10.5px;color:var(--ink-3);background:var(--panel)}
 .d-foot .spacer{flex:1}
 
-/* ---------- inbox ---------- */
-tr.unread{box-shadow:inset 3px 0 0 var(--cy),inset 26px 0 30px -30px var(--cy)}
-tr.unread .subj{color:var(--ink);font-weight:700}
-.dot{
-  display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cy);
-  box-shadow:0 0 8px var(--cy);margin-right:7px;vertical-align:middle;
-}
-.dot.off{background:transparent;box-shadow:none}
-.subj{color:var(--ink-2)}
-
 /* ---------- messages ---------- */
-.msg{
-  border:1px solid var(--line-soft);background:var(--panel);padding:18px 20px;
-  font-size:12px;color:var(--ink-2);line-height:1.7;
-}
-.msg h4{margin:0 0 7px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cy)}
-.msg.err h4{color:var(--rose)}
-.msg.warn h4{color:var(--amber)}
-.msg code{color:var(--ink);background:var(--panel-2);padding:1px 5px;border:1px solid var(--line-soft)}
+.msg{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:16px 18px;font-size:13.5px;color:var(--ink-2);line-height:1.65}
+.msg h4{margin:0 0 4px;font-size:15px;font-weight:600;color:var(--ink)}
+.msg.err{background:var(--red-bg);border-color:#F3C7C2}
+.msg.warn{background:var(--amber-bg);border-color:#F1D28F}
+.msg code{font-family:var(--mono);font-size:12px;background:var(--canvas);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
 .msg .act{margin-top:12px}
-.empty{padding:26px 20px;text-align:center;color:var(--ink-3);font-size:11.5px;letter-spacing:.06em}
-.scan{display:flex;align-items:center;gap:10px;padding:20px;color:var(--ink-2);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
-.foot{margin-top:26px;font-size:10.5px;color:var(--ink-3);letter-spacing:.06em;line-height:1.8;border-top:1px solid var(--line-soft);padding-top:12px}
+.empty{padding:30px 20px;text-align:center;color:var(--ink-3);font-size:13.5px}
+.scan{display:flex;align-items:center;gap:10px;padding:22px 4px;color:var(--ink-2);font-size:13.5px}
 
-@media (max-width:820px){
-  .gauges{grid-template-columns:1fr}
-  .gauge{padding:13px 15px}
-}
-@media (prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
-}
-html{color-scheme:dark;background:#04090b}
-
-/* ---------- sign-in gate ---------- */
-.gate{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-.gate-card{
-  max-width:640px;width:100%;border:1px solid var(--line);
-  background:linear-gradient(180deg,var(--panel-2),var(--panel));
-  padding:34px 32px;box-shadow:0 0 70px -34px var(--cy);
-}
-.gate h1{font-size:21px;line-height:1.4;margin:20px 0 10px;color:var(--ink);font-weight:700;text-wrap:balance}
-.gate .lede{color:var(--ink-2);font-size:12.5px;line-height:1.75;margin:0 0 24px;max-width:62ch}
-.gate-btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn.big{font-size:11.5px;padding:12px 20px;letter-spacing:.16em}
-.btn[disabled]{opacity:.38;cursor:not-allowed;box-shadow:none}
-.gate-works{margin-top:12px;font-size:10px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
-.gate-msg{margin-top:16px;border:1px solid var(--rose);background:rgba(255,95,122,.07);color:var(--ink);padding:11px 13px;font-size:12px;line-height:1.65}
-.gate-msg.info{border-color:var(--cy-dim);background:var(--cy-ghost)}
-.privacy{margin-top:26px;display:grid;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
-.privacy div{background:var(--panel);padding:11px 14px;display:grid;grid-template-columns:104px 1fr;gap:16px;font-size:11.5px;line-height:1.65;color:var(--ink-2)}
-.privacy b{color:var(--cy);font-weight:700;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding-top:2px}
-.heads{margin-top:16px;font-size:11.5px;color:var(--ink-2);line-height:1.7;border:1px solid var(--line-soft);padding:10px 14px;background:var(--panel)}
-.heads summary{cursor:pointer;color:var(--ink);letter-spacing:.08em;font-size:11px;text-transform:uppercase}
-.heads summary:focus-visible{outline:1px solid var(--cy);outline-offset:3px}
-.heads p{margin:10px 0 0}
-.heads b{color:var(--ink);font-weight:700}
-
-/* ---------- account + controls ---------- */
-.topright{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
-.acct{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-2)}
-.acct .kind{font-size:9px;letter-spacing:.16em;color:var(--cy);border:1px solid var(--cy-dim);padding:1px 6px}
-.ctl{display:flex;align-items:center;gap:7px;font-size:9.5px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase}
-select.win{
-  font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--panel-2);
-  border:1px solid var(--line-soft);padding:4px 8px;cursor:pointer;
-}
-select.win:focus{outline:none;border-color:var(--cy-dim)}
-.reconnect{
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:11px 14px;
-  border:1px solid var(--amber);background:rgba(255,194,77,.07);font-size:12px;color:var(--ink);
-}
-.erase{
-  appearance:none;background:none;border:0;padding:0;cursor:pointer;font-family:var(--mono);
-  font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;
-}
-.erase:hover{color:var(--rose)}
-.appfoot{margin-top:34px;padding-top:12px;border-top:1px solid var(--line-soft);display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;line-height:1.7}
+.appfoot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;font-size:12px;color:var(--ink-3)}
 .appfoot .spacer{flex:1}
-@media (max-width:560px){
-  .privacy div{grid-template-columns:1fr;gap:4px}
-  .gate-card{padding:26px 20px}
+.erase{appearance:none;background:none;border:0;padding:0;cursor:pointer;font-size:12px;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px}
+.erase:hover{color:var(--red)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){ .kpis{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:860px){
+  .deck{grid-template-columns:1fr}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);gap:12px}
+  .tabs{flex-direction:row;flex-wrap:wrap}
+  .tabs .navlabel{display:none}
+  .tab{width:auto}
+  .side-foot{margin-top:0}
+  .main{padding:20px 18px 32px}
+  .privacy{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr}
 }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms !important;transition-duration:.01ms !important} }
+
+/* initials drawn from data-i so they never pollute text content or copy/paste */
+.av::before,.fmark::before{content:attr(data-i)}
 
 </style>
 </head>
 <body>
-<!-- ============================ SIGN-IN GATE ============================ -->
+<!-- ============================ SIGN-IN ============================ -->
 <section class="gate" id="gate">
   <div class="gate-card">
-    <div class="brand">RECRUITING <span class="slash">//</span> COMMAND DECK</div>
-    <h1>Every headhunter and fund event in your inbox, on one screen.</h1>
-    <p class="lede">Connect your email once. The deck finds search-firm outreach, recruiter LinkedIn invites and PE firm events, works out who actually wrote to you, and scores how far you've gotten with each fund.</p>
-
-    <div class="gate-btns">
-      <button class="btn primary big" id="connectGoogle">Connect Gmail</button>
-      <button class="btn primary big" id="connectMicrosoft">Connect Outlook</button>
-    </div>
-    <div class="gate-works">Gmail · Google Workspace · Outlook · Hotmail · Live · Microsoft 365</div>
-    <div class="gate-msg" id="gateMsg" hidden></div>
-
-    <div class="privacy" aria-label="How your data is handled">
-      <div><b>Read-only</b><span>The app asks only for permission to read mail. It cannot send, delete, move or change anything.</span></div>
-      <div><b>No server</b><span>Your mail goes straight from Google or Microsoft to this page in your browser. It is never uploaded anywhere else.</span></div>
-      <div><b>Stays here</b><span>Your checkmarks, notes and dossiers are saved in this browser only. Email content is never saved; it is re-read each time you scan.</span></div>
+    <div class="gate-nav">
+      <div class="brandline">
+        <span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M4.5 11.5 11.5 4.5M6.5 4.5h5v5" stroke="#E1EC3F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Recruiting Command Deck
+      </div>
+      <span class="eyebrow">Private beta</span>
     </div>
 
-    <details class="heads">
-      <summary>What you'll see when you connect</summary>
-      <p><b>Gmail:</b> Google will say <i>"Google hasn't verified this app."</i> That's expected for a private app shared between friends. Click <b>Advanced</b>, then <b>Go to Recruiting Command Deck (unsafe)</b>, then allow read access. If Google says access is blocked, the person who sent you this link needs to add your Gmail address as a tester first.</p>
-      <p><b>Outlook / Hotmail:</b> Microsoft will ask you to allow reading your mail. School or work accounts may show <i>"Need admin approval"</i>, which means your IT department blocks outside mail apps; a personal Outlook or Hotmail account works without it.</p>
-      <p><b>Yahoo, iCloud and others</b> aren't supported. They don't offer a sign-in based way to read mail, and the alternative means handing your password to a server, which this app deliberately never does.</p>
-    </details>
+    <div class="gate-hero">
+      <span class="eyebrow">Built for PE &amp; IB recruiting</span>
+      <h1>Every headhunter and fund event in your inbox. One&nbsp;screen.</h1>
+      <p class="lede">Connect your email once. The deck finds search-firm outreach, recruiter LinkedIn invites and PE firm events, works out who actually wrote to you, and scores how far you've gotten with each fund.</p>
+
+      <div class="gate-btns">
+        <button class="btn primary big" id="connectGoogle">Continue with Gmail</button>
+        <button class="btn big" id="connectMicrosoft">Continue with Outlook</button>
+      </div>
+      <div class="gate-works">Gmail · Google Workspace · Outlook · Hotmail · Live · Microsoft 365</div>
+      <div class="gate-msg" id="gateMsg" hidden></div>
+
+      <div class="privacy" aria-label="How your data is handled">
+        <div><b>Read-only</b>The app only asks to read mail. It can't send, delete, move or change anything.</div>
+        <div><b>No server</b>Your mail goes straight from Google or Microsoft to this page in your browser. It's never uploaded anywhere else.</div>
+        <div><b>Stays on this device</b>Checkmarks, notes and dossiers are saved in this browser only. Email content is never saved; it's re-read each scan.</div>
+      </div>
+
+      <details class="heads">
+        <summary>What you'll see when you connect</summary>
+        <p><b>Gmail:</b> Google will say <i>"Google hasn't verified this app."</i> That's expected for a private app shared between friends. Click <b>Advanced</b>, then <b>Go to Recruiting Command Deck (unsafe)</b>, then allow read access. If Google says access is blocked, the person who sent you this link needs to add your Gmail address as a tester first.</p>
+        <p><b>Outlook / Hotmail:</b> Microsoft will ask you to allow reading your mail. School or work accounts may show <i>"Need admin approval"</i>, which means your IT department blocks outside mail apps; a personal Outlook or Hotmail account works without it.</p>
+        <p><b>Yahoo, iCloud and others</b> aren't supported. They don't offer a sign-in based way to read mail, and the alternative means handing your password to a server, which this app deliberately never does.</p>
+      </details>
+    </div>
   </div>
 </section>
 
-<!-- ============================ THE DECK ============================ -->
+<!-- ============================ APP ============================ -->
 <div class="deck" id="deck" hidden>
 
-  <header class="topbar">
-    <div class="brand">RECRUITING <span class="slash">//</span> COMMAND DECK</div>
-    <div class="topright">
-      <div class="acct"><span class="kind" id="acctKind">—</span><span id="acct">—</span><button class="btn" id="signOut">Sign out</button></div>
-      <div class="clockwrap">
-        <span class="clock-date" id="cdate">—</span>
-        <span class="clock" id="cclock">--:--:--</span>
+  <aside class="side">
+    <div class="brandline">
+      <span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M4.5 11.5 11.5 4.5M6.5 4.5h5v5" stroke="#E1EC3F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Command Deck
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Sections" aria-orientation="vertical">
+      <div class="navlabel" role="presentation">Workspace</div>
+      <button class="tab" role="tab" id="tab-firms" aria-controls="p-firms" aria-selected="true" data-title="Search firms">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5c.6-2.4 2.3-3.6 4.5-3.6s3.9 1.2 4.5 3.6"/><circle cx="11.5" cy="6" r="1.8"/><path d="M11 9.6c1.8 0 3 .9 3.5 2.9"/></svg>
+        Search firms
+      </button>
+      <button class="tab" role="tab" id="tab-targets" aria-controls="p-targets" aria-selected="false" data-title="Top 25 search firms">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r=".6" fill="currentColor"/></svg>
+        Top 25 firms
+      </button>
+      <button class="tab" role="tab" id="tab-convos" aria-controls="p-convos" aria-selected="false" data-title="Conversations">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" stroke-linejoin="round"/></svg>
+        Conversations
+      </button>
+      <button class="tab" role="tab" id="tab-pe" aria-controls="p-pe" aria-selected="false" data-title="PE traction">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12l4-4 3 2.5L14 4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 4.5H14V8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        PE traction
+      </button>
+      <button class="tab" role="tab" id="tab-inbox" aria-controls="p-inbox" aria-selected="false" data-title="Inbox">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 9.5l1.6-6h8.8L14 9.5V13H2z" stroke-linejoin="round"/><path d="M2 9.5h3.5l1 1.5h3l1-1.5H14"/></svg>
+        Inbox
+      </button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="acct">
+        <span class="av" id="acctAv" data-i="·" aria-hidden="true"></span>
+        <div class="who"><span id="acct">—</span><span class="kind" id="acctKind">—</span></div>
       </div>
+      <div class="row"><button class="btn" id="signOut">Sign out</button></div>
     </div>
-  </header>
+  </aside>
 
-  <div class="status" id="status">
-    <span class="led busy" id="led"></span>
-    <span id="statusText">Connecting</span>
-    <span class="spacer"></span>
-    <label class="ctl" for="win">Window
-      <select class="win" id="win">
-        <option value="180">6 months</option>
-        <option value="365" selected>1 year</option>
-        <option value="730">2 years</option>
-        <option value="0">All time</option>
-      </select>
-    </label>
-    <button class="btn" id="rescanAll">Rescan</button>
-    <span id="stamp"></span>
-  </div>
-
-  <div class="reconnect" id="reconnect" hidden>
-    <span>Your mail session expired. Access lasts about an hour at a time; your notes are untouched.</span>
-    <button class="btn primary" id="reconnectBtn">Reconnect</button>
-  </div>
-
-  <section class="gauges" aria-label="Pipeline summary">
-    <div class="gauge">
-      <svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-labelledby="g1t">
-        <title id="g1t">Search firms in contact</title>
-        <circle class="ring-bg" cx="43" cy="43" r="34"></circle>
-        <circle class="ring-fg" id="ring1" cx="43" cy="43" r="34" transform="rotate(-90 43 43)" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
-        <text class="ring-num" id="num1" x="43" y="44">0</text>
-      </svg>
-      <div><div class="g-label">Search Firms</div><div class="g-sub">In live contact <b id="sub1">—</b></div></div>
-    </div>
-    <div class="gauge">
-      <svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-labelledby="g2t">
-        <title id="g2t">PE firms tracked</title>
-        <circle class="ring-bg" cx="43" cy="43" r="34"></circle>
-        <circle class="ring-fg" id="ring2" cx="43" cy="43" r="34" transform="rotate(-90 43 43)" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
-        <text class="ring-num" id="num2" x="43" y="44">0</text>
-      </svg>
-      <div><div class="g-label">PE Firms Tracked</div><div class="g-sub">Named in your inbox <b id="sub2">—</b></div></div>
-    </div>
-    <div class="gauge">
-      <svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-labelledby="g3t">
-        <title id="g3t">High traction firms</title>
-        <circle class="ring-bg" cx="43" cy="43" r="34"></circle>
-        <circle class="ring-fg" id="ring3" cx="43" cy="43" r="34" transform="rotate(-90 43 43)" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
-        <text class="ring-num" id="num3" x="43" y="44">0</text>
-      </svg>
-      <div><div class="g-label">High Traction</div><div class="g-sub">Attended + follow-up <b id="sub3">—</b></div></div>
-    </div>
-  </section>
-
-  <section class="onbooks" id="onbooks" aria-label="Scheduled meetings" hidden></section>
-
-  <nav class="tabs" role="tablist" aria-label="Command deck sections">
-    <button class="tab" role="tab" id="tab-firms"   aria-controls="p-firms"   aria-selected="true">Search Firms</button>
-    <button class="tab" role="tab" id="tab-targets" aria-controls="p-targets" aria-selected="false">Top 25 Search Firms</button>
-    <button class="tab" role="tab" id="tab-convos"  aria-controls="p-convos"  aria-selected="false">Conversations</button>
-    <button class="tab" role="tab" id="tab-pe"      aria-controls="p-pe"      aria-selected="false">PE Traction</button>
-    <button class="tab" role="tab" id="tab-inbox"   aria-controls="p-inbox"   aria-selected="false">Inbox</button>
-  </nav>
-
-  <section class="panel" id="p-firms" role="tabpanel" aria-labelledby="tab-firms">
-    <div class="shead">
+  <main class="main">
+    <header class="topbar">
       <div>
-        <h2>Recruiter contact log</h2>
-        <p>Mail matched by recruiting keyword, by a known search-firm sender domain, or parsed out of LinkedIn connection requests where the sender's title or company reads as recruiting. Names come from the sender header or their email signature. Dismiss anything that slipped through.</p>
+        <h1 id="pageTitle">Search firms</h1>
+        <div class="status" id="status"><span class="led busy" id="led"></span><span id="statusText">Connecting</span><span id="stamp"></span></div>
       </div>
-    </div>
-    <div id="firmsOut"></div>
-    <div class="foot" id="firmsFoot"></div>
-  </section>
+      <div class="controls">
+        <label class="ctl" for="win">Window
+          <select class="win" id="win">
+            <option value="180">Last 6 months</option>
+            <option value="365" selected>Last year</option>
+            <option value="730">Last 2 years</option>
+            <option value="0">All time</option>
+          </select>
+        </label>
+        <button class="btn dark" id="rescanAll">Rescan</button>
+      </div>
+    </header>
 
-  <section class="panel" id="p-targets" role="tabpanel" aria-labelledby="tab-targets" hidden>
-    <div class="shead">
-      <div>
-        <h2>Target list &mdash; 25 firms</h2>
-        <p>A fixed roster of firms that run PE associate and VP on-cycle processes. Firms you're already in touch with are checked automatically after your first scan. Check, rename, add or remove rows; it's saved on this device.</p>
-      </div>
-      <button class="btn" id="targetsReset">Restore default 25</button>
+    <div class="reconnect" id="reconnect" hidden>
+      <span>Your mail session expired. Access lasts about an hour at a time; your notes are untouched.</span>
+      <button class="btn dark" id="reconnectBtn">Reconnect</button>
     </div>
-    <div id="targetsOut"></div>
-  </section>
 
-  <section class="panel" id="p-convos" role="tabpanel" aria-labelledby="tab-convos" hidden>
-    <div class="shead">
-      <div>
-        <h2>Firm debriefs</h2>
-        <p>One dossier per search firm: what you asked them to put you up for, how the conversation went, when you're next meeting, and the funds they're steering you toward. Funds they've already surfaced over email are detected automatically. Saves as you type.</p>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="convoSync">Sync firms from scan</button>
-        <button class="btn" id="convoExport">Copy as text</button>
-      </div>
-    </div>
-    <div id="convoOut"></div>
-    <div class="addrow" style="margin-top:4px">
-      <input type="text" id="convoAdd" placeholder="Add a firm dossier" aria-label="Add a firm dossier">
-      <button class="btn primary" id="convoAddBtn">Add firm</button>
-    </div>
-    <div class="foot" id="convoFoot"></div>
-  </section>
+    <section class="kpis" aria-label="Pipeline summary">
+      <div class="kpi"><span class="k-label">Search firms in contact</span><span class="k-num" id="num1">0</span><span class="k-sub" id="sub1">—</span><div class="k-bar"><i id="ring1"></i></div></div>
+      <div class="kpi"><span class="k-label">PE firms tracked</span><span class="k-num" id="num2">0</span><span class="k-sub" id="sub2">—</span><div class="k-bar"><i id="ring2"></i></div></div>
+      <div class="kpi hi"><span class="k-label">High traction</span><span class="k-num" id="num3">0</span><span class="k-sub" id="sub3">—</span><div class="k-bar"><i id="ring3"></i></div></div>
+      <div class="kpi"><span class="k-label">Meetings booked</span><span class="k-num" id="num4">0</span><span class="k-sub" id="sub4">None on the calendar</span><div class="k-bar"><i id="ring4"></i></div></div>
+    </section>
 
-  <section class="panel" id="p-pe" role="tabpanel" aria-labelledby="tab-pe" hidden>
-    <div class="shead">
-      <div>
-        <h2>Fund engagement ladder</h2>
-        <p>Event threads scored by the strongest signal anywhere in the thread. Attended plus a real follow-up outranks attendance, which outranks a confirmed RSVP, a registration, and a cold invite. Threads about the same fund are merged.</p>
-      </div>
-    </div>
-    <div id="peOut"></div>
-    <div class="foot" id="peFoot"></div>
-  </section>
+    <section class="onbooks" id="onbooks" aria-label="Scheduled meetings" hidden></section>
 
-  <section class="panel" id="p-inbox" role="tabpanel" aria-labelledby="tab-inbox" hidden>
-    <div class="shead">
-      <div>
-        <h2>Raw mail feed</h2>
-        <p>The unfiltered view, in case the scanners missed something.</p>
+    <section class="panel" id="p-firms" role="tabpanel" aria-labelledby="tab-firms">
+      <div class="shead">
+        <div>
+          <h2>Recruiter contact log</h2>
+          <p>Mail matched by recruiting keyword, by a known search-firm domain, or parsed from LinkedIn invites where the sender's title or company reads as recruiting. Names come from the sender header or their signature. Dismiss anything that slipped through.</p>
+        </div>
       </div>
-    </div>
-    <div class="chips">
-      <button class="chip" data-view="inbox" aria-pressed="true">Inbox</button>
-      <button class="chip" data-view="unread" aria-pressed="false">Unread</button>
-      <button class="chip" data-view="sent" aria-pressed="false">Sent</button>
-      <button class="chip" data-view="starred" aria-pressed="false">Starred</button>
-      <input type="text" id="inboxQ" placeholder="Search your mail" aria-label="Search your mail">
-      <button class="btn primary" id="inboxGo">Search</button>
-      <button class="btn" id="inboxRefresh">Refresh</button>
-    </div>
-    <div id="inboxOut"></div>
-  </section>
+      <div id="firmsOut"></div>
+      <div class="foot" id="firmsFoot"></div>
+    </section>
 
-  <footer class="appfoot">
-    <span>Read-only. Runs in your browser. Notes saved on this device only.</span>
-    <span class="spacer"></span>
-    <button class="erase" id="eraseData">Erase my saved notes on this device</button>
-  </footer>
+    <section class="panel" id="p-targets" role="tabpanel" aria-labelledby="tab-targets" hidden>
+      <div class="shead">
+        <div>
+          <h2>Target list</h2>
+          <p>Firms that run PE associate and VP on-cycle processes. Ones you're already in touch with are checked after your first scan. Check, rename, add or remove rows; it's saved on this device.</p>
+        </div>
+        <button class="btn" id="targetsReset">Restore default 25</button>
+      </div>
+      <div id="targetsOut"></div>
+    </section>
+
+    <section class="panel" id="p-convos" role="tabpanel" aria-labelledby="tab-convos" hidden>
+      <div class="shead">
+        <div>
+          <h2>Firm debriefs</h2>
+          <p>One dossier per search firm: what you asked to be put up for, how the conversation went, your next meeting, and the funds they're steering you toward. Funds already surfaced over email are detected automatically. Saves as you type.</p>
+        </div>
+        <div class="controls">
+          <button class="btn" id="convoSync">Sync firms from scan</button>
+          <button class="btn" id="convoExport">Copy as text</button>
+        </div>
+      </div>
+      <div id="convoOut"></div>
+      <div class="addrow">
+        <input type="text" id="convoAdd" placeholder="Add a firm dossier" aria-label="Add a firm dossier">
+        <button class="btn dark" id="convoAddBtn">Add firm</button>
+      </div>
+      <div class="foot" id="convoFoot"></div>
+    </section>
+
+    <section class="panel" id="p-pe" role="tabpanel" aria-labelledby="tab-pe" hidden>
+      <div class="shead">
+        <div>
+          <h2>Fund engagement ladder</h2>
+          <p>Event threads scored by the strongest signal in the thread. Attended plus a real follow-up outranks attendance, which outranks a confirmed RSVP, a registration, and a cold invite. Threads about the same fund are merged.</p>
+        </div>
+      </div>
+      <div id="peOut"></div>
+      <div class="foot" id="peFoot"></div>
+    </section>
+
+    <section class="panel" id="p-inbox" role="tabpanel" aria-labelledby="tab-inbox" hidden>
+      <div class="shead">
+        <div>
+          <h2>Raw mail feed</h2>
+          <p>The unfiltered view, in case the scanners missed something.</p>
+        </div>
+      </div>
+      <div class="chips">
+        <button class="chip" data-view="inbox" aria-pressed="true">Inbox</button>
+        <button class="chip" data-view="unread" aria-pressed="false">Unread</button>
+        <button class="chip" data-view="sent" aria-pressed="false">Sent</button>
+        <button class="chip" data-view="starred" aria-pressed="false">Starred</button>
+        <input type="text" id="inboxQ" placeholder="Search your mail" aria-label="Search your mail">
+        <button class="btn dark" id="inboxGo">Search</button>
+        <button class="btn" id="inboxRefresh">Refresh</button>
+      </div>
+      <div id="inboxOut"></div>
+    </section>
+
+    <footer class="appfoot">
+      <span>Read-only · Runs in your browser · Notes saved on this device only</span>
+      <span class="spacer"></span>
+      <button class="erase" id="eraseData">Erase my saved notes on this device</button>
+    </footer>
+  </main>
 </div>
 
 <script>
@@ -758,7 +721,7 @@ function esc(s){
 }
 function fmtDate(ms){
   if(!ms) return "—";
-  return new Date(ms).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "2-digit" }).toUpperCase();
+  return new Date(ms).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 function daysAgo(ms){ return (Date.now() - ms) / 86400000; }
 function emailOf(sender){
@@ -1302,6 +1265,13 @@ function sectionError(e, out, retryId){
   out.innerHTML = errBlock(e, retryId);
   if(e && e.code === "expired") $("#reconnect").hidden = false;
 }
+function initials(name){
+  const w = String(name || "").replace(/[^A-Za-z\s'-]/g, " ").trim().split(/\s+/).filter(Boolean);
+  return ((w[0] || "?")[0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
+}
+function hueOf(s){ let h = 7; for(const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; }
+function avatar(name){ return '<span class="av" aria-hidden="true" style="--h:' + hueOf(name) + '" data-i="' + esc(initials(name)) + '"></span>'; }
+function fmark(firm){ return '<span class="fmark" aria-hidden="true" data-i="' + esc(initials(firm)) + '"></span>'; }
 const scanLine = label => '<div class="scan"><span class="led busy"></span> ' + esc(label) + "</div>";
 function progress(label){
   return (done, total) => setStatus("busy", label + " · " + done + " / " + total);
@@ -1404,12 +1374,12 @@ function renderFirms(){
     "<th>Contact</th><th>Firm</th><th>First contact</th><th>Last contact</th><th>Touchpoints</th><th></th>" +
     "</tr></thead><tbody>" + firmRows.map(r =>
       "<tr>" +
-        '<td><span class="name">' + esc(r.name) + '</span><span class="role">' + esc(r.role || "") +
-          (r.via && r.via !== "address" ? ' <span style="color:var(--cy-dim)">· from ' + esc(r.via) + "</span>" : "") + "</span></td>" +
-        '<td><span class="firm">' + esc(r.firm) + '</span><span class="srcbadge">' + esc(r.src) + "</span></td>" +
+        '<td><div class="person">' + avatar(r.name) + '<div><span class="name">' + esc(r.name) + '</span><span class="role">' + esc(r.role || "") +
+          (r.via && r.via !== "address" ? ' <span class="via">· from ' + esc(r.via) + "</span>" : "") + "</span></div></div></td>" +
+        '<td><div class="firmcell">' + fmark(r.firm) + '<span class="firm">' + esc(r.firm) + '</span><span class="srcbadge">' + esc(r.src) + "</span></div></td>" +
         '<td class="num">' + fmtDate(r.first) + "</td>" +
         '<td class="num">' + fmtDate(r.last) + "</td>" +
-        '<td class="num" style="color:var(--cy)">' + r.count + "</td>" +
+        '<td class="num" style="color:var(--ink);font-weight:600">' + r.count + "</td>" +
         '<td><button class="btn danger" data-dismiss-firm="' + esc(r.key) + '">Dismiss</button></td>' +
       "</tr>").join("") + "</tbody></table></div>";
 }
@@ -1500,7 +1470,7 @@ function fmtMeeting(v){
   const d = new Date(v);
   if(isNaN(d)) return null;
   const when = d.toLocaleString("en-US", { weekday: "short", month: "short", day: "2-digit", hour: "numeric", minute: "2-digit" })
-    .toUpperCase().replace(",", "");
+    .replace(",", "");
   const days = Math.ceil((d - Date.now()) / 86400000);
   const rel = days < 0 ? Math.abs(days) + "D AGO" : days === 0 ? "TODAY" : days === 1 ? "TOMORROW" : "IN " + days + "D";
   return { when: when, rel: rel, ts: d.getTime(), future: d.getTime() >= Date.now() - 3600000 };
@@ -1509,6 +1479,8 @@ function renderOnBooks(){
   const el = $("#onbooks");
   const items = Object.keys(convos).map(k => ({ c: convos[k], m: fmtMeeting(convos[k].meeting) }))
     .filter(x => x.m && x.m.future).sort((a, b) => a.m.ts - b.m.ts);
+  setRing("ring4", "num4", items.length, Math.max(items.length, 4));
+  if($("#sub4")) $("#sub4").textContent = items.length ? "Next: " + items[0].c.firm + " · " + items[0].m.rel.toLowerCase() : "None on the calendar";
   if(!items.length){ el.hidden = true; el.innerHTML = ""; return; }
   el.hidden = false;
   el.innerHTML = '<div class="ob-title"><span class="led ok"></span>On the books</div><div class="ob-list">' +
@@ -1521,7 +1493,7 @@ function renderOnBooks(){
     }).join("") + "</div>";
 }
 function footFor(c, mt){
-  return mt && mt.future ? '<span style="color:var(--cy)">' + esc(mt.when) + " · " + esc(mt.rel) + "</span>"
+  return mt && mt.future ? '<span style="color:var(--blue)">' + esc(mt.when) + " · " + esc(mt.rel) + "</span>"
        : c.lastConvo ? "LAST " + esc(c.lastConvo) : "NO DATE LOGGED";
 }
 function renderConvos(){
@@ -1659,10 +1631,10 @@ function renderPe(){
     "<th>Fund</th><th>Traction</th><th>Last contact</th><th>Touchpoints</th><th>Latest thread</th><th></th>" +
     "</tr></thead><tbody>" + peRows.map(r =>
       "<tr>" +
-        '<td><span class="name firm">' + esc(r.firm) + "</span></td>" +
+        '<td><div class="firmcell">' + fmark(r.firm) + '<span class="name">' + esc(r.firm) + "</span></div></td>" +
         "<td>" + badgeFor(r) + "</td>" +
         '<td class="num">' + fmtDate(r.last) + "</td>" +
-        '<td class="num" style="color:var(--cy)">' + r.count + "</td>" +
+        '<td class="num" style="color:var(--ink);font-weight:600">' + r.count + "</td>" +
         '<td><span class="snip"><b>' + esc(r.subject) + "</b>" + esc(r.snippet) + "</span></td>" +
         '<td><button class="btn danger" data-dismiss-pe="' + esc(r.key) + '">Dismiss</button></td>' +
       "</tr>").join("") + "</tbody></table></div>";
@@ -1693,8 +1665,8 @@ async function scanInbox(){
       const m = t.msgs[t.msgs.length - 1];
       const unread = t.msgs.some(x => x.labels.indexOf("UNREAD") !== -1);
       return '<tr class="' + (unread ? "unread" : "") + '">' +
-        '<td><span class="dot' + (unread ? "" : " off") + '"></span><span class="name">' + esc(displayOf(m.sender)) +
-          '</span><span class="role">' + esc(m.email) + "</span></td>" +
+        '<td><div class="person"><span class="dot' + (unread ? "" : " off") + '"></span>' + avatar(displayOf(m.sender)) +
+          '<div><span class="name">' + esc(displayOf(m.sender)) + '</span><span class="role">' + esc(m.email) + "</span></div></div></td>" +
         '<td><span class="snip"><b class="subj">' + esc(m.subject || "(no subject)") + "</b>" + esc(m.snippet.slice(0, 140)) + "</span></td>" +
         '<td class="num">' + fmtDate(t.last) + "</td></tr>";
     }).join("");
@@ -1707,11 +1679,11 @@ async function scanInbox(){
 /* ====================================================================
    GAUGES · STATUS · CLOCK
    ==================================================================== */
-const C = 213.6;
-function setRing(ringId, numId, value, denom){
+function setRing(barId, numId, value, denom){
   const frac = denom > 0 ? Math.max(0, Math.min(1, value / denom)) : 0;
-  document.getElementById(ringId).setAttribute("stroke-dashoffset", String(C * (1 - frac)));
-  document.getElementById(numId).textContent = String(value);
+  const bar = document.getElementById(barId), num = document.getElementById(numId);
+  if(bar) bar.style.width = (frac * 100).toFixed(1) + "%";
+  if(num) num.textContent = String(value);
 }
 function updateGauges(){
   const contactFirms = new Set(firmRows.map(r => normKey(r.firm)));
@@ -1726,6 +1698,7 @@ function updateGauges(){
 }
 function setStatus(cls, text){ $("#led").className = "led " + cls; $("#statusText").textContent = text; }
 function tick(){
+  if(!$("#cclock") || !$("#cdate")) return;
   const now = new Date();
   $("#cclock").textContent = now.toLocaleTimeString("en-US", { hour12: false });
   $("#cdate").textContent = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "2-digit", year: "numeric" }).toUpperCase();
@@ -1771,7 +1744,8 @@ async function startSession(adapter){
   setNamespace(adapter.kind, OWNER);
   loadUserState();
   $("#acct").textContent = OWNER;
-  $("#acctKind").textContent = adapter.label.toUpperCase();
+  $("#acctKind").textContent = adapter.label;
+  $("#acctAv").setAttribute("data-i", initials(OWNER.split("@")[0].replace(/[._\-\d]+/g, " ")));
   $("#inboxQ").placeholder = adapter.searchHint;
   $("#win").value = String(windowDays);
   renderTargets(); renderConvos(); updateGauges();
@@ -1793,7 +1767,7 @@ async function runAllScans(){
       failure.code === "expired" ? "Session expired" : "Some scans failed. See the affected tab.");
   }else{
     setStatus("ok", PROVIDER.label + " linked · " + (windowDays ? "last " + ({180:"6 months",365:"year",730:"2 years"}[windowDays] || windowDays + " days") : "all time"));
-    $("#stamp").textContent = "LAST SWEEP " + new Date().toLocaleTimeString("en-US", { hour12: false });
+    $("#stamp").textContent = "Last sweep " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   }
 }
 
@@ -1818,6 +1792,7 @@ TABS.forEach(pair => {
       const sel = p[0] === pair[0];
       document.getElementById(p[0]).setAttribute("aria-selected", sel ? "true" : "false");
       document.getElementById(p[1]).hidden = !sel;
+      if(sel && $("#pageTitle")) $("#pageTitle").textContent = document.getElementById(p[0]).dataset.title || document.getElementById(p[0]).textContent.trim();
     });
     if(pair[0] === "tab-inbox" && !inboxLoaded && PROVIDER){ inboxLoaded = true; scanInbox(); }
   });
