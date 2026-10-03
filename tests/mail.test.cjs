@@ -17,7 +17,7 @@ function app() {
     structuredClone, indexedDB: new IDBFactory(), crypto: webcrypto, TextDecoder, TextEncoder,
     Uint8Array, atob, btoa, setTimeout, clearTimeout, localStorage: storage(local), sessionStorage: storage(session),
     navigator: {}, location: { origin: 'https://example.com', pathname: '/', protocol: 'https:' } });
-  for (const file of ['mail-store.js', 'mail-sync.js']) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx);
+  for (const file of ['mail-store.js', 'mail-sync.js', 'headhunter.js']) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx);
   // Load production functions, excluding UI event registration and boot.
   const main = html.match(/<script>\s*([\s\S]*?)<\/script>/)[1].split('const TABS =')[0];
   vm.runInContext(main, ctx);
@@ -241,4 +241,46 @@ test('identical provider IDs in different accounts do not collide, but shared Me
   assert.equal(a.run('mergeThreads([[finishThread("t", [one], one.acct)], [finishThread("t", [two], two.acct)]]).length'), 2);
   a.ctx.one.mid = a.ctx.two.mid = '<shared@example.com>';
   assert.equal(a.run('mergeThreads([[finishThread("t", [one], one.acct)], [finishThread("t", [two], two.acct)]]).length'), 1);
+});
+
+test('headhunter preferences and dated meeting notes remain separate across firms and reloads', () => {
+  const a = app();
+  a.run(`convos = {}; const umm = convoFor('UMM Search'), mega = convoFor('Mega Search');
+    umm.prefs = 'UMM buyout'; mega.prefs = 'Megafund'; umm.notes = 'Existing general relationship notes';
+    umm.meetings = [{id:'first', date:'2026-10-01', contact:'Jane', notes:'First call', preferences:'UMM'},
+      {id:'second', date:'2026-10-03', contact:'Jane', notes:'Second call', funds:'Apollo'}];
+    saveConvos(); renderConvos();`);
+  const doc = a.ctx.document;
+  assert.equal(doc.querySelectorAll('[data-hh-entry]').length, 2);
+  const input = doc.querySelector('[data-hh-id="first"][data-hh-field="notes"]');
+  input.value = 'Updated first meeting'; input.dispatchEvent(new a.ctx.window.Event('input', {bubbles:true}));
+  a.run('convos = load(K.convos, {}); renderConvos();');
+  assert.equal(a.run('convos.ummsearch.meetings[0].notes'), 'Updated first meeting');
+  assert.equal(a.run('convos.ummsearch.meetings[1].notes'), 'Second call');
+  assert.equal(a.run('convos.megasearch.prefs'), 'Megafund');
+  assert.equal(a.run('convos.ummsearch.notes'), 'Existing general relationship notes');
+  assert.match(a.run('convoText()'), /Updated first meeting/);
+  doc.querySelector('[data-hh-add="ummsearch"]').click();
+  assert.equal(a.run('convos.ummsearch.meetings.length'), 3);
+  assert.equal(a.run('convos.ummsearch.meetings[2].preferences'), 'UMM buyout');
+});
+
+test('linking workspaces keeps meeting history from both workspaces without duplicating entries', () => {
+  const a = app();
+  a.run(`rawSet('old.', K.convos, {firm: {firm:'Firm', notes:'Old notes', meetings:[{id:'shared',notes:'Older version'},{id:'old',notes:'Earlier meeting'}]}});
+    rawSet('new.', K.convos, {firm: {firm:'Firm', notes:'New notes', meetings:[{id:'shared',notes:'Current version'},{id:'new',notes:'Latest meeting'}]}});
+    mergeInto('old.', 'new.');`);
+  const merged = a.run("rawGet('new.', K.convos).firm");
+  assert.equal(merged.meetings.length, 3);
+  assert.equal(merged.meetings.find(m => m.id === 'shared').notes, 'Current version');
+  assert.match(merged.notes, /Old notes/); assert.match(merged.notes, /New notes/);
+});
+
+test('background mail rendering preserves expanded meeting history', () => {
+  const a = app();
+  a.run(`const hh = convoFor('Test Search'); hh.meetings = [{id:'meeting',date:'2026-10-03',notes:'Keep this open'}]; renderConvos();`);
+  const entry = a.ctx.document.querySelector('[data-hh-entry="meeting"]');
+  entry.setAttribute('open', '');
+  a.run('renderSavedMail();');
+  assert.equal(a.ctx.document.querySelector('[data-hh-entry="meeting"]').open, true);
 });

@@ -369,6 +369,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
 .av::before,.fmark::before{content:attr(data-i)}
 
 </style>
+<link rel="stylesheet" href="headhunter.css">
 </head>
 <body>
 <!-- ============================ SIGN-IN ============================ -->
@@ -511,17 +512,17 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
     <section class="panel" id="p-convos" role="tabpanel" aria-labelledby="tab-convos" hidden>
       <div class="shead">
         <div>
-          <h2>Firm debriefs</h2>
-          <p>One dossier per search firm: what you asked to be put up for, how the conversation went, your next meeting, and the funds they're steering you toward. Funds already surfaced over email are detected automatically. Saves as you type.</p>
+          <h2>Headhunter notes</h2>
+          <p>Track what you told each headhunter, keep general relationship notes, and add a dated note after every meeting. Start by adding a firm or importing your email contacts. Changes save as you type on this device.</p>
         </div>
         <div class="controls">
-          <button class="btn" id="convoSync">Sync firms from scan</button>
+          <button class="btn" id="convoSync">Import email contacts</button>
           <button class="btn" id="convoExport">Copy as text</button>
         </div>
       </div>
       <div id="convoOut"></div>
       <div class="addrow">
-        <input type="text" id="convoAdd" placeholder="Add a firm dossier" aria-label="Add a firm dossier">
+        <input type="text" id="convoAdd" placeholder="Enter headhunter firm name" aria-label="Enter headhunter firm name">
         <button class="btn dark" id="convoAddBtn">Add firm</button>
       </div>
       <div class="foot" id="convoFoot"></div>
@@ -565,6 +566,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
   </main>
 </div>
 
+<script src="headhunter.js"></script>
 <script src="mail-store.js"></script>
 <script src="mail-sync.js"></script>
 <script>
@@ -651,6 +653,7 @@ function mergeInto(srcNs, dstNs){
         const sv = sc[k][f], dv = dc[k][f];
         if(sv == null || sv === "") return;
         if(dv == null || dv === "" || (f === "read" && dv === "Not spoken yet")) dc[k][f] = sv;
+        else if(f === "meetings" && Array.isArray(sv) && Array.isArray(dv)){ const ids = new Set(dv.map(m => m.id)); sv.forEach(m => { if(!ids.has(m.id)){ dv.push(m); ids.add(m.id); } }); }
         else if(typeof dv === "string" && typeof sv === "string" && dv !== sv && ["notes", "strategy", "prefs"].indexOf(f) !== -1) dc[k][f] = dv + "\n\n" + sv;
       });
     });
@@ -1600,56 +1603,7 @@ function footFor(c, mt){
   return mt && mt.future ? '<span style="color:var(--blue)">' + esc(mt.when) + " · " + esc(mt.rel) + "</span>"
        : c.lastConvo ? "LAST " + esc(c.lastConvo) : "NO DATE LOGGED";
 }
-function renderConvos(){
-  const out = $("#convoOut");
-  const keys = Object.keys(convos).sort((a, b) => {
-    const ma = fmtMeeting(convos[a].meeting), mb = fmtMeeting(convos[b].meeting);
-    const ua = ma && ma.future ? ma.ts : Infinity, ub = mb && mb.future ? mb.ts : Infinity;
-    if(ua !== ub) return ua - ub;
-    const ra = READS.indexOf(convos[a].read), rb = READS.indexOf(convos[b].read);
-    const wa = ra <= 0 ? 99 : ra, wb = rb <= 0 ? 99 : rb;
-    return wa - wb || convos[a].firm.localeCompare(convos[b].firm);
-  });
-  if(!keys.length){
-    out.innerHTML = '<div class="msg"><h4>No dossiers yet</h4><div>Once your scan finishes, hit <code>Sync firms from scan</code> to create a card for every search firm you\'re in contact with. You can also add any firm by name below.</div></div>';
-    $("#convoFoot").textContent = "";
-    renderOnBooks();
-    return;
-  }
-  out.innerHTML = '<div class="dossiers">' + keys.map(k => {
-    const c = convos[k], det = detectedFunds(c.firm), mt = fmtMeeting(c.meeting);
-    const hot = c.read === "Strong" || c.read === "Positive" || (mt && mt.future);
-    const id = esc(k);
-    return '<article class="dossier' + (hot ? " hot" : "") + '">' +
-      '<div class="d-head"><input class="dfirm" type="text" value="' + esc(c.firm) + '" data-cfirm="' + id + '" aria-label="Firm name" spellcheck="false">' +
-        '<button class="kill" data-cremove="' + id + '" title="Remove dossier" aria-label="Remove ' + esc(c.firm) + '">✕</button></div>' +
-      '<div class="d-body">' +
-        '<div class="frow">' +
-          '<div class="field"><label for="c-contact-' + id + '">Contact</label><input id="c-contact-' + id + '" type="text" value="' + esc(c.contact) + '" placeholder="Who you spoke with" data-cf="contact" data-ck="' + id + '"></div>' +
-          '<div class="field"><label for="c-read-' + id + '">How it went</label><select id="c-read-' + id + '" class="readsel" data-read="' + esc(c.read) + '" data-cf="read" data-ck="' + id + '">' +
-            READS.map(r => "<option" + (r === c.read ? " selected" : "") + ">" + esc(r) + "</option>").join("") + "</select></div>" +
-        "</div>" +
-        '<div class="frow">' +
-          '<div class="field"><label for="c-meet-' + id + '">Next meeting</label><input id="c-meet-' + id + '" type="datetime-local" value="' + esc(c.meeting || "") + '" data-cf="meeting" data-ck="' + id + '"></div>' +
-          '<div class="field"><label for="c-date-' + id + '">Last conversation</label><input id="c-date-' + id + '" type="date" value="' + esc(c.lastConvo) + '" data-cf="lastConvo" data-ck="' + id + '"></div>' +
-        "</div>" +
-        '<div class="field"><label for="c-next-' + id + '">Next step</label><input id="c-next-' + id + '" type="text" value="' + esc(c.next) + '" placeholder="e.g. in-person coffee chat" data-cf="next" data-ck="' + id + '"></div>' +
-        '<div class="field"><label for="c-prefs-' + id + '">What you told them you want</label><textarea id="c-prefs-' + id + '" class="prefs" placeholder="Strategy, fund size, shops, geography you asked to be put up for" data-cf="prefs" data-ck="' + id + '">' + esc(c.prefs || "") + "</textarea></div>" +
-        '<div class="field"><label>Funds already surfaced over email</label><div class="detected">' +
-          (det.length ? det.map(f => '<span class="fund">' + esc(f) + "</span>").join("") : '<span class="none">Nothing detected in the sweep yet</span>') + "</div></div>" +
-        '<div class="field"><label for="c-push-' + id + '">Funds they are pushing you toward</label><input id="c-push-' + id + '" type="text" value="' + esc(c.pushing) + '" placeholder="Comma separated" data-cf="pushing" data-ck="' + id + '"></div>' +
-        '<div class="field"><label for="c-strat-' + id + '">Their angle / strategy for you</label><textarea id="c-strat-' + id + '" placeholder="How they are positioning you: sector, fund size, geography, timing" data-cf="strategy" data-ck="' + id + '">' + esc(c.strategy) + "</textarea></div>" +
-        '<div class="field"><label for="c-notes-' + id + '">How the conversation went</label><textarea id="c-notes-' + id + '" placeholder="What was said, what they pressed on, what they promised" data-cf="notes" data-ck="' + id + '">' + esc(c.notes) + "</textarea></div>" +
-      "</div>" +
-      '<div class="d-foot"><span>' + esc(c.read.toUpperCase()) + '</span><span class="spacer"></span><span>' + footFor(c, mt) + "</span></div>" +
-    "</article>";
-  }).join("") + "</div>";
-  const spoken = keys.filter(k => convos[k].read !== "Not spoken yet").length;
-  const booked = keys.filter(k => { const m = fmtMeeting(convos[k].meeting); return m && m.future; }).length;
-  $("#convoFoot").textContent = keys.length + " dossiers · " + booked + " meeting" + (booked === 1 ? "" : "s") +
-    " on the books · " + spoken + " with a logged conversation.";
-  renderOnBooks();
-}
+function renderConvos(){ renderHeadhunters(); }
 function convoText(){
   return Object.keys(convos).map(k => {
     const c = convos[k], det = detectedFunds(c.firm), mt = fmtMeeting(c.meeting);
@@ -1662,7 +1616,7 @@ function convoText(){
       "Pushing: " + (c.pushing || "—"),
       "Detected over email: " + (det.length ? det.join(", ") : "—"),
       "Angle: " + (c.strategy || "—"),
-      "Notes: " + (c.notes || "—"),
+      "General headhunter notes: " + (c.notes || "—") + hhMeetingText(c),
       "Next: " + (c.next || "—")
     ].join("\n");
   }).join("\n\n");
@@ -1677,12 +1631,12 @@ function writeConvoField(el){
   if(el.dataset.cf === "meeting"){
     renderOnBooks();
     const spans = card && card.querySelectorAll(".d-foot span");
-    if(spans && spans.length) spans[spans.length - 1].innerHTML = footFor(c, mt);
+
   }
   if(el.dataset.cf === "read"){
     el.setAttribute("data-read", el.value);
     const foot = card && card.querySelector(".d-foot span");
-    if(foot) foot.textContent = el.value.toUpperCase();
+
   }
   if(card) card.classList.toggle("hot", c.read === "Strong" || c.read === "Positive" || !!(mt && mt.future));
 }
@@ -2111,11 +2065,11 @@ document.addEventListener("click", ev => {
     if(b.dataset.retry === "inbox") scanInbox();
     return;
   }
-  if(b.dataset.cremove){ delete convos[b.dataset.cremove]; saveConvos(); renderConvos(); return; }
+  if(b.dataset.cremove){ if(!confirm("Remove this headhunter and all its meeting notes? This cannot be undone.")) return; delete convos[b.dataset.cremove]; saveConvos(); renderConvos(); return; }
   if(b.id === "convoSync"){
     const n = syncConvoFirms();
     b.textContent = n ? "Added " + n : "Up to date";
-    setTimeout(() => { b.textContent = "Sync firms from scan"; }, 1800);
+    setTimeout(() => { b.textContent = "Import email contacts"; }, 1800);
     return;
   }
   if(b.id === "convoAddBtn"){

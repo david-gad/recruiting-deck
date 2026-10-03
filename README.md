@@ -4,9 +4,9 @@ A browser-only, read-only recruiting dashboard for Gmail and Outlook.
 
 ## Deploy
 
-Publish `index.html`, `mail-store.js`, and `mail-sync.js` together in the root of the existing GitHub Pages site. No server or build step is required. Keep the existing OAuth client IDs and registered site URL. No additional mail permissions are needed.
+Publish `index.html`, `mail-store.js`, `mail-sync.js`, `headhunter.js`, and `headhunter.css` together in the root of the existing GitHub Pages site. No server or build step is required. Keep the existing OAuth client IDs and registered site URL. No additional mail permissions are needed.
 
-The separately supplied single-file `index.html` has both JavaScript files embedded and can replace the original page by itself. Use either deployment format, not a mixture of versions.
+The separately supplied single-file `index.html` has the local JavaScript and stylesheet files embedded and can replace the original page by itself. Use either deployment format, not a mixture of versions.
 
 ## What changed
 
@@ -17,6 +17,7 @@ The separately supplied single-file `index.html` has both JavaScript files embed
 - The inbox searches saved message text and offers “Show more.” No fresh retrieval is required just to view a different tab.
 - Unknown recruiter domains can appear as “Needs review.” Quoted replies are removed before extracting evidence. Multiple fund mentions and conflicting event language are marked for review. Attendance is never inferred merely because an event date passed.
 - Fund status shows supporting excerpts and source email links. A later inbound follow-up in the same fund conversation is required for the highest automatic status. Manual corrections, notes, dismissals, and the chosen time window persist.
+- Headhunter notes keep general relationship context separate from dated meeting entries. Each firm retains its own preferences (such as UMM or megafund), funds discussed, contacts, and follow-ups. Existing notes are preserved, and linking workspaces combines meeting history without duplicating entry IDs. Background sync preserves expanded notes and text focus.
 
 ## Local storage and privacy
 
@@ -30,6 +31,6 @@ The widest time window previously synced remains cached when the view is narrowe
 
 Install development dependencies with `pnpm install --frozen-lockfile` and run `pnpm test` (or `node --test tests/mail.test.cjs`). Production does not load these dependencies.
 
-Tests cover full bodies, MIME/UTF-8 decoding, quoted replies, unknown recruiters, evidence attribution, manual corrections, account isolation, deduplication, Gmail and Outlook pagination, incremental updates, interrupted syncs, deleted messages, expired history, transaction rollback, quota failures, and cancellation.
+20 tests cover full bodies, MIME/UTF-8 decoding, quoted replies, unknown recruiters, evidence attribution, manual corrections, account isolation, deduplication, Gmail and Outlook pagination, incremental updates, interrupted syncs, deleted messages, expired history, transaction rollback, quota failures, cancellation, headhunter preferences, meeting-note editing and reload, workspace history merging, and expanded notes during background updates.
 
 The saved dashboard, expired-session access, inbox view, and correction persistence were also checked in a browser using synthetic mail. Live OAuth/mailbox integration still needs validation with the owner's accounts after deployment.
