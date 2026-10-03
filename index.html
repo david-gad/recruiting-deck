@@ -125,7 +125,26 @@ button,input,select,textarea{font-family:inherit}
 .side-foot{margin-top:auto;border-top:1px solid var(--line);padding:14px 6px 0;display:flex;flex-direction:column;gap:10px}
 .acct{display:flex;align-items:center;gap:10px;min-width:0}
 .acct .who{min-width:0;display:flex;flex-direction:column}
-.acct #acct{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-foot .navlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0 4px}
+.acctlist{display:flex;flex-direction:column;gap:2px}
+.acctlist:empty{display:none}
+.acct{padding:5px 4px;border-radius:8px}
+.acct:hover{background:var(--panel)}
+.acct .av{width:26px;height:26px;font-size:10.5px}
+.acct .who{flex:1}
+.acct .addr{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct .kill{font-size:13px}
+@media (hover:hover){.acct .kill{opacity:0}.acct:hover .kill,.acct .kill:focus-visible{opacity:1}}
+.acct.expired .av{filter:grayscale(1);opacity:.6}
+.acct.expired .addr{color:var(--ink-3)}
+.acct.expired .kind{color:#9A6700}
+.linkbtn{appearance:none;border:0;background:none;padding:0;font:inherit;color:var(--blue);cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-transform:inherit;letter-spacing:inherit}
+.btn.sm{font-size:12px;padding:5px 10px;border-radius:7px}
+.side-foot .addrow2 .btn{flex:1}
+.side-foot #signOut{align-self:flex-start}
+.notice{margin-top:12px;padding:10px 14px;border:1px solid #F3C7C2;background:var(--red-bg);border-radius:10px;font-size:13.5px}
+.notice.info{border-color:var(--line);background:var(--panel)}
+.inboxtag{text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:11px;display:inline-block;max-width:22ch;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 .kind{font-size:10px;color:var(--ink-3)}
 .side-foot .row{display:flex;gap:8px}
 
@@ -360,7 +379,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
     <div class="gate-hero">
       <span class="eyebrow">Built for PE &amp; IB recruiting</span>
       <h1>Every headhunter and fund event in your inbox. One&nbsp;screen.</h1>
-      <p class="lede">Connect your email once. The deck finds search-firm outreach, recruiter LinkedIn invites and PE firm events, works out who actually wrote to you, and scores how far you've gotten with each fund.</p>
+      <p class="lede">Connect your email once, or link Gmail and Outlook together and get one merged view. The deck finds search-firm outreach, recruiter LinkedIn invites and PE firm events, works out who actually wrote to you, and scores how far you've gotten with each fund.</p>
 
       <div class="gate-btns">
         <button class="btn primary big" id="connectGoogle">Continue with Gmail</button>
@@ -372,13 +391,14 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
       <div class="privacy" aria-label="How your data is handled">
         <div><b>Read-only</b>The app only asks to read mail. It can't send, delete, move or change anything.</div>
         <div><b>No server</b>Your mail goes straight from Google or Microsoft to this page in your browser. It's never uploaded anywhere else.</div>
-        <div><b>Stays on this device</b>Checkmarks, notes and dossiers are saved in this browser only. Email content is never saved; it's re-read each scan.</div>
+        <div><b>Stays on this device</b>Checkmarks, notes and dossiers are saved in this browser only. Email content is never saved; it's re-read each scan. Sign-ins last up to an hour and end when you close the tab.</div>
       </div>
 
       <details class="heads">
         <summary>What you'll see when you connect</summary>
         <p><b>Gmail:</b> Google will say <i>"Google hasn't verified this app."</i> That's expected for a private app shared between friends. Click <b>Advanced</b>, then <b>Go to Recruiting Command Deck (unsafe)</b>, then allow read access. If Google says access is blocked, the person who sent you this link needs to add your Gmail address as a tester first.</p>
         <p><b>Outlook / Hotmail:</b> Microsoft will ask you to allow reading your mail. School or work accounts may show <i>"Need admin approval"</i>, which means your IT department blocks outside mail apps; a personal Outlook or Hotmail account works without it.</p>
+        <p><b>More than one inbox:</b> connect one here, then use <b>+ Gmail</b> or <b>+ Outlook</b> in the sidebar to add the rest. Every inbox is searched at once, a message that landed in two of them is counted once, and your notes are shared across all of them.</p>
         <p><b>Yahoo, iCloud and others</b> aren't supported. They don't offer a sign-in based way to read mail, and the alternative means handing your password to a server, which this app deliberately never does.</p>
       </details>
     </div>
@@ -419,11 +439,13 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
     </nav>
 
     <div class="side-foot">
-      <div class="acct">
-        <span class="av" id="acctAv" data-i="·" aria-hidden="true"></span>
-        <div class="who"><span id="acct">—</span><span class="kind" id="acctKind">—</span></div>
+      <div class="navlabel">Linked inboxes</div>
+      <div class="acctlist" id="acctList"></div>
+      <div class="row addrow2">
+        <button class="btn sm" id="addGoogle" title="Link another Gmail inbox">+ Gmail</button>
+        <button class="btn sm" id="addMicrosoft" title="Link an Outlook, Hotmail or Live inbox">+ Outlook</button>
       </div>
-      <div class="row"><button class="btn" id="signOut">Sign out</button></div>
+      <button class="btn ghost sm" id="signOut">Sign out of all</button>
     </div>
   </aside>
 
@@ -446,10 +468,8 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
       </div>
     </header>
 
-    <div class="reconnect" id="reconnect" hidden>
-      <span>Your mail session expired. Access lasts about an hour at a time; your notes are untouched.</span>
-      <button class="btn dark" id="reconnectBtn">Reconnect</button>
-    </div>
+    <div class="reconnect" id="reconnect" hidden></div>
+    <div class="notice" id="notice" role="status" hidden></div>
 
     <section class="kpis" aria-label="Pipeline summary">
       <div class="kpi"><span class="k-label">Search firms in contact</span><span class="k-num" id="num1">0</span><span class="k-sub" id="sub1">—</span><div class="k-bar"><i id="ring1"></i></div></div>
@@ -564,7 +584,6 @@ function hashStr(s){
   for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
   return h.toString(36);
 }
-function setNamespace(kind, email){ NS = "rcd.app.v1." + hashStr(kind + ":" + email.toLowerCase()) + "."; }
 function load(key, fallback){
   try{ const v = localStorage.getItem(NS + key); return v == null ? fallback : JSON.parse(v); }
   catch(e){ return fallback; }
@@ -580,6 +599,66 @@ const K = {
   seeded:       "targets.seeded",
   convos:       "convos"
 };
+
+/* One shared set of notes for every inbox linked together. wsmap remembers
+   which workspace each account belongs to, so notes are the same whichever
+   inbox you connect first. Notes from the single-inbox version (v1) and from
+   any workspace an account used before are folded in on first link. */
+const WSMAP_KEY = "rcd.app.v2.wsmap";
+let WS = null;
+const nsFor = ws => "rcd.app.v2.ws." + ws + ".";
+function readWsMap(){ try{ return JSON.parse(localStorage.getItem(WSMAP_KEY) || "{}") || {}; }catch(e){ return {}; } }
+function writeWsMap(m){ try{ localStorage.setItem(WSMAP_KEY, JSON.stringify(m)); }catch(e){} }
+function rawGet(ns, k){ try{ const v = localStorage.getItem(ns + k); return v == null ? null : JSON.parse(v); }catch(e){ return null; } }
+function rawSet(ns, k, v){ try{ localStorage.setItem(ns + k, JSON.stringify(v)); }catch(e){} }
+function rawDel(ns){ try{ Object.keys(localStorage).filter(x => x.indexOf(ns) === 0).forEach(x => localStorage.removeItem(x)); }catch(e){} }
+function mergeInto(srcNs, dstNs){
+  if(srcNs === dstNs) return;
+  const union = k => { const a = rawGet(srcNs, k), b = rawGet(dstNs, k); if(a) rawSet(dstNs, k, Array.from(new Set((b || []).concat(a)))); };
+  union(K.dismissFirms); union(K.dismissPe);
+  const st = rawGet(srcNs, K.targets), dt = rawGet(dstNs, K.targets);
+  if(st){
+    if(!dt) rawSet(dstNs, K.targets, st);
+    else {
+      st.forEach(x => {
+        const d = dt.find(y => y.id === x.id || normKey(y.name) === normKey(x.name));
+        if(d) d.on = d.on || x.on; else dt.push(x);
+      });
+      rawSet(dstNs, K.targets, dt);
+    }
+  }
+  if(rawGet(srcNs, K.seeded)) rawSet(dstNs, K.seeded, true);
+  const sc = rawGet(srcNs, K.convos);
+  if(sc){
+    const dc = rawGet(dstNs, K.convos) || {};
+    Object.keys(sc).forEach(k => {
+      if(!dc[k]){ dc[k] = sc[k]; return; }
+      Object.keys(sc[k]).forEach(f => {
+        const sv = sc[k][f], dv = dc[k][f];
+        if(sv == null || sv === "") return;
+        if(dv == null || dv === "" || (f === "read" && dv === "Not spoken yet")) dc[k][f] = sv;
+        else if(typeof dv === "string" && typeof sv === "string" && dv !== sv && ["notes", "strategy", "prefs"].indexOf(f) !== -1) dc[k][f] = dv + "\n\n" + sv;
+      });
+    });
+    rawSet(dstNs, K.convos, dc);
+  }
+  rawDel(srcNs);
+}
+function attachWorkspace(kind, email){
+  const key = kind + ":" + email.toLowerCase();
+  const map = readWsMap();
+  const target = WS || map[key] || ("w" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7));
+  mergeInto("rcd.app.v1." + hashStr(key) + ".", nsFor(target));
+  if(map[key] && map[key] !== target){
+    const old = map[key];
+    mergeInto(nsFor(old), nsFor(target));
+    Object.keys(map).forEach(k => { if(map[k] === old) map[k] = target; });
+  }
+  map[key] = target;
+  writeWsMap(map);
+  WS = target; NS = nsFor(target);
+}
+function resetWorkspace(){ WS = null; NS = "rcd.app.v1.anon."; }
 
 /* ====================================================================
    REFERENCE DATA
@@ -842,25 +921,41 @@ function resolveName(sender, email, msgs, greetNames, firm, blacklist){
 
 /* ====================================================================
    NORMALIZED THREAD SHAPE (what every provider adapter returns)
-   { id, msgs:[{id,sender,email,to[],subject,snippet,text,ts,labels[],sent}],
+   { id, acct, msgs:[{id,mid,acct,sender,email,to[],subject,snippet,text,ts,labels[],sent}],
      first, last, text, subject }
    ==================================================================== */
-let OWNER = "";
-function finishThread(id, msgs){
+const OWNERS = new Set();   // every linked address counts as you
+function finishThread(id, msgs, acct){
   const seen = new Set();
   msgs = msgs.filter(m => m.ts && !seen.has(m.id) && seen.add(m.id)).sort((a, b) => a.ts - b.ts);
   msgs.forEach(m => {
     m.text = m.snippet;
-    if(OWNER && m.email === OWNER){ m.sent = true; if(m.labels.indexOf("SENT") === -1) m.labels.push("SENT"); }
+    if(acct) m.acct = acct;
+    if(OWNERS.has(m.email)){ m.sent = true; if(m.labels.indexOf("SENT") === -1) m.labels.push("SENT"); }
   });
   return {
     id: id,
+    acct: acct || "",
     msgs: msgs,
     first: msgs.length ? msgs[0].ts : 0,
     last:  msgs.length ? msgs[msgs.length - 1].ts : 0,
     text:  msgs.map(m => m.subject + " " + m.snippet).join(" · "),
     subject: msgs.length ? msgs[0].subject : "(no subject)"
   };
+}
+/* A message can sit in several linked inboxes (a recruiter CC'ing two of your
+   addresses, or a forward). Keep the first copy, matched on the Message-ID both
+   providers expose; fall back to sender + subject + time when it's missing. */
+function msgKey(m){ return m.mid || (m.email + "|" + normKey(m.subject).slice(0, 60) + "|" + Math.round(m.ts / 120000)); }
+function mergeThreads(lists){
+  const seen = new Set(), out = [];
+  lists.forEach(list => (list || []).forEach(t => {
+    if(!t || !t.msgs) return;
+    const keep = t.msgs.filter(m => { const k = msgKey(m); if(seen.has(k)) return false; seen.add(k); return true; });
+    if(!keep.length) return;
+    out.push(keep.length === t.msgs.length ? t : finishThread(t.id, keep, t.acct));
+  }));
+  return out;
 }
 
 /* ====================================================================
@@ -913,7 +1008,9 @@ async function http(url, opts, who){
 
 /* ====================================================================
    PROVIDER: GOOGLE (Gmail REST API, Google Identity Services token flow)
-   Browser-only: the access token lives in memory and is never stored.
+   One instance per linked Gmail account. The token lives in memory and in
+   this tab's sessionStorage for its ~1h life, so the Outlook redirect and
+   page refreshes don't sign you out. It is never sent anywhere but Google.
    ==================================================================== */
 const G_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 const G_API = "https://gmail.googleapis.com/gmail/v1/users/me";
@@ -929,6 +1026,7 @@ function gmMsg(m){
   const labels = (m.labelIds || []).slice();
   return {
     id: m.id,
+    mid: String(gHeader(m, "Message-ID")).trim().toLowerCase(),
     sender: from,
     email: emailOf(from),
     to: splitAddrs(gHeader(m, "To")).concat(splitAddrs(gHeader(m, "Cc"))),
@@ -940,107 +1038,120 @@ function gmMsg(m){
   };
 }
 
-const GoogleAdapter = {
-  kind: "google", label: "Gmail",
-  token: null, exp: 0,
-  pool: makePool(6),
-  cache: new Map(),
-  searchHint: "Gmail search, e.g. from:dspny.com newer_than:30d",
+function makeGoogleAdapter(saved){
+  const a = {
+    kind: "google", label: "Gmail",
+    email: "", token: null, exp: 0, expired: false,
+    pool: makePool(6),
+    cache: new Map(),
+    searchHint: "Gmail search, e.g. from:dspny.com newer_than:30d",
+    get key(){ return "google:" + this.email; },
 
-  ready(){ return !!(window.google && google.accounts && google.accounts.oauth2); },
+    ready(){ return !!(window.google && google.accounts && google.accounts.oauth2); },
 
-  /* Must be called synchronously inside a click handler, or the popup is blocked. */
-  signIn(){
-    return new Promise((resolve, reject) => {
-      if(!this.ready()) return reject(new ApiError("loading", "Google sign-in is still loading. Give it a second and click again."));
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: CONFIG.googleClientId,
-        scope: G_SCOPE,
-        callback: resp => {
-          if(resp.error) return reject(new ApiError(resp.error === "access_denied" ? "denied" : "auth", resp.error_description || resp.error));
-          if(!google.accounts.oauth2.hasGrantedAllScopes(resp, G_SCOPE))
-            return reject(new ApiError("unchecked", "Google finished sign-in without mail access."));
-          this.token = resp.access_token;
-          this.exp = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
-          resolve();
-        },
-        error_callback: e => reject(new ApiError(
-          e && e.type === "popup_closed" ? "closed" : e && e.type === "popup_failed_to_open" ? "popup" : "auth",
-          (e && (e.message || e.type)) || "Sign-in failed"))
+    /* Must be called synchronously inside a click handler, or the popup is blocked.
+       opts.prompt "select_account" lets you pick a second Gmail; opts.hint pre-selects one. */
+    signIn(opts){
+      opts = opts || {};
+      return new Promise((resolve, reject) => {
+        if(!this.ready()) return reject(new ApiError("loading", "Google sign-in is still loading. Give it a second and click again."));
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: CONFIG.googleClientId,
+          scope: G_SCOPE,
+          callback: resp => {
+            if(resp.error) return reject(new ApiError(resp.error === "access_denied" ? "denied" : "auth", resp.error_description || resp.error));
+            if(!google.accounts.oauth2.hasGrantedAllScopes(resp, G_SCOPE))
+              return reject(new ApiError("unchecked", "Google finished sign-in without mail access."));
+            this.token = resp.access_token;
+            this.exp = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
+            this.expired = false;
+            resolve();
+          },
+          error_callback: e => reject(new ApiError(
+            e && e.type === "popup_closed" ? "closed" : e && e.type === "popup_failed_to_open" ? "popup" : "auth",
+            (e && (e.message || e.type)) || "Sign-in failed"))
+        });
+        const o = {};
+        if(opts.prompt) o.prompt = opts.prompt;
+        if(opts.hint) o.login_hint = opts.hint;
+        client.requestAccessToken(o);
       });
-      client.requestAccessToken();
-    });
-  },
-  headers(){
-    if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
-    return { Authorization: "Bearer " + this.token };
-  },
-  async get(path, params){
-    const u = new URL(G_API + path);
-    setParams(u, params);
-    return http(u, { headers: this.headers() }, "Google");
-  },
-  async profile(){
-    const p = await this.get("/profile");
-    return String(p.emailAddress || "").toLowerCase();
-  },
-  thread(id){
-    if(!this.cache.has(id)){
-      const p = this.pool(() => this.get("/threads/" + encodeURIComponent(id), {
-        format: "metadata", metadataHeaders: ["From", "To", "Cc", "Subject", "Date"]
-      })).then(t => finishThread(t.id, (t.messages || []).map(gmMsg)));
-      p.catch(() => this.cache.delete(id));
-      this.cache.set(id, p);
-    }
-    return this.cache.get(id);
-  },
-  async listIds(q, cap){
-    const ids = []; let pageToken;
-    while(ids.length < cap){
-      const r = await this.pool(() => this.get("/threads", { q: q, maxResults: Math.min(100, cap - ids.length), pageToken: pageToken }));
-      (r.threads || []).forEach(t => ids.push(t.id));
-      pageToken = r.nextPageToken;
-      if(!pageToken || !(r.threads || []).length) break;
-    }
-    return ids;
-  },
-  async fetchThreads(ids, onProgress){
-    let done = 0;
-    const tick = () => onProgress && onProgress(++done, ids.length);
-    const out = await Promise.all(ids.map(id => this.thread(id).then(
-      t => { tick(); return t; },
-      e => { tick(); if(e.code === "api") return null; throw e; })));   // one deleted thread shouldn't sink the scan
-    return out.filter(Boolean);
-  },
-  async sweep(spec, cap, days, onProgress){
-    const parts = spec.terms.slice();
-    spec.domains.forEach(d => parts.push("from:" + d));
-    if(spec.linkedin) parts.push("from:" + LINKEDIN_FROM);
-    const q = "{" + parts.join(" ") + "}" + (days ? " newer_than:" + days + "d" : "");
-    const ids = await this.listIds(q, cap);
-    const threads = await this.fetchThreads(ids, onProgress);
-    threads.failedTerms = [];
-    return threads;
-  },
-  async inbox(view, query, onProgress){
-    const q = query || { inbox: "in:inbox", unread: "is:unread", sent: "in:sent", starred: "is:starred" }[view] || "in:inbox";
-    return this.fetchThreads(await this.listIds(q, CAP_INBOX), onProgress);
-  },
-  signOut(){
-    try{ if(this.token && this.ready()) google.accounts.oauth2.revoke(this.token, () => {}); }catch(e){}
-    this.token = null; this.cache.clear();
-  }
-};
+    },
+    headers(){
+      if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
+      return { Authorization: "Bearer " + this.token };
+    },
+    async get(path, params){
+      const u = new URL(G_API + path);
+      setParams(u, params);
+      return http(u, { headers: this.headers() }, "Google");
+    },
+    async profile(){
+      const p = await this.get("/profile");
+      this.email = String(p.emailAddress || "").toLowerCase();
+      return this.email;
+    },
+    thread(id){
+      if(!this.cache.has(id)){
+        const p = this.pool(() => this.get("/threads/" + encodeURIComponent(id), {
+          format: "metadata", metadataHeaders: ["From", "To", "Cc", "Subject", "Date", "Message-ID"]
+        })).then(t => finishThread(t.id, (t.messages || []).map(gmMsg), this.key));
+        p.catch(() => this.cache.delete(id));
+        this.cache.set(id, p);
+      }
+      return this.cache.get(id);
+    },
+    async listIds(q, cap){
+      const ids = []; let pageToken;
+      while(ids.length < cap){
+        const r = await this.pool(() => this.get("/threads", { q: q, maxResults: Math.min(100, cap - ids.length), pageToken: pageToken }));
+        (r.threads || []).forEach(t => ids.push(t.id));
+        pageToken = r.nextPageToken;
+        if(!pageToken || !(r.threads || []).length) break;
+      }
+      return ids;
+    },
+    async fetchThreads(ids, onProgress){
+      let done = 0;
+      const tick = () => onProgress && onProgress(++done, ids.length);
+      const out = await Promise.all(ids.map(id => this.thread(id).then(
+        t => { tick(); return t; },
+        e => { tick(); if(e.code === "api") return null; throw e; })));   // one deleted thread shouldn't sink the scan
+      return out.filter(Boolean);
+    },
+    async sweep(spec, cap, days, onProgress){
+      const parts = spec.terms.slice();
+      spec.domains.forEach(d => parts.push("from:" + d));
+      if(spec.linkedin) parts.push("from:" + LINKEDIN_FROM);
+      const q = "{" + parts.join(" ") + "}" + (days ? " newer_than:" + days + "d" : "");
+      const ids = await this.listIds(q, cap);
+      const threads = await this.fetchThreads(ids, onProgress);
+      threads.failedTerms = [];
+      return threads;
+    },
+    async inbox(view, query, onProgress){
+      const q = query || { inbox: "in:inbox", unread: "is:unread", sent: "in:sent", starred: "is:starred" }[view] || "in:inbox";
+      return this.fetchThreads(await this.listIds(q, CAP_INBOX), onProgress);
+    },
+    signOut(){
+      try{ if(this.token && this.ready()) google.accounts.oauth2.revoke(this.token, () => {}); }catch(e){}
+      this.token = null; this.cache.clear();
+    },
+    toJSON(){ return { kind: this.kind, email: this.email, token: this.token, exp: this.exp }; }
+  };
+  if(saved){ a.email = saved.email || ""; a.token = saved.token || null; a.exp = saved.exp || 0; }
+  return a;
+}
 
 /* ====================================================================
    PROVIDER: MICROSOFT (Graph API, auth-code + PKCE redirect, SPA)
    Covers Outlook.com, Hotmail, Live and Microsoft 365 work/school.
-   No client secret exists or is needed; the token lives in memory only.
+   One instance per linked Microsoft account. No client secret exists.
    ==================================================================== */
 const MS_AUTH = "https://login.microsoftonline.com/common/oauth2/v2.0";
 const MS_SCOPE = "openid profile https://graph.microsoft.com/User.Read https://graph.microsoft.com/Mail.Read";
 const MS_GRAPH = "https://graph.microsoft.com/v1.0";
-const MS_SELECT = "id,conversationId,subject,bodyPreview,from,sender,toRecipients,ccRecipients,receivedDateTime,sentDateTime,isRead,flag,parentFolderId";
+const MS_SELECT = "id,conversationId,internetMessageId,subject,bodyPreview,from,sender,toRecipients,ccRecipients,receivedDateTime,sentDateTime,isRead,flag,parentFolderId";
 
 function b64url(bytes){
   let s = "";
@@ -1052,18 +1163,21 @@ async function pkceChallenge(verifier){
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
   return b64url(new Uint8Array(d));
 }
-function msMsg(m){
+function msRedirectUri(){ return location.origin + location.pathname.replace(/index\.html$/i, ""); }
+
+function msMsg(m, ad){
   const fa = (m.from && m.from.emailAddress) || (m.sender && m.sender.emailAddress) || {};
   const addr = String(fa.address || "").toLowerCase();
   const sender = fa.name && fa.name.toLowerCase() !== addr ? fa.name + " <" + addr + ">" : addr;
   const labels = [];
   if(m.isRead === false) labels.push("UNREAD");
   if(m.flag && m.flag.flagStatus === "flagged") labels.push("STARRED");
-  if(MicrosoftAdapter.inboxId && m.parentFolderId === MicrosoftAdapter.inboxId) labels.push("INBOX");
-  const sent = (OWNER && addr === OWNER) || (MicrosoftAdapter.sentId && m.parentFolderId === MicrosoftAdapter.sentId);
+  if(ad && ad.inboxId && m.parentFolderId === ad.inboxId) labels.push("INBOX");
+  const sent = OWNERS.has(addr) || !!(ad && ad.sentId && m.parentFolderId === ad.sentId);
   if(sent) labels.push("SENT");
   return {
     id: m.id,
+    mid: String(m.internetMessageId || "").trim().toLowerCase(),
     sender: sender,
     email: addr,
     to: (m.toRecipients || []).concat(m.ccRecipients || [])
@@ -1072,168 +1186,205 @@ function msMsg(m){
     snippet: deent(m.bodyPreview || "").slice(0, 300),
     ts: Date.parse(m.receivedDateTime || m.sentDateTime) || 0,
     labels: labels,
-    sent: !!sent
+    sent: sent
   };
 }
 
-const MicrosoftAdapter = {
-  kind: "microsoft", label: "Outlook",
-  token: null, exp: 0, inboxId: null, sentId: null,
-  pool: makePool(4),            // Outlook allows 4 concurrent requests per mailbox
-  convCache: new Map(),
-  searchHint: "Outlook search, e.g. dspny.com or coffee chat",
+/* Leaves the page for Microsoft's sign-in. Linked sessions survive because
+   they are held in this tab's sessionStorage. hint pre-fills an address. */
+async function msBeginSignIn(hint){
+  const verifier = randToken(), state = randToken();
+  const challenge = await pkceChallenge(verifier);
+  sessionStorage.setItem("rcd.pkce", JSON.stringify({ verifier: verifier, state: state }));
+  const u = new URL(MS_AUTH + "/authorize");
+  setParams(u, {
+    client_id: CONFIG.microsoftClientId, response_type: "code", redirect_uri: msRedirectUri(),
+    response_mode: "query", scope: MS_SCOPE, state: state,
+    code_challenge: challenge, code_challenge_method: "S256",
+    prompt: hint ? "" : "select_account", login_hint: hint || ""
+  });
+  location.assign(u.toString());
+}
+/* On return from Microsoft: exchange the code. Resolves to a signed-in
+   adapter, or null when this page load wasn't a sign-in return. */
+async function msCompleteRedirect(){
+  const p = new URLSearchParams(location.search);
+  if(!p.has("code") && !p.has("error")) return null;
+  let saved = null;
+  try{ saved = JSON.parse(sessionStorage.getItem("rcd.pkce") || "null"); }catch(e){}
+  sessionStorage.removeItem("rcd.pkce");
+  history.replaceState(null, "", msRedirectUri());
+  if(p.has("error")){
+    const d = p.get("error_description") || p.get("error");
+    throw new ApiError(p.get("error") === "access_denied" ? "denied" : /AADSTS65001|AADSTS90094|admin/i.test(d) ? "admin" : "auth", d);
+  }
+  if(!saved || saved.state !== p.get("state")) throw new ApiError("auth", "This sign-in response didn't match the browser that started it. Try again.");
+  const res = await fetch(MS_AUTH + "/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: CONFIG.microsoftClientId, scope: MS_SCOPE, code: p.get("code"),
+      redirect_uri: msRedirectUri(), grant_type: "authorization_code", code_verifier: saved.verifier
+    })
+  });
+  const j = await res.json().catch(() => ({}));
+  if(!res.ok || !j.access_token) throw new ApiError("auth", j.error_description || j.error || "Microsoft token exchange failed.");
+  return makeMicrosoftAdapter({ token: j.access_token, exp: Date.now() + (Number(j.expires_in) || 3600) * 1000 });
+}
 
-  redirectUri(){ return location.origin + location.pathname.replace(/index\.html$/i, ""); },
+function makeMicrosoftAdapter(saved){
+  const a = {
+    kind: "microsoft", label: "Outlook",
+    email: "", token: null, exp: 0, expired: false, inboxId: null, sentId: null,
+    pool: makePool(4),            // Outlook allows 4 concurrent requests per mailbox
+    convCache: new Map(),
+    searchHint: "Outlook search, e.g. dspny.com or coffee chat",
+    get key(){ return "microsoft:" + this.email; },
 
-  async signIn(){
-    const verifier = randToken(), state = randToken();
-    const challenge = await pkceChallenge(verifier);
-    sessionStorage.setItem("rcd.pkce", JSON.stringify({ verifier: verifier, state: state }));
-    const u = new URL(MS_AUTH + "/authorize");
-    setParams(u, {
-      client_id: CONFIG.microsoftClientId, response_type: "code", redirect_uri: this.redirectUri(),
-      response_mode: "query", scope: MS_SCOPE, state: state,
-      code_challenge: challenge, code_challenge_method: "S256", prompt: "select_account"
-    });
-    location.assign(u.toString());
-  },
-  /* On return from Microsoft: exchange the code. Returns true if this page load was a sign-in return. */
-  async completeRedirect(){
-    const p = new URLSearchParams(location.search);
-    if(!p.has("code") && !p.has("error")) return false;
-    let saved = null;
-    try{ saved = JSON.parse(sessionStorage.getItem("rcd.pkce") || "null"); }catch(e){}
-    sessionStorage.removeItem("rcd.pkce");
-    history.replaceState(null, "", this.redirectUri());
-    if(p.has("error")){
-      const d = p.get("error_description") || p.get("error");
-      throw new ApiError(p.get("error") === "access_denied" ? "denied" : /AADSTS65001|AADSTS90094|admin/i.test(d) ? "admin" : "auth", d);
-    }
-    if(!saved || saved.state !== p.get("state")) throw new ApiError("auth", "This sign-in response didn't match the browser that started it. Try again.");
-    const res = await fetch(MS_AUTH + "/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: CONFIG.microsoftClientId, scope: MS_SCOPE, code: p.get("code"),
-        redirect_uri: this.redirectUri(), grant_type: "authorization_code", code_verifier: saved.verifier
-      })
-    });
-    const j = await res.json().catch(() => ({}));
-    if(!res.ok || !j.access_token) throw new ApiError("auth", j.error_description || j.error || "Microsoft token exchange failed.");
-    this.token = j.access_token;
-    this.exp = Date.now() + (Number(j.expires_in) || 3600) * 1000;
-    return true;
-  },
-  headers(){
-    if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
-    return { Authorization: "Bearer " + this.token };
-  },
-  async get(pathOrUrl, params){
-    const u = /^https:/.test(pathOrUrl) ? new URL(pathOrUrl) : new URL(MS_GRAPH + pathOrUrl);
-    if(params) setParams(u, params);
-    return http(u, { headers: this.headers() }, "Microsoft");
-  },
-  async profile(){
-    const me = await this.get("/me", { $select: "mail,userPrincipalName" });
-    try{
-      const f = await Promise.all([
-        this.get("/me/mailFolders/inbox", { $select: "id" }),
-        this.get("/me/mailFolders/sentitems", { $select: "id" })
-      ]);
-      this.inboxId = f[0].id; this.sentId = f[1].id;
-    }catch(e){ if(e.code === "expired" || e.code === "scope") throw e; }
-    return String(me.mail || me.userPrincipalName || "").toLowerCase();
-  },
-  /* Graph $search is KQL and can't be combined with $filter/$orderby, so each
-     term runs as its own search, time windows are applied client-side, and a
-     term Graph rejects is retried unquoted, then skipped rather than failing the scan. */
-  async search(term, cap){
-    const out = [];
-    let page;
-    try{
-      page = await this.pool(() => this.get("/me/messages", {
-        $search: '"' + term.replace(/"/g, '\\"') + '"', $top: 50, $select: MS_SELECT
+    headers(){
+      if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
+      return { Authorization: "Bearer " + this.token };
+    },
+    async get(pathOrUrl, params){
+      const u = /^https:/.test(pathOrUrl) ? new URL(pathOrUrl) : new URL(MS_GRAPH + pathOrUrl);
+      if(params) setParams(u, params);
+      return http(u, { headers: this.headers() }, "Microsoft");
+    },
+    async profile(){
+      const me = await this.get("/me", { $select: "mail,userPrincipalName" });
+      try{
+        const f = await Promise.all([
+          this.get("/me/mailFolders/inbox", { $select: "id" }),
+          this.get("/me/mailFolders/sentitems", { $select: "id" })
+        ]);
+        this.inboxId = f[0].id; this.sentId = f[1].id;
+      }catch(e){ if(e.code === "expired" || e.code === "scope") throw e; }
+      this.email = String(me.mail || me.userPrincipalName || "").toLowerCase();
+      return this.email;
+    },
+    /* Graph $search is KQL and can't be combined with $filter/$orderby, so each
+       term runs as its own search, time windows are applied client-side, and a
+       term Graph rejects is retried unquoted, then skipped rather than failing the scan. */
+    async search(term, cap){
+      const out = [];
+      let page;
+      try{
+        page = await this.pool(() => this.get("/me/messages", {
+          $search: '"' + term.replace(/"/g, '\\"') + '"', $top: 50, $select: MS_SELECT
+        }));
+      }catch(e){
+        if(e.code === "api" && /"/.test(term)) return this.search(term.replace(/"/g, ""), cap);
+        throw e;
+      }
+      for(;;){
+        (page.value || []).forEach(m => out.push(m));
+        const next = page["@odata.nextLink"];
+        if(!next || out.length >= cap) break;
+        page = await this.pool(() => this.get(next));
+      }
+      return out.slice(0, cap);
+    },
+    conversation(cid){
+      if(!this.convCache.has(cid)){
+        const p = this.pool(() => this.get("/me/messages", {
+          $filter: "conversationId eq '" + cid.replace(/'/g, "''") + "'", $top: 50, $select: MS_SELECT
+        })).then(r => r.value || []);
+        p.catch(() => this.convCache.delete(cid));
+        this.convCache.set(cid, p);
+      }
+      return this.convCache.get(cid);
+    },
+    async threadsFrom(hits, cap, days, onProgress, expand){
+      const cutoff = days ? Date.now() - days * 86400000 : 0;
+      const byConv = new Map();
+      hits.forEach(m => {
+        const ts = Date.parse(m.receivedDateTime || m.sentDateTime) || 0;
+        if(ts < cutoff) return;
+        const c = m.conversationId || m.id;
+        if(!byConv.has(c)) byConv.set(c, { list: [], last: 0 });
+        const g = byConv.get(c); g.list.push(m); g.last = Math.max(g.last, ts);
+      });
+      const convs = Array.from(byConv.entries()).sort((x, y) => y[1].last - x[1].last).slice(0, cap);
+      let done = 0;
+      return Promise.all(convs.map(([cid, g]) => {
+        const full = expand
+          ? this.conversation(cid).then(all => all.length ? all.concat(g.list) : g.list,
+                                        e => { if(e.code === "expired" || e.code === "scope") throw e; return g.list; })
+          : Promise.resolve(g.list);
+        return full.then(list => { onProgress && onProgress(++done, convs.length); return finishThread(cid, list.map(m => msMsg(m, this)), this.key); });
       }));
-    }catch(e){
-      if(e.code === "api" && /"/.test(term)) return this.search(term.replace(/"/g, ""), cap);
-      throw e;
-    }
-    for(;;){
-      (page.value || []).forEach(m => out.push(m));
-      const next = page["@odata.nextLink"];
-      if(!next || out.length >= cap) break;
-      page = await this.pool(() => this.get(next));
-    }
-    return out.slice(0, cap);
-  },
-  conversation(cid){
-    if(!this.convCache.has(cid)){
-      const p = this.pool(() => this.get("/me/messages", {
-        $filter: "conversationId eq '" + cid.replace(/'/g, "''") + "'", $top: 50, $select: MS_SELECT
-      })).then(r => r.value || []);
-      p.catch(() => this.convCache.delete(cid));
-      this.convCache.set(cid, p);
-    }
-    return this.convCache.get(cid);
-  },
-  async threadsFrom(hits, cap, days, onProgress, expand){
-    const cutoff = days ? Date.now() - days * 86400000 : 0;
-    const byConv = new Map();
-    hits.forEach(m => {
-      const ts = Date.parse(m.receivedDateTime || m.sentDateTime) || 0;
-      if(ts < cutoff) return;
-      const c = m.conversationId || m.id;
-      if(!byConv.has(c)) byConv.set(c, { list: [], last: 0 });
-      const g = byConv.get(c); g.list.push(m); g.last = Math.max(g.last, ts);
-    });
-    const convs = Array.from(byConv.entries()).sort((a, b) => b[1].last - a[1].last).slice(0, cap);
-    let done = 0;
-    return Promise.all(convs.map(([cid, g]) => {
-      const full = expand
-        ? this.conversation(cid).then(all => all.length ? all.concat(g.list) : g.list,
-                                      e => { if(e.code === "expired" || e.code === "scope") throw e; return g.list; })
-        : Promise.resolve(g.list);
-      return full.then(list => { onProgress && onProgress(++done, convs.length); return finishThread(cid, list.map(msMsg)); });
-    }));
-  },
-  async sweep(spec, cap, days, onProgress){
-    const terms = spec.terms.concat(spec.domains).concat(spec.linkedin ? [LINKEDIN_FROM] : []);
-    const hits = [], failed = [];
-    await Promise.all(terms.map(t => this.search(t, 100).then(
-      r => { r.forEach(m => hits.push(m)); },
-      e => { if(e.code === "expired" || e.code === "scope" || e.code === "disabled") throw e; failed.push(t); })));
-    const threads = await this.threadsFrom(hits, cap, days, onProgress, true);
-    threads.failedTerms = failed;
-    return threads;
-  },
-  async inbox(view, query, onProgress){
-    let list;
-    if(query) list = await this.search(query, CAP_INBOX);
-    else {
-      const req = {
-        inbox:   ["/me/mailFolders/inbox/messages",     { $orderby: "receivedDateTime desc" }],
-        unread:  ["/me/mailFolders/inbox/messages",     { $filter: "isRead eq false" }],
-        sent:    ["/me/mailFolders/sentitems/messages", { $orderby: "sentDateTime desc" }],
-        starred: ["/me/messages",                       { $filter: "flag/flagStatus eq 'flagged'" }]
-      }[view] || ["/me/mailFolders/inbox/messages", { $orderby: "receivedDateTime desc" }];
-      const r = await this.pool(() => this.get(req[0], Object.assign({ $top: CAP_INBOX, $select: MS_SELECT }, req[1])));
-      list = r.value || [];
-    }
-    return this.threadsFrom(list, CAP_INBOX, 0, onProgress, false);
-  },
-  signOut(){ this.token = null; this.convCache.clear(); }
-};
+    },
+    async sweep(spec, cap, days, onProgress){
+      const terms = spec.terms.concat(spec.domains).concat(spec.linkedin ? [LINKEDIN_FROM] : []);
+      const hits = [], failed = [];
+      await Promise.all(terms.map(t => this.search(t, 100).then(
+        r => { r.forEach(m => hits.push(m)); },
+        e => { if(e.code === "expired" || e.code === "scope" || e.code === "disabled") throw e; failed.push(t); })));
+      const threads = await this.threadsFrom(hits, cap, days, onProgress, true);
+      threads.failedTerms = failed;
+      return threads;
+    },
+    async inbox(view, query, onProgress){
+      let list;
+      if(query) list = await this.search(query, CAP_INBOX);
+      else {
+        const req = {
+          inbox:   ["/me/mailFolders/inbox/messages",     { $orderby: "receivedDateTime desc" }],
+          unread:  ["/me/mailFolders/inbox/messages",     { $filter: "isRead eq false" }],
+          sent:    ["/me/mailFolders/sentitems/messages", { $orderby: "sentDateTime desc" }],
+          starred: ["/me/messages",                       { $filter: "flag/flagStatus eq 'flagged'" }]
+        }[view] || ["/me/mailFolders/inbox/messages", { $orderby: "receivedDateTime desc" }];
+        const r = await this.pool(() => this.get(req[0], Object.assign({ $top: CAP_INBOX, $select: MS_SELECT }, req[1])));
+        list = r.value || [];
+      }
+      return this.threadsFrom(list, CAP_INBOX, 0, onProgress, false);
+    },
+    signOut(){ this.token = null; this.convCache.clear(); },
+    toJSON(){ return { kind: this.kind, email: this.email, token: this.token, exp: this.exp, inboxId: this.inboxId, sentId: this.sentId }; }
+  };
+  if(saved){
+    a.email = saved.email || ""; a.token = saved.token || null; a.exp = saved.exp || 0;
+    a.inboxId = saved.inboxId || null; a.sentId = saved.sentId || null;
+  }
+  return a;
+}
 
 /* ====================================================================
    SESSION STATE
    ==================================================================== */
-let PROVIDER = null;
+let ACCOUNTS = [];            // every linked inbox, Gmail and Outlook side by side
 let windowDays = 365;
 let firmRows = [], firmFunds = new Map(), peRows = [];
 let targets = [], convos = {};
 let dismissedFirms = new Set(), dismissedPe = new Set();
 let inboxView = "inbox", inboxQuery = "", inboxLoaded = false;
-let scanning = false;
+let scanning = false, rescanQueued = false;
+
+/* Sign-ins are held in this tab's sessionStorage for their ~1h life so the
+   Outlook redirect (and a refresh) doesn't drop the other linked inboxes.
+   Closing the tab ends them. Nothing here ever leaves the browser. */
+const SESS_KEY = "rcd.app.v2.sessions";
+function persistSessions(){
+  try{ sessionStorage.setItem(SESS_KEY, JSON.stringify(ACCOUNTS.filter(a => a.email).map(a => a.toJSON()))); }catch(e){}
+}
+function readSessions(){
+  try{ return (JSON.parse(sessionStorage.getItem(SESS_KEY) || "[]") || []).filter(s => s && s.email && (s.kind === "google" || s.kind === "microsoft")); }
+  catch(e){ return []; }
+}
+function clearSessions(){ try{ sessionStorage.removeItem(SESS_KEY); }catch(e){} }
+function adapterFrom(s){ return s.kind === "microsoft" ? makeMicrosoftAdapter(s) : makeGoogleAdapter(s); }
+function refreshExpiry(){ ACCOUNTS.forEach(a => { if(!a.token || Date.now() > a.exp - 20000) a.expired = true; }); }
+function liveAccounts(){ refreshExpiry(); return ACCOUNTS.filter(a => !a.expired); }
+function acctEmail(key){ return String(key || "").split(":").slice(1).join(":"); }
+function linkedLabel(){
+  if(!ACCOUNTS.length) return "No inbox linked";
+  const kinds = ACCOUNTS.map(a => a.label);
+  if(new Set(kinds).size === kinds.length) return kinds.join(" + ") + " linked";
+  return ACCOUNTS.length + " inboxes linked";
+}
+function windowLabel(){
+  return windowDays ? "last " + ({180: "6 months", 365: "year", 730: "2 years"}[windowDays] || windowDays + " days") : "all time";
+}
 
 function loadUserState(){
   dismissedFirms = new Set(load(K.dismissFirms, []));
@@ -1263,7 +1414,7 @@ function errBlock(e, retryId){
 }
 function sectionError(e, out, retryId){
   out.innerHTML = errBlock(e, retryId);
-  if(e && e.code === "expired") $("#reconnect").hidden = false;
+  if(e && e.code === "expired") renderReconnect();
 }
 function initials(name){
   const w = String(name || "").replace(/[^A-Za-z\s'-]/g, " ").trim().split(/\s+/).filter(Boolean);
@@ -1273,8 +1424,53 @@ function hueOf(s){ let h = 7; for(const ch of String(s)) h = (h * 31 + ch.charCo
 function avatar(name){ return '<span class="av" aria-hidden="true" style="--h:' + hueOf(name) + '" data-i="' + esc(initials(name)) + '"></span>'; }
 function fmark(firm){ return '<span class="fmark" aria-hidden="true" data-i="' + esc(initials(firm)) + '"></span>'; }
 const scanLine = label => '<div class="scan"><span class="led busy"></span> ' + esc(label) + "</div>";
-function progress(label){
-  return (done, total) => setStatus("busy", label + " · " + done + " / " + total);
+/* One progress line summed across every inbox being read. */
+function progressAgg(label){
+  const parts = new Map();
+  return key => (done, total) => {
+    parts.set(key, [done, total]);
+    let d = 0, t = 0;
+    parts.forEach(v => { d += v[0]; t += v[1]; });
+    setStatus("busy", label + " · " + d + " / " + t);
+  };
+}
+
+/* An inbox whose sign-in lapsed is flagged for reconnect; the others carry on. */
+function noteAccountFailure(a, e){
+  if(e && (e.code === "expired" || e.code === "scope")){
+    a.expired = true;
+    persistSessions(); renderAccounts(); renderReconnect();
+  }
+}
+function partialNote(failed){
+  if(!failed || !failed.length) return "";
+  return " · Not read: " + failed.map(f => f.acct.email + " (" +
+    (f.err && f.err.code === "expired" ? "needs to reconnect" : ((ERR_COPY[f.err && f.err.code] || ["error"])[0]).toLowerCase()) + ")").join(", ");
+}
+/* Run the same sweep against every live inbox at once and merge the results,
+   counting a message that reached two of your inboxes only once. */
+async function sweepAll(spec, label){
+  const live = liveAccounts();
+  if(!live.length) throw new ApiError("expired", "Session expired");
+  const prog = progressAgg(label);
+  const res = await Promise.allSettled(live.map(a => a.sweep(spec, CAP_SWEEP, windowDays, prog(a.key))));
+  const lists = [], failed = [], failedTerms = [];
+  res.forEach((r, i) => {
+    const a = live[i];
+    if(r.status === "fulfilled"){
+      lists.push(r.value);
+      (r.value.failedTerms || []).forEach(t => failedTerms.push(a.label + ": " + t));
+    }else{
+      noteAccountFailure(a, r.reason);
+      failed.push({ acct: a, err: r.reason });
+    }
+  });
+  if(!lists.length) throw failed[0].err;
+  const merged = mergeThreads(lists);
+  merged.failedTerms = failedTerms;
+  merged.partial = failed;
+  merged.inboxes = lists.length;
+  return merged;
 }
 
 /* ====================================================================
@@ -1295,7 +1491,7 @@ function domainFirm(email){
    first names are you being greeted rather than a contact. */
 function buildCorpus(threads){
   const norm = threads.filter(t => t && t.msgs.length);
-  const owners = new Set(OWNER ? [OWNER] : []);
+  const owners = new Set(OWNERS);
   norm.forEach(t => t.msgs.forEach(m => { if(m.sent) owners.add(m.email); }));
   const byEmail = new Map(), greets = new Map(), blacklist = new Set();
   norm.forEach(t => t.msgs.forEach(m => {
@@ -1388,13 +1584,13 @@ async function scanFirms(){
   const out = $("#firmsOut");
   out.innerHTML = scanLine("Sweeping recruiter mail");
   try{
-    const threads = await PROVIDER.sweep(SPEC_RECRUITERS, CAP_SWEEP, windowDays, progress("Reading recruiter threads"));
+    const threads = await sweepAll(SPEC_RECRUITERS, "Reading recruiter threads");
     firmRows = buildFirmRows(threads);
     renderFirms();
-    const skipped = threads.failedTerms && threads.failedTerms.length
-      ? " · " + threads.failedTerms.length + " search terms skipped by " + PROVIDER.label : "";
-    $("#firmsFoot").textContent = threads.length + " threads read · " + firmRows.length + " contacts · " +
-      dismissedFirms.size + " dismissed" + skipped + ".";
+    const skipped = threads.failedTerms.length ? " · " + threads.failedTerms.length + " search terms skipped" : "";
+    $("#firmsFoot").textContent = threads.length + " threads read" +
+      (threads.inboxes > 1 ? " across " + threads.inboxes + " inboxes" : "") + " · " + firmRows.length + " contacts · " +
+      dismissedFirms.size + " dismissed" + skipped + partialNote(threads.partial) + ".";
     seedTargetsFromContacts();
     renderConvos();
     updateGauges();
@@ -1643,11 +1839,12 @@ async function scanPe(){
   const out = $("#peOut");
   out.innerHTML = scanLine("Sweeping event mail");
   try{
-    const threads = await PROVIDER.sweep(SPEC_EVENTS, CAP_SWEEP, windowDays, progress("Reading event threads"));
+    const threads = await sweepAll(SPEC_EVENTS, "Reading event threads");
     peRows = buildPeRows(threads);
     renderPe();
-    $("#peFoot").textContent = threads.length + " threads read · " + peRows.length + " funds matched · " +
-      dismissedPe.size + " dismissed · scored against " + PE_FIRMS.length + " fund name patterns.";
+    $("#peFoot").textContent = threads.length + " threads read" +
+      (threads.inboxes > 1 ? " across " + threads.inboxes + " inboxes" : "") + " · " + peRows.length + " funds matched · " +
+      dismissedPe.size + " dismissed · scored against " + PE_FIRMS.length + " fund name patterns" + partialNote(threads.partial) + ".";
     renderConvos();
     updateGauges();
   }catch(e){ sectionError(e, out, "pe"); $("#peFoot").textContent = ""; throw e; }
@@ -1660,7 +1857,17 @@ async function scanInbox(){
   const out = $("#inboxOut");
   out.innerHTML = scanLine("Loading " + (inboxQuery || inboxView));
   try{
-    const threads = (await PROVIDER.inbox(inboxView, inboxQuery)).filter(t => t && t.msgs.length).sort((a, b) => b.last - a.last);
+    const live = liveAccounts();
+    if(!live.length) throw new ApiError("expired", "Session expired");
+    const res = await Promise.allSettled(live.map(a => a.inbox(inboxView, inboxQuery)));
+    const lists = [], failed = [];
+    res.forEach((r, i) => {
+      if(r.status === "fulfilled") lists.push(r.value);
+      else{ noteAccountFailure(live[i], r.reason); failed.push({ acct: live[i], err: r.reason }); }
+    });
+    if(!lists.length) throw failed[0].err;
+    const multi = ACCOUNTS.length > 1;
+    const threads = mergeThreads(lists).filter(t => t && t.msgs.length).sort((a, b) => b.last - a.last);
     const rows = threads.map(t => {
       const m = t.msgs[t.msgs.length - 1];
       const unread = t.msgs.some(x => x.labels.indexOf("UNREAD") !== -1);
@@ -1668,11 +1875,14 @@ async function scanInbox(){
         '<td><div class="person"><span class="dot' + (unread ? "" : " off") + '"></span>' + avatar(displayOf(m.sender)) +
           '<div><span class="name">' + esc(displayOf(m.sender)) + '</span><span class="role">' + esc(m.email) + "</span></div></div></td>" +
         '<td><span class="snip"><b class="subj">' + esc(m.subject || "(no subject)") + "</b>" + esc(m.snippet.slice(0, 140)) + "</span></td>" +
+        (multi ? '<td><span class="srcbadge inboxtag" title="' + esc(acctEmail(t.acct)) + '">' + esc(acctEmail(t.acct)) + "</span></td>" : "") +
         '<td class="num">' + fmtDate(t.last) + "</td></tr>";
     }).join("");
-    out.innerHTML = rows
-      ? '<div class="tablewrap"><table><thead><tr><th>From</th><th>Subject</th><th>Date</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
-      : '<div class="tablewrap"><div class="empty">Nothing matches.</div></div>';
+    const note = partialNote(failed);
+    out.innerHTML = (rows
+      ? '<div class="tablewrap"><table><thead><tr><th>From</th><th>Subject</th>' + (multi ? "<th>Inbox</th>" : "") + "<th>Date</th></tr></thead><tbody>" + rows + "</tbody></table></div>"
+      : '<div class="tablewrap"><div class="empty">Nothing matches.</div></div>') +
+      (note ? '<div class="foot">' + esc(note.replace(/^ · /, "")) + ".</div>" : "");
   }catch(e){ sectionError(e, out, "inbox"); }
 }
 
@@ -1728,58 +1938,144 @@ function authError(e){
 }
 function showGate(){ $("#deck").hidden = true; $("#gate").hidden = false; }
 function showDeck(){ $("#gate").hidden = true; $("#deck").hidden = false; }
+let noticeTimer = null;
+function notice(text, info){
+  const el = $("#notice");
+  if(!el) return;
+  clearTimeout(noticeTimer);
+  el.textContent = text || "";
+  el.className = "notice" + (info ? " info" : "");
+  el.hidden = !text;
+  if(text) noticeTimer = setTimeout(() => { el.hidden = true; }, 12000);
+}
 
-async function startSession(adapter){
-  PROVIDER = adapter;
+/* ---------- linked inboxes ---------- */
+function renderAccounts(){
+  const el = $("#acctList");
+  if(!el) return;
+  el.innerHTML = ACCOUNTS.map(a => {
+    const ini = initials(a.email.split("@")[0].replace(/[._\-\d]+/g, " "));
+    return '<div class="acct' + (a.expired ? " expired" : "") + '">' +
+      '<span class="av" aria-hidden="true" style="--h:' + hueOf(a.email) + '" data-i="' + esc(ini) + '"></span>' +
+      '<div class="who"><span class="addr" title="' + esc(a.email) + '">' + esc(a.email) + "</span>" +
+        '<span class="kind">' + esc(a.label) + (a.expired ? ' · <button class="linkbtn" data-reconnect-acct="' + esc(a.key) + '">Reconnect</button>' : "") + "</span></div>" +
+      '<button class="kill" data-remove-acct="' + esc(a.key) + '" title="Unlink this inbox" aria-label="Unlink ' + esc(a.email) + '">✕</button>' +
+    "</div>";
+  }).join("");
+  $("#inboxQ").placeholder = ACCOUNTS.length > 1 ? "Search every linked inbox" : ACCOUNTS[0] ? ACCOUNTS[0].searchHint : "Search your mail";
+}
+function renderReconnect(){
+  const el = $("#reconnect");
+  const exp = ACCOUNTS.filter(a => a.expired);
+  if(!exp.length){ el.hidden = true; el.innerHTML = ""; return; }
+  el.hidden = false;
+  const who = exp.length === 1 ? exp[0].email + " needs to reconnect." : exp.length + " inboxes need to reconnect.";
+  const others = ACCOUNTS.length - exp.length;
+  el.innerHTML = "<span>" + esc(who) + " Access lasts about an hour at a time" +
+    (others ? "; your other inbox" + (others === 1 ? " is" : "es are") + " still being read" : "") + ". Notes are untouched.</span>" +
+    exp.map(a => '<button class="btn dark" data-reconnect-acct="' + esc(a.key) + '">Reconnect ' +
+      esc(exp.length > 1 ? a.email : a.label) + "</button>").join("");
+}
+
+/* Adds (or renews) one inbox. Returns "added", "renewed" or "dup". */
+async function addAccount(a){
+  if(!a.email || (a.kind === "microsoft" && !a.inboxId)) await a.profile();
+  if(!a.email) throw new ApiError("auth", "The provider didn't return an email address.");
+  const i = ACCOUNTS.findIndex(x => x.key === a.key);
+  const result = i === -1 ? "added" : ACCOUNTS[i].expired ? "renewed" : "dup";
+  if(i === -1) ACCOUNTS.push(a); else { ACCOUNTS[i].signOut(); ACCOUNTS[i] = a; }
+  OWNERS.add(a.email);
+  attachWorkspace(a.kind, a.email);
+  ACCOUNTS.forEach(x => { if(x.cache) x.cache.clear(); if(x.convCache) x.convCache.clear(); });   // re-tag "sent" with the new owner list
+  persistSessions();
+  return result;
+}
+function enterDeck(){
   showDeck();
-  setStatus("busy", "Connecting to " + adapter.label);
-  $("#reconnect").hidden = true;
-  try{
-    OWNER = await adapter.profile();
-  }catch(e){
-    showGate();
-    gateMsg(AUTH_COPY[e.code] || ERR_COPY[e.code] && ERR_COPY[e.code][1] || authError(e));
-    return;
-  }
-  setNamespace(adapter.kind, OWNER);
-  loadUserState();
-  $("#acct").textContent = OWNER;
-  $("#acctKind").textContent = adapter.label;
-  $("#acctAv").setAttribute("data-i", initials(OWNER.split("@")[0].replace(/[._\-\d]+/g, " ")));
-  $("#inboxQ").placeholder = adapter.searchHint;
+  loadUserState();                    // workspace may have just absorbed another inbox's notes
   $("#win").value = String(windowDays);
-  renderTargets(); renderConvos(); updateGauges();
+  renderAccounts(); renderReconnect();
+  renderTargets(); renderConvos(); renderFirms(); renderPe(); updateGauges();
   runAllScans();
+}
+function authFailed(e){
+  if(ACCOUNTS.length) notice(authError(e)); else { showGate(); gateMsg(authError(e)); }
+}
+/* Synchronous up to signIn(): Google's popup must open inside the click. */
+function connectGoogle(hint){
+  if(!ACCOUNTS.length) gateMsg(""); else notice("");
+  const a = makeGoogleAdapter();
+  const opts = hint ? { hint: hint } : ACCOUNTS.some(x => x.kind === "google") ? { prompt: "select_account" } : {};
+  return a.signIn(opts)
+    .then(() => addAccount(a))
+    .then(r => {
+      if(r === "dup") notice(a.email + " is already linked.", true);
+      else if(ACCOUNTS.length > 1) notice((r === "renewed" ? "Reconnected " : "Linked ") + a.email + ". Rescanning every inbox.", true);
+      enterDeck();
+    }, authFailed);
+}
+function connectMicrosoft(hint){
+  persistSessions();
+  if(ACCOUNTS.length) notice("Opening Microsoft sign-in…", true); else gateMsg("Opening Microsoft sign-in…", true);
+  return msBeginSignIn(hint).catch(authFailed);
+}
+function reconnectAccount(key){
+  const a = ACCOUNTS.find(x => x.key === key);
+  if(!a) return;
+  if(a.kind === "google") connectGoogle(a.email); else connectMicrosoft(a.email);
+}
+function clearDeck(){
+  firmRows = []; peRows = []; firmFunds = new Map(); targets = []; convos = {};
+  inboxLoaded = false;
+  ["#firmsOut", "#peOut", "#inboxOut", "#convoOut", "#targetsOut"].forEach(s => { $(s).innerHTML = ""; });
+  ["#firmsFoot", "#peFoot", "#convoFoot"].forEach(s => { $(s).textContent = ""; });
+  $("#onbooks").hidden = true;
+}
+function removeAccount(key){
+  const a = ACCOUNTS.find(x => x.key === key);
+  if(!a) return;
+  a.signOut();
+  ACCOUNTS = ACCOUNTS.filter(x => x !== a);
+  OWNERS.delete(a.email);
+  persistSessions();
+  if(!ACCOUNTS.length) return signOutAll("Unlinked " + a.email + ". Your notes stay saved on this device for next time.");
+  renderAccounts(); renderReconnect();
+  notice("Unlinked " + a.email + ". Its mail drops out of the results; your notes stay.", true);
+  runAllScans();
+}
+function signOutAll(msg){
+  ACCOUNTS.forEach(a => a.signOut());
+  ACCOUNTS = [];
+  OWNERS.clear();
+  clearSessions();
+  resetWorkspace();
+  clearDeck();
+  renderAccounts(); renderReconnect(); notice("");
+  showGate();
+  gateMsg(msg || "Signed out of every inbox. Your notes stay saved on this device for next time.", true);
 }
 
 async function runAllScans(){
-  if(scanning || !PROVIDER) return;
+  if(!ACCOUNTS.length) return;
+  if(scanning){ rescanQueued = true; return; }
   scanning = true;
   $("#rescanAll").disabled = true;
+  setStatus("busy", "Reading " + linkedLabel().replace(/ linked$/, ""));
   let failure = null;
   try{ await scanFirms(); }catch(e){ failure = e; }
   if(!failure || failure.code !== "expired"){ try{ await scanPe(); }catch(e){ failure = failure || e; } }
   if(!failure || failure.code !== "expired"){ inboxLoaded = true; scanInbox(); }
   scanning = false;
   $("#rescanAll").disabled = false;
+  if(rescanQueued){ rescanQueued = false; return runAllScans(); }
+  const exp = ACCOUNTS.filter(a => a.expired).length;
   if(failure){
     setStatus(failure.code === "expired" ? "warn" : "err",
-      failure.code === "expired" ? "Session expired" : "Some scans failed. See the affected tab.");
+      failure.code === "expired" ? "Session expired · reconnect to keep scanning" : "Some scans failed. See the affected tab.");
   }else{
-    setStatus("ok", PROVIDER.label + " linked · " + (windowDays ? "last " + ({180:"6 months",365:"year",730:"2 years"}[windowDays] || windowDays + " days") : "all time"));
+    setStatus(exp ? "warn" : "ok", linkedLabel() + (exp ? " · " + exp + " need" + (exp === 1 ? "s" : "") + " to reconnect" : "") + " · " + windowLabel());
     $("#stamp").textContent = "Last sweep " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   }
-}
-
-function signOut(){
-  if(PROVIDER) PROVIDER.signOut();
-  PROVIDER = null; OWNER = "";
-  firmRows = []; peRows = []; firmFunds = new Map(); targets = []; convos = {};
-  inboxLoaded = false;
-  ["#firmsOut", "#peOut", "#inboxOut", "#convoOut", "#targetsOut"].forEach(s => { $(s).innerHTML = ""; });
-  $("#onbooks").hidden = true;
-  showGate();
-  gateMsg("Signed out. Your notes stay saved on this device for next time.", true);
 }
 
 /* ====================================================================
@@ -1794,27 +2090,15 @@ TABS.forEach(pair => {
       document.getElementById(p[1]).hidden = !sel;
       if(sel && $("#pageTitle")) $("#pageTitle").textContent = document.getElementById(p[0]).dataset.title || document.getElementById(p[0]).textContent.trim();
     });
-    if(pair[0] === "tab-inbox" && !inboxLoaded && PROVIDER){ inboxLoaded = true; scanInbox(); }
+    if(pair[0] === "tab-inbox" && !inboxLoaded && ACCOUNTS.length){ inboxLoaded = true; scanInbox(); }
   });
 });
 
-$("#connectGoogle").addEventListener("click", () => {
-  gateMsg("");
-  GoogleAdapter.signIn().then(() => startSession(GoogleAdapter), e => gateMsg(authError(e)));   // no await before signIn: keeps the popup user-initiated
-});
-$("#connectMicrosoft").addEventListener("click", () => {
-  gateMsg("Opening Microsoft sign-in…", true);
-  MicrosoftAdapter.signIn().catch(e => gateMsg(authError(e)));
-});
-$("#reconnectBtn").addEventListener("click", () => {
-  if(!PROVIDER) return;
-  if(PROVIDER.kind === "google"){
-    GoogleAdapter.signIn().then(() => { $("#reconnect").hidden = true; runAllScans(); }, e => setStatus("err", authError(e)));
-  }else{
-    MicrosoftAdapter.signIn();
-  }
-});
-$("#signOut").addEventListener("click", signOut);
+$("#connectGoogle").addEventListener("click", () => connectGoogle());
+$("#connectMicrosoft").addEventListener("click", () => connectMicrosoft());
+$("#addGoogle").addEventListener("click", () => connectGoogle());
+$("#addMicrosoft").addEventListener("click", () => connectMicrosoft());
+$("#signOut").addEventListener("click", () => signOutAll());
 $("#eraseData").addEventListener("click", () => {
   eraseNamespace();
   loadUserState();
@@ -1831,6 +2115,8 @@ document.addEventListener("click", ev => {
   if(!(t instanceof Element)) return;
   const b = t.closest("button");
   if(!b) return;
+  if(b.dataset.reconnectAcct){ reconnectAccount(b.dataset.reconnectAcct); return; }
+  if(b.dataset.removeAcct){ removeAccount(b.dataset.removeAcct); return; }
   if(b.dataset.dismissFirm){
     dismissedFirms.add(b.dataset.dismissFirm); save(K.dismissFirms, Array.from(dismissedFirms));
     firmRows = firmRows.filter(r => r.key !== b.dataset.dismissFirm); renderFirms(); updateGauges(); return;
@@ -1912,8 +2198,8 @@ document.addEventListener("input", ev => {
   tick(); setInterval(tick, 1000);
 
   const gOk = isConfigured(CONFIG.googleClientId), mOk = isConfigured(CONFIG.microsoftClientId);
-  if(!gOk){ $("#connectGoogle").disabled = true; $("#connectGoogle").title = "Gmail sign-in isn't configured in this copy"; }
-  if(!mOk){ $("#connectMicrosoft").disabled = true; $("#connectMicrosoft").title = "Outlook sign-in isn't configured in this copy"; }
+  if(!gOk) ["#connectGoogle", "#addGoogle"].forEach(s => { $(s).disabled = true; $(s).title = "Gmail sign-in isn't configured in this copy"; });
+  if(!mOk) ["#connectMicrosoft", "#addMicrosoft"].forEach(s => { $(s).disabled = true; $(s).title = "Outlook sign-in isn't configured in this copy"; });
 
   if(location.protocol === "file:"){
     gateMsg("Open this page from its web address, not as a file on your computer. Google and Microsoft only allow sign-in from a registered URL.");
@@ -1928,13 +2214,30 @@ document.addEventListener("input", ev => {
     return;
   }
 
+  /* Bring back the inboxes linked earlier in this tab (the Outlook redirect
+     reloads the page), then finish an Outlook sign-in if we're returning from one. */
+  readSessions().forEach(s => {
+    const a = adapterFrom(s);
+    if(!a.token || Date.now() > a.exp - 30000) a.expired = true;
+    if(ACCOUNTS.some(x => x.key === a.key)) return;
+    ACCOUNTS.push(a);
+    OWNERS.add(a.email);
+    attachWorkspace(a.kind, a.email);
+  });
+  let err = null, added = null, ms = null;
   const q = new URLSearchParams(location.search);
   if(q.has("code") || q.has("error")){
-    gateMsg("Finishing Microsoft sign-in…", true);
+    if(!ACCOUNTS.length) gateMsg("Finishing Microsoft sign-in…", true);
     try{
-      if(await MicrosoftAdapter.completeRedirect()){ gateMsg(""); return startSession(MicrosoftAdapter); }
-    }catch(e){ gateMsg(authError(e)); }
+      ms = await msCompleteRedirect();
+      if(ms) added = await addAccount(ms);
+    }catch(e){ err = e; }
   }
+  if(!ACCOUNTS.length){ if(err) gateMsg(authError(err)); else gateMsg(""); return; }
+  enterDeck();
+  if(err) notice(authError(err));
+  else if(added === "dup") notice(ms.email + " is already linked.", true);
+  else if(added && ACCOUNTS.length > 1) notice((added === "renewed" ? "Reconnected " : "Linked ") + ms.email + ". Rescanning every inbox.", true);
 })();
 
 </script>
