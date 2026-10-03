@@ -1,0 +1,12 @@
+.hh-cards{grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));align-items:start}
+.hh-section{border-top:1px solid var(--line);padding-top:16px;margin-top:8px}
+.hh-section h3{font-size:14px;margin:0 0 10px}
+.hh-section summary{font-size:14px;font-weight:600;cursor:pointer;padding:4px 0 12px}
+.hh-help{font-size:12px;color:var(--ink-3);line-height:1.6;margin:0 0 12px}
+.hh-heading{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hh-heading h3{margin:0}
+.hh-entry{border:1px solid var(--line);padding:12px;border-radius:10px;margin-bottom:10px}
+.hh-entry summary{line-height:1.5}
+.hh-cards textarea{min-height:90px;resize:vertical}
+.hh-cards .frow{flex-wrap:wrap}
+@media(max-width:500px){.hh-heading{align-items:flex-start;flex-direction:column}.hh-cards .frow{display:block}}
