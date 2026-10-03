@@ -229,6 +229,12 @@ tbody tr:hover{background:#FAFAF7}
 .num{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink-2);white-space:nowrap}
 .snip{display:block;font-size:12.5px;color:var(--ink-3);max-width:52ch}
 .snip b{display:block;color:var(--ink);font-weight:500;font-size:13.5px;margin-bottom:1px}
+#peOut table{min-width:850px}
+#peOut td,#peOut th{padding-left:10px;padding-right:10px}
+#peOut .badge{white-space:normal;max-width:180px}
+#peOut select{width:180px;max-width:100%}
+#peOut .role{white-space:normal;max-width:32ch}
+#peOut td:nth-child(5){min-width:210px}
 .via{color:var(--ink-3)}
 
 /* ---------- pills ---------- */
@@ -391,7 +397,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
       <div class="privacy" aria-label="How your data is handled">
         <div><b>Read-only</b>The app only asks to read mail. It can't send, delete, move or change anything.</div>
         <div><b>No server</b>Your mail goes straight from Google or Microsoft to this page in your browser. It's never uploaded anywhere else.</div>
-        <div><b>Stays on this device</b>Checkmarks, notes and dossiers are saved in this browser only. Email content is never saved; it's re-read each scan. Sign-ins last up to an hour and end when you close the tab.</div>
+        <div><b>Stays on this device</b>Mail text you've synced, scan progress, corrections and notes are saved in this browser. Return to your saved dashboard and sync just the changes. Use “Erase saved data” to remove local copies. Mail access expires separately; reconnect when needed.</div>
       </div>
 
       <details class="heads">
@@ -464,7 +470,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
             <option value="0">All time</option>
           </select>
         </label>
-        <button class="btn dark" id="rescanAll">Rescan</button>
+        <button class="btn dark" id="rescanAll">Sync changes</button>
       </div>
     </header>
 
@@ -484,7 +490,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
       <div class="shead">
         <div>
           <h2>Recruiter contact log</h2>
-          <p>Mail matched by recruiting keyword, by a known search-firm domain, or parsed from LinkedIn invites where the sender's title or company reads as recruiting. Names come from the sender header or their signature. Dismiss anything that slipped through.</p>
+          <p>Contacts detected from saved mail, known search-firm domains and recruiting language. Unrecognized firms are marked for review. Names come from sender headers or signatures; dismiss anything that slipped through.</p>
         </div>
       </div>
       <div id="firmsOut"></div>
@@ -525,7 +531,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
       <div class="shead">
         <div>
           <h2>Fund engagement ladder</h2>
-          <p>Event threads scored by the strongest signal in the thread. Attended plus a real follow-up outranks attendance, which outranks a confirmed RSVP, a registration, and a cold invite. Threads about the same fund are merged.</p>
+          <p>Progress comes from individual messages with supporting evidence. Attendance and follow-up must refer to the same fund and conversation. Review uncertain matches or set your own status; your correction is saved.</p>
         </div>
       </div>
       <div id="peOut"></div>
@@ -536,7 +542,7 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
       <div class="shead">
         <div>
           <h2>Raw mail feed</h2>
-          <p>The unfiltered view, in case the scanners missed something.</p>
+          <p>Search the full text of mail saved in this time window. Available even when your mail sign-in has expired.</p>
         </div>
       </div>
       <div class="chips">
@@ -546,19 +552,21 @@ tr.unread td:first-child{box-shadow:inset 3px 0 0 var(--lime-edge)}
         <button class="chip" data-view="starred" aria-pressed="false">Starred</button>
         <input type="text" id="inboxQ" placeholder="Search your mail" aria-label="Search your mail">
         <button class="btn dark" id="inboxGo">Search</button>
-        <button class="btn" id="inboxRefresh">Refresh</button>
+        <button class="btn" id="inboxRefresh">Sync changes</button>
       </div>
       <div id="inboxOut"></div>
     </section>
 
     <footer class="appfoot">
-      <span>Read-only · Runs in your browser · Notes saved on this device only</span>
+      <span>Read-only · Mail and notes saved on this device only</span>
       <span class="spacer"></span>
-      <button class="erase" id="eraseData">Erase my saved notes on this device</button>
+      <button class="erase" id="eraseData">Erase saved data</button>
     </footer>
   </main>
 </div>
 
+<script src="mail-store.js"></script>
+<script src="mail-sync.js"></script>
 <script>
 "use strict";
 
@@ -576,7 +584,7 @@ const isConfigured = id => !!id && !/^PASTE_/.test(id);
 /* ====================================================================
    STORAGE — namespaced per signed-in account, so two people sharing a
    browser never see each other's notes. Only user-entered state is
-   stored. Email content never touches storage.
+   stored here. Mail and sync checkpoints use IndexedDB in mail-store.js.
    ==================================================================== */
 let NS = "rcd.app.v1.anon.";
 function hashStr(s){
@@ -588,7 +596,10 @@ function load(key, fallback){
   try{ const v = localStorage.getItem(NS + key); return v == null ? fallback : JSON.parse(v); }
   catch(e){ return fallback; }
 }
-function save(key, val){ try{ localStorage.setItem(NS + key, JSON.stringify(val)); }catch(e){} }
+function save(key, val){
+  try{ localStorage.setItem(NS + key, JSON.stringify(val)); }
+  catch(e){ notice("Your latest edit could not be saved. Free browser storage before closing this page."); }
+}
 function eraseNamespace(){
   try{ Object.keys(localStorage).filter(k => k.indexOf(NS) === 0).forEach(k => localStorage.removeItem(k)); }catch(e){}
 }
@@ -597,7 +608,9 @@ const K = {
   dismissPe:    "dismissed.pe",
   targets:      "targets",
   seeded:       "targets.seeded",
-  convos:       "convos"
+  convos:       "convos",
+  overrides:    "progress.overrides",
+  window:       "window"
 };
 
 /* One shared set of notes for every inbox linked together. wsmap remembers
@@ -614,6 +627,7 @@ function rawSet(ns, k, v){ try{ localStorage.setItem(ns + k, JSON.stringify(v));
 function rawDel(ns){ try{ Object.keys(localStorage).filter(x => x.indexOf(ns) === 0).forEach(x => localStorage.removeItem(x)); }catch(e){} }
 function mergeInto(srcNs, dstNs){
   if(srcNs === dstNs) return;
+  rawSet(dstNs, K.overrides, Object.assign({}, rawGet(srcNs, K.overrides) || {}, rawGet(dstNs, K.overrides) || {}));
   const union = k => { const a = rawGet(srcNs, k), b = rawGet(dstNs, k); if(a) rawSet(dstNs, k, Array.from(new Set((b || []).concat(a)))); };
   union(K.dismissFirms); union(K.dismissPe);
   const st = rawGet(srcNs, K.targets), dt = rawGet(dstNs, K.targets);
@@ -756,9 +770,10 @@ function stripPersonParens(text){
 }
 
 const RANK = {
-  5: { label: "High Traction — Attended + Follow-up", cls: "b5" },
-  4: { label: "Attended",   cls: "b4" },
-  3: { label: "Confirmed",  cls: "b3" },
+  0: { label: "Needs review", cls: "b1" },
+  5: { label: "Attendance + follow-up evidence", cls: "b5" },
+  4: { label: "Attendance evidence", cls: "b4" },
+  3: { label: "RSVP confirmed", cls: "b3" },
   2: { label: "Registered", cls: "b2" },
   1: { label: "Invited",    cls: "b1" }
 };
@@ -779,8 +794,7 @@ const SPEC_EVENTS = {
   domains: [],
   linkedin: false
 };
-const CAP_SWEEP = 250;   // threads per sweep
-const CAP_INBOX = 50;
+
 
 /* ====================================================================
    UTILITIES
@@ -929,7 +943,7 @@ function finishThread(id, msgs, acct){
   const seen = new Set();
   msgs = msgs.filter(m => m.ts && !seen.has(m.id) && seen.add(m.id)).sort((a, b) => a.ts - b.ts);
   msgs.forEach(m => {
-    m.text = m.snippet;
+    m.text = m.text == null ? m.snippet : m.text;
     if(acct) m.acct = acct;
     if(OWNERS.has(m.email)){ m.sent = true; if(m.labels.indexOf("SENT") === -1) m.labels.push("SENT"); }
   });
@@ -939,14 +953,14 @@ function finishThread(id, msgs, acct){
     msgs: msgs,
     first: msgs.length ? msgs[0].ts : 0,
     last:  msgs.length ? msgs[msgs.length - 1].ts : 0,
-    text:  msgs.map(m => m.subject + " " + m.snippet).join(" · "),
+    text:  msgs.map(m => m.subject + " " + m.text).join(" · "),
     subject: msgs.length ? msgs[0].subject : "(no subject)"
   };
 }
 /* A message can sit in several linked inboxes (a recruiter CC'ing two of your
    addresses, or a forward). Keep the first copy, matched on the Message-ID both
    providers expose; fall back to sender + subject + time when it's missing. */
-function msgKey(m){ return m.mid || (m.email + "|" + normKey(m.subject).slice(0, 60) + "|" + Math.round(m.ts / 120000)); }
+function msgKey(m){ return m.mid || (m.acct + ":" + m.id); }
 function mergeThreads(lists){
   const seen = new Set(), out = [];
   lists.forEach(list => (list || []).forEach(t => {
@@ -1026,12 +1040,14 @@ function gmMsg(m){
   const labels = (m.labelIds || []).slice();
   return {
     id: m.id,
+    threadId: m.threadId || m.id,
     mid: String(gHeader(m, "Message-ID")).trim().toLowerCase(),
     sender: from,
     email: emailOf(from),
     to: splitAddrs(gHeader(m, "To")).concat(splitAddrs(gHeader(m, "Cc"))),
     subject: deent(gHeader(m, "Subject")),
     snippet: deent(m.snippet || ""),
+    text: gmailBody(m.payload),
     ts: Number(m.internalDate) || Date.parse(gHeader(m, "Date")) || 0,
     labels: labels,
     sent: labels.indexOf("SENT") !== -1
@@ -1091,48 +1107,6 @@ function makeGoogleAdapter(saved){
       this.email = String(p.emailAddress || "").toLowerCase();
       return this.email;
     },
-    thread(id){
-      if(!this.cache.has(id)){
-        const p = this.pool(() => this.get("/threads/" + encodeURIComponent(id), {
-          format: "metadata", metadataHeaders: ["From", "To", "Cc", "Subject", "Date", "Message-ID"]
-        })).then(t => finishThread(t.id, (t.messages || []).map(gmMsg), this.key));
-        p.catch(() => this.cache.delete(id));
-        this.cache.set(id, p);
-      }
-      return this.cache.get(id);
-    },
-    async listIds(q, cap){
-      const ids = []; let pageToken;
-      while(ids.length < cap){
-        const r = await this.pool(() => this.get("/threads", { q: q, maxResults: Math.min(100, cap - ids.length), pageToken: pageToken }));
-        (r.threads || []).forEach(t => ids.push(t.id));
-        pageToken = r.nextPageToken;
-        if(!pageToken || !(r.threads || []).length) break;
-      }
-      return ids;
-    },
-    async fetchThreads(ids, onProgress){
-      let done = 0;
-      const tick = () => onProgress && onProgress(++done, ids.length);
-      const out = await Promise.all(ids.map(id => this.thread(id).then(
-        t => { tick(); return t; },
-        e => { tick(); if(e.code === "api") return null; throw e; })));   // one deleted thread shouldn't sink the scan
-      return out.filter(Boolean);
-    },
-    async sweep(spec, cap, days, onProgress){
-      const parts = spec.terms.slice();
-      spec.domains.forEach(d => parts.push("from:" + d));
-      if(spec.linkedin) parts.push("from:" + LINKEDIN_FROM);
-      const q = "{" + parts.join(" ") + "}" + (days ? " newer_than:" + days + "d" : "");
-      const ids = await this.listIds(q, cap);
-      const threads = await this.fetchThreads(ids, onProgress);
-      threads.failedTerms = [];
-      return threads;
-    },
-    async inbox(view, query, onProgress){
-      const q = query || { inbox: "in:inbox", unread: "is:unread", sent: "in:sent", starred: "is:starred" }[view] || "in:inbox";
-      return this.fetchThreads(await this.listIds(q, CAP_INBOX), onProgress);
-    },
     signOut(){
       try{ if(this.token && this.ready()) google.accounts.oauth2.revoke(this.token, () => {}); }catch(e){}
       this.token = null; this.cache.clear();
@@ -1151,7 +1125,7 @@ function makeGoogleAdapter(saved){
 const MS_AUTH = "https://login.microsoftonline.com/common/oauth2/v2.0";
 const MS_SCOPE = "openid profile https://graph.microsoft.com/User.Read https://graph.microsoft.com/Mail.Read";
 const MS_GRAPH = "https://graph.microsoft.com/v1.0";
-const MS_SELECT = "id,conversationId,internetMessageId,subject,bodyPreview,from,sender,toRecipients,ccRecipients,receivedDateTime,sentDateTime,isRead,flag,parentFolderId";
+const MS_SELECT = "id,conversationId,internetMessageId,subject,body,bodyPreview,from,sender,toRecipients,ccRecipients,receivedDateTime,sentDateTime,isRead,isDraft,flag,parentFolderId,webLink";
 
 function b64url(bytes){
   let s = "";
@@ -1177,6 +1151,8 @@ function msMsg(m, ad){
   if(sent) labels.push("SENT");
   return {
     id: m.id,
+    threadId: m.conversationId || m.id,
+    webLink: m.webLink || "",
     mid: String(m.internetMessageId || "").trim().toLowerCase(),
     sender: sender,
     email: addr,
@@ -1184,6 +1160,7 @@ function msMsg(m, ad){
           .map(r => String((r.emailAddress && r.emailAddress.address) || "").toLowerCase()).filter(Boolean),
     subject: deent(m.subject || ""),
     snippet: deent(m.bodyPreview || "").slice(0, 300),
+    text: currentMailText(m.body?.contentType?.toLowerCase() === "html" ? htmlMailText(m.body.content) : (m.body?.content || "")),
     ts: Date.parse(m.receivedDateTime || m.sentDateTime) || 0,
     labels: labels,
     sent: sent
@@ -1235,7 +1212,7 @@ async function msCompleteRedirect(){
 function makeMicrosoftAdapter(saved){
   const a = {
     kind: "microsoft", label: "Outlook",
-    email: "", token: null, exp: 0, expired: false, inboxId: null, sentId: null,
+    email: "", token: null, exp: 0, expired: false, inboxId: null, sentId: null, deletedId: null, junkId: null,
     pool: makePool(4),            // Outlook allows 4 concurrent requests per mailbox
     convCache: new Map(),
     searchHint: "Outlook search, e.g. dspny.com or coffee chat",
@@ -1243,10 +1220,11 @@ function makeMicrosoftAdapter(saved){
 
     headers(){
       if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
-      return { Authorization: "Bearer " + this.token };
+      return { Authorization: "Bearer " + this.token, Prefer: 'IdType="ImmutableId", outlook.body-content-type="text"' };
     },
     async get(pathOrUrl, params){
       const u = /^https:/.test(pathOrUrl) ? new URL(pathOrUrl) : new URL(MS_GRAPH + pathOrUrl);
+      if(u.origin !== "https://graph.microsoft.com") throw new ApiError("api", "Invalid Outlook continuation URL.");
       if(params) setParams(u, params);
       return http(u, { headers: this.headers() }, "Microsoft");
     },
@@ -1255,96 +1233,22 @@ function makeMicrosoftAdapter(saved){
       try{
         const f = await Promise.all([
           this.get("/me/mailFolders/inbox", { $select: "id" }),
-          this.get("/me/mailFolders/sentitems", { $select: "id" })
+          this.get("/me/mailFolders/sentitems", { $select: "id" }),
+          this.get("/me/mailFolders/deleteditems", { $select: "id" }),
+          this.get("/me/mailFolders/junkemail", { $select: "id" })
         ]);
-        this.inboxId = f[0].id; this.sentId = f[1].id;
+        this.inboxId = f[0].id; this.sentId = f[1].id; this.deletedId = f[2].id; this.junkId = f[3].id;
       }catch(e){ if(e.code === "expired" || e.code === "scope") throw e; }
       this.email = String(me.mail || me.userPrincipalName || "").toLowerCase();
       return this.email;
     },
-    /* Graph $search is KQL and can't be combined with $filter/$orderby, so each
-       term runs as its own search, time windows are applied client-side, and a
-       term Graph rejects is retried unquoted, then skipped rather than failing the scan. */
-    async search(term, cap){
-      const out = [];
-      let page;
-      try{
-        page = await this.pool(() => this.get("/me/messages", {
-          $search: '"' + term.replace(/"/g, '\\"') + '"', $top: 50, $select: MS_SELECT
-        }));
-      }catch(e){
-        if(e.code === "api" && /"/.test(term)) return this.search(term.replace(/"/g, ""), cap);
-        throw e;
-      }
-      for(;;){
-        (page.value || []).forEach(m => out.push(m));
-        const next = page["@odata.nextLink"];
-        if(!next || out.length >= cap) break;
-        page = await this.pool(() => this.get(next));
-      }
-      return out.slice(0, cap);
-    },
-    conversation(cid){
-      if(!this.convCache.has(cid)){
-        const p = this.pool(() => this.get("/me/messages", {
-          $filter: "conversationId eq '" + cid.replace(/'/g, "''") + "'", $top: 50, $select: MS_SELECT
-        })).then(r => r.value || []);
-        p.catch(() => this.convCache.delete(cid));
-        this.convCache.set(cid, p);
-      }
-      return this.convCache.get(cid);
-    },
-    async threadsFrom(hits, cap, days, onProgress, expand){
-      const cutoff = days ? Date.now() - days * 86400000 : 0;
-      const byConv = new Map();
-      hits.forEach(m => {
-        const ts = Date.parse(m.receivedDateTime || m.sentDateTime) || 0;
-        if(ts < cutoff) return;
-        const c = m.conversationId || m.id;
-        if(!byConv.has(c)) byConv.set(c, { list: [], last: 0 });
-        const g = byConv.get(c); g.list.push(m); g.last = Math.max(g.last, ts);
-      });
-      const convs = Array.from(byConv.entries()).sort((x, y) => y[1].last - x[1].last).slice(0, cap);
-      let done = 0;
-      return Promise.all(convs.map(([cid, g]) => {
-        const full = expand
-          ? this.conversation(cid).then(all => all.length ? all.concat(g.list) : g.list,
-                                        e => { if(e.code === "expired" || e.code === "scope") throw e; return g.list; })
-          : Promise.resolve(g.list);
-        return full.then(list => { onProgress && onProgress(++done, convs.length); return finishThread(cid, list.map(m => msMsg(m, this)), this.key); });
-      }));
-    },
-    async sweep(spec, cap, days, onProgress){
-      const terms = spec.terms.concat(spec.domains).concat(spec.linkedin ? [LINKEDIN_FROM] : []);
-      const hits = [], failed = [];
-      await Promise.all(terms.map(t => this.search(t, 100).then(
-        r => { r.forEach(m => hits.push(m)); },
-        e => { if(e.code === "expired" || e.code === "scope" || e.code === "disabled") throw e; failed.push(t); })));
-      const threads = await this.threadsFrom(hits, cap, days, onProgress, true);
-      threads.failedTerms = failed;
-      return threads;
-    },
-    async inbox(view, query, onProgress){
-      let list;
-      if(query) list = await this.search(query, CAP_INBOX);
-      else {
-        const req = {
-          inbox:   ["/me/mailFolders/inbox/messages",     { $orderby: "receivedDateTime desc" }],
-          unread:  ["/me/mailFolders/inbox/messages",     { $filter: "isRead eq false" }],
-          sent:    ["/me/mailFolders/sentitems/messages", { $orderby: "sentDateTime desc" }],
-          starred: ["/me/messages",                       { $filter: "flag/flagStatus eq 'flagged'" }]
-        }[view] || ["/me/mailFolders/inbox/messages", { $orderby: "receivedDateTime desc" }];
-        const r = await this.pool(() => this.get(req[0], Object.assign({ $top: CAP_INBOX, $select: MS_SELECT }, req[1])));
-        list = r.value || [];
-      }
-      return this.threadsFrom(list, CAP_INBOX, 0, onProgress, false);
-    },
     signOut(){ this.token = null; this.convCache.clear(); },
-    toJSON(){ return { kind: this.kind, email: this.email, token: this.token, exp: this.exp, inboxId: this.inboxId, sentId: this.sentId }; }
+    toJSON(){ return { kind: this.kind, email: this.email, token: this.token, exp: this.exp, inboxId: this.inboxId, sentId: this.sentId, deletedId: this.deletedId, junkId: this.junkId }; }
   };
   if(saved){
     a.email = saved.email || ""; a.token = saved.token || null; a.exp = saved.exp || 0;
     a.inboxId = saved.inboxId || null; a.sentId = saved.sentId || null;
+    a.deletedId = saved.deletedId || null; a.junkId = saved.junkId || null;
   }
   return a;
 }
@@ -1357,8 +1261,12 @@ let windowDays = 365;
 let firmRows = [], firmFunds = new Map(), peRows = [];
 let targets = [], convos = {};
 let dismissedFirms = new Set(), dismissedPe = new Set();
-let inboxView = "inbox", inboxQuery = "", inboxLoaded = false;
+let inboxView = "inbox", inboxQuery = "", inboxLoaded = false, inboxLimit = 50;
 let scanning = false, rescanQueued = false;
+let progressOverrides = {}, syncEpoch = 0;
+const mailStore = new MailStore();
+const savedMail = new Map();
+const REMEMBERED_KEY = "rcd.app.v3.accounts";
 
 /* Sign-ins are held in this tab's sessionStorage for their ~1h life so the
    Outlook redirect (and a refresh) doesn't drop the other linked inboxes.
@@ -1366,6 +1274,7 @@ let scanning = false, rescanQueued = false;
 const SESS_KEY = "rcd.app.v2.sessions";
 function persistSessions(){
   try{ sessionStorage.setItem(SESS_KEY, JSON.stringify(ACCOUNTS.filter(a => a.email).map(a => a.toJSON()))); }catch(e){}
+  try{ localStorage.setItem(REMEMBERED_KEY, JSON.stringify(ACCOUNTS.filter(a => a.email).map(a => ({ kind: a.kind, email: a.email })))); }catch(e){}
 }
 function readSessions(){
   try{ return (JSON.parse(sessionStorage.getItem(SESS_KEY) || "[]") || []).filter(s => s && s.email && (s.kind === "google" || s.kind === "microsoft")); }
@@ -1390,7 +1299,11 @@ function loadUserState(){
   dismissedFirms = new Set(load(K.dismissFirms, []));
   dismissedPe    = new Set(load(K.dismissPe, []));
   targets        = load(K.targets, null) || defaultTargets();
+  targets.forEach(t => { if(t.manual == null) t.manual = !!load(K.seeded, false); });
   convos         = load(K.convos, null) || {};
+  progressOverrides = load(K.overrides, {});
+  const chosenWindow = load(K.window, 365);
+  windowDays = [0, 180, 365, 730].includes(chosenWindow) ? chosenWindow : 365;
   firmRows = []; peRows = []; firmFunds = new Map();
 }
 
@@ -1398,6 +1311,8 @@ function loadUserState(){
    ERRORS — each one says what happened and what fixes it
    ==================================================================== */
 const ERR_COPY = {
+  storage:  ["Couldn't save mail on this device", "Your sync checkpoint was not advanced. Free browser storage and try again."],
+  resync:   ["Index needs to resume", "Saved results are still available. Click Sync changes to continue."],
   expired:  ["Session expired", "Mail access lasts about an hour at a time. Reconnect to keep scanning; your notes are untouched."],
   scope:    ["Mail access wasn't granted", "Sign-in finished without permission to read mail. Sign out, connect again, and leave the mail permission checked."],
   disabled: ["This copy of the app isn't fully set up", "The mail API is switched off in the app's developer settings. Let the person who shared the link know."],
@@ -1449,28 +1364,36 @@ function partialNote(failed){
 }
 /* Run the same sweep against every live inbox at once and merge the results,
    counting a message that reached two of your inboxes only once. */
-async function sweepAll(spec, label){
-  const live = liveAccounts();
-  if(!live.length) throw new ApiError("expired", "Session expired");
-  const prog = progressAgg(label);
-  const res = await Promise.allSettled(live.map(a => a.sweep(spec, CAP_SWEEP, windowDays, prog(a.key))));
-  const lists = [], failed = [], failedTerms = [];
-  res.forEach((r, i) => {
-    const a = live[i];
-    if(r.status === "fulfilled"){
-      lists.push(r.value);
-      (r.value.failedTerms || []).forEach(t => failedTerms.push(a.label + ": " + t));
-    }else{
-      noteAccountFailure(a, r.reason);
-      failed.push({ acct: a, err: r.reason });
+function indexedThreads(){
+  const cutoff = windowDays ? Date.now() - windowDays * 86400000 : 0;
+  const lists = ACCOUNTS.map(a => {
+    const groups = new Map();
+    for(const row of savedMail.get(a.key)?.rows || []){
+      const m = row.message;
+      if(m.ts < cutoff) continue;
+      const id = m.threadId || m.id;
+      if(!groups.has(id)) groups.set(id, []);
+      groups.get(id).push(m);
     }
+    return [...groups].map(([id, msgs]) => finishThread(id, msgs, a.key));
   });
-  if(!lists.length) throw failed[0].err;
-  const merged = mergeThreads(lists);
-  merged.failedTerms = failedTerms;
-  merged.partial = failed;
-  merged.inboxes = lists.length;
-  return merged;
+  return mergeThreads(lists);
+}
+function renderSavedMail(){
+  const threads = indexedThreads();
+  firmRows = buildFirmRows(threads); peRows = buildPeRows(threads);
+  renderFirms(); renderPe(); renderConvos(); updateGauges();
+  if(inboxLoaded) scanInbox();
+  const total = [...savedMail.values()].reduce((n, x) => n + x.rows.length, 0);
+  const dates = ACCOUNTS.map(a => savedMail.get(a.key)?.state.lastSync).filter(Boolean);
+  const cutoff = windowDays ? Date.now() - windowDays * 86400000 : 0;
+  const olderMissing = ACCOUNTS.some(a => (savedMail.get(a.key)?.state.coverageFrom ?? Infinity) > cutoff);
+  const complete = !olderMissing && ACCOUNTS.every(a => savedMail.get(a.key)?.state.lastSync && !savedMail.get(a.key)?.state.syncing);
+  const latest = dates.length ? Math.min(...dates) : 0;
+  $("#stamp").textContent = latest ? "Saved sync " + new Date(latest).toLocaleString() : "Initial index incomplete";
+  const foot = total + " messages saved on this device · " + threads.length + " conversations in this window" + (complete ? "." : olderMissing ? " · older mail needs syncing." : " · sync incomplete.");
+  $("#firmsFoot").textContent = foot;
+  $("#peFoot").textContent = foot;
 }
 
 /* ====================================================================
@@ -1524,7 +1447,7 @@ function buildFirmRows(threads){
   }
   corpus.norm.forEach(t => t.msgs.forEach(m => {
     if(m.email === LINKEDIN_FROM){
-      const hit = RE_LINKEDIN.exec(m.snippet);
+      const hit = RE_LINKEDIN.exec(m.text || m.snippet);
       if(!hit) return;
       const person = hit[1].trim(), title = hit[2].trim(), org = hit[3].trim();
       if(!(RE_RECRUITER_ROLE.test(title) || RE_RECRUITER_ROLE.test(org))) return;
@@ -1532,9 +1455,11 @@ function buildFirmRows(threads){
       return;
     }
     if(corpus.owners.has(m.email)) return;
-    const firm = domainFirm(m.email);
-    if(!firm) return;
-    const r = touch("dm:" + m.email, { firm: firm, role: m.email, src: "Email" }, m.ts);
+    const known = domainFirm(m.email);
+    const recruiting = /\b(?:recruiter|recruiting|executive search|talent acquisition|headhunter|candidate registration|search firm)\b/i.test(m.subject + " " + m.text);
+    if(!known && !recruiting) return;
+    const firm = known || (m.email.split("@")[1] || "Unknown firm");
+    const r = touch("dm:" + m.email, { firm: firm, role: m.email, src: known ? "Email" : "Needs review" }, m.ts);
     if(!r.name){
       const pick = resolveName(m.sender, m.email, corpus.byEmail.get(m.email) || [m],
                                corpus.greets.get(m.email), firm, corpus.blacklist);
@@ -1580,37 +1505,20 @@ function renderFirms(){
       "</tr>").join("") + "</tbody></table></div>";
 }
 
-async function scanFirms(){
-  const out = $("#firmsOut");
-  out.innerHTML = scanLine("Sweeping recruiter mail");
-  try{
-    const threads = await sweepAll(SPEC_RECRUITERS, "Reading recruiter threads");
-    firmRows = buildFirmRows(threads);
-    renderFirms();
-    const skipped = threads.failedTerms.length ? " · " + threads.failedTerms.length + " search terms skipped" : "";
-    $("#firmsFoot").textContent = threads.length + " threads read" +
-      (threads.inboxes > 1 ? " across " + threads.inboxes + " inboxes" : "") + " · " + firmRows.length + " contacts · " +
-      dismissedFirms.size + " dismissed" + skipped + partialNote(threads.partial) + ".";
-    seedTargetsFromContacts();
-    renderConvos();
-    updateGauges();
-  }catch(e){ sectionError(e, out, "firms"); $("#firmsFoot").textContent = ""; throw e; }
-}
-
 /* ====================================================================
    TAB 2 — TOP 25
    ==================================================================== */
 function defaultTargets(){
   const list = [];
-  TIERS.forEach(t => t.firms.forEach((f, i) => list.push({ id: t.id + "-" + i + "-" + normKey(f), tier: t.id, name: f, on: false })));
+  TIERS.forEach(t => t.firms.forEach((f, i) => list.push({ id: t.id + "-" + i + "-" + normKey(f), tier: t.id, name: f, on: false, manual: false })));
   return list;
 }
 function saveTargets(){ save(K.targets, targets); }
 function seedTargetsFromContacts(){
-  if(load(K.seeded, false) || !firmRows.length) return;
+  if(!firmRows.length) return;
   let changed = false;
   targets.forEach(t => {
-    if(!t.on && firmRows.some(r => fuzzyFirmMatch(r.firm, t.name))){ t.on = true; changed = true; }
+    if(!t.manual && !t.on && firmRows.some(r => r.src === "Email" && fuzzyFirmMatch(r.firm, t.name))){ t.on = true; changed = true; }
   });
   save(K.seeded, true);
   if(changed){ saveTargets(); renderTargets(); }
@@ -1782,39 +1690,80 @@ function writeConvoField(el){
 /* ====================================================================
    TAB 4 — PE TRACTION
    ==================================================================== */
-function scoreThread(t){
-  const attended = RE_ATTENDED.test(t.text), strong = RE_STRONG.test(t.text);
-  if(attended && strong) return 5;
-  if(attended) return 4;
-  if(RE_CONFIRMED.test(t.text)) return 3;
-  if(RE_REGISTERED.test(t.text)) return 2;
-  return 1;
+function messageSignal(m){
+  const text = currentMailText(m.text || "");
+  const negated = /\b(?:did not|didn't|cannot|can't|unable to|could not|couldn't|not able to|won't|will not)\s+(?:have\s+|be\s+)?(?:attend|join|make|register)|\b(?:cancelled|canceled|declined|not confirmed)\b/i.test(text);
+  if(negated) return { rank: 0, conflict: true, phrase: "Conflicting or negative event language; review this message. " + text.slice(0, 240) };
+  const attended = m.sent
+    ? /\bI (?:attended|joined)\b[^.!?\n]{0,100}\b(?:event|webinar|reception|session|meeting)\b/i
+    : /\bthank(?:s| you)?\s+(?:you\s+)?for\s+(?:attending|joining|coming)|\b(?:great|nice) (?:to see|seeing|to meet|meeting) you at\b/i;
+  const confirmed = m.sent ? /\bI (?:confirm my attendance|have (?:registered|signed up))\b/i : /\b(?:your (?:RSVP|seat|spot|attendance) (?:is |has been )?confirmed|you(?:'re| are) confirmed|added you to the (?:list|invite))\b/i;
+  const registered = /\b(?:thank(?:s| you)? (?:you )?for registering|registration (?:is )?(?:confirmed|complete|received)|you are (?:now )?registered|successfully registered)\b/i;
+  const invite = /\b(?:invite you|you're invited|you are invited|invitation|please (?:join|RSVP|register)|save the date)\b/i;
+  for(const [rank, re] of [[4, attended], [3, confirmed], [2, registered], [1, invite]]){
+    const match = re.exec(text);
+    if(match) return { rank, phrase: text.slice(Math.max(0, match.index - 65), match.index + match[0].length + 180).trim() };
+  }
+  return { rank: 0, phrase: text.slice(0, 240) || "No readable message body; review the original email." };
+}
+function sourceUrl(m){
+  if(String(m.acct).startsWith("google:")) return "https://mail.google.com/mail/u/?authuser=" + encodeURIComponent(acctEmail(m.acct)) + "#all/" + encodeURIComponent(m.threadId || m.id);
+  try { const u = new URL(m.webLink); if(u.protocol === "https:" && /^(outlook\.office\.com|outlook\.office365\.com|outlook\.live\.com)$/.test(u.hostname)) return u.href; } catch(_){}
+  return "";
+}
+function evidenceHtml(e){
+  const url = sourceUrl(e.message);
+  return '<div style="margin-top:6px;max-width:52ch;white-space:normal"><span class="role">' + esc(fmtDate(e.message.ts)) + " · " + esc(e.message.sender) + '</span><span class="snip">' + esc(e.phrase) + '</span>' +
+    (url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Open source email</a>' : "") + "</div>";
 }
 function buildPeRows(threads){
   const acc = new Map();
   threads.forEach(t => {
     if(!t || !t.msgs.length) return;
-    const hay = stripPersonParens(t.text + " " + t.msgs.map(m => m.sender).join(" "));
-    const rank = scoreThread(t);
-    PE_FIRMS.forEach(pair => {
-      if(!pair[1].test(hay)) return;
-      const key = normKey(pair[0]);
-      let r = acc.get(key);
-      if(!r){ r = { key: key, firm: pair[0], rank: 0, last: 0, count: 0, subject: t.subject, snippet: "" }; acc.set(key, r); }
-      r.count += t.msgs.length;
-      if(rank > r.rank || (rank === r.rank && t.last > r.last)){
-        r.subject = t.subject;
-        r.snippet = t.msgs[t.msgs.length - 1].snippet.slice(0, 150);
-      }
-      r.rank = Math.max(r.rank, rank);
-      r.last = Math.max(r.last, t.last);
+    const attendance = new Map(), inThread = new Map();
+    // A fund must appear in this message's own text/subject. Multiple fund
+    // mentions are ambiguous and never share a positive inferred status.
+    t.msgs.forEach(m => {
+      const named = PE_FIRMS.filter(p => p[1].test(stripPersonParens(m.subject + " " + m.text)));
+      if(!named.length) return;
+      const signal = messageSignal(m);
+      if(!signal.rank && !signal.conflict && !/\b(?:event|webinar|reception|invite|invitation|RSVP|register|availability|next steps|coffee chat|meeting)\b/i.test(m.subject + " " + m.text)) return;
+      named.forEach(pair => {
+        const key = normKey(pair[0]);
+        let r = inThread.get(key);
+        if(!r){ r = { key, firm: pair[0], rank: 0, last: 0, count: 0, evidence: [], subject: m.subject }; inThread.set(key, r); }
+        r.count++; r.last = Math.max(r.last, m.ts);
+        let rank = named.length === 1 ? signal.rank : 0;
+        let evidence = [{ message: m, phrase: named.length > 1 ? "Multiple funds mentioned; confirm which fund this message concerns. " + signal.phrase : signal.phrase }];
+        if(signal.conflict && named.length === 1){ attendance.delete(key); r.rank = 0; r.evidence = evidence; r.subject = m.subject; return; }
+        if(rank === 4) attendance.set(key, evidence[0]);
+        const attended = attendance.get(key);
+        if(named.length === 1 && !m.sent && attended && attended.message.id !== m.id && m.ts > attended.message.ts &&
+          /\b(?:your availability|send (?:over|me) some times|schedule (?:a|some) time|next steps|happy to (?:chat|connect|speak))\b/i.test(m.text) &&
+          !/\b(?:cancelled|canceled|declined|not interested|unable|cannot|can't)\b/i.test(m.text)) {
+          rank = 5; evidence.unshift(attended);
+        }
+        if(rank > r.rank || (rank === r.rank && m.ts >= (r.evidence.at(-1)?.message.ts || 0))){
+          r.rank = rank; r.subject = m.subject; r.evidence = evidence;
+        }
+      });
+    });
+    inThread.forEach((r, key) => {
+      const prev = acc.get(key);
+      if(!prev){ acc.set(key, r); return; }
+      const chosen = r.rank > prev.rank || (r.rank === prev.rank && r.last > prev.last) ? r : prev;
+      acc.set(key, { ...chosen, count: prev.count + r.count, last: Math.max(prev.last, r.last) });
     });
   });
+  for(const [key, override] of Object.entries(progressOverrides)){
+    if(!Number.isInteger(override.rank) || !RANK[override.rank]) continue;
+    if(!acc.has(key)) acc.set(key, { key, firm: override.firm, rank: override.rank, last: 0, count: 0, evidence: [], subject: "No supporting email in this window" });
+    const r = acc.get(key); r.rank = override.rank; r.manual = true;
+  }
   return Array.from(acc.values()).filter(r => !dismissedPe.has(r.key)).sort((a, b) => (b.rank - a.rank) || (b.last - a.last));
 }
 function badgeFor(r){
-  let label = RANK[r.rank].label;
-  if(r.rank === 3) label = daysAgo(r.last) > 5 ? "Confirmed (Event Likely Occurred)" : "Confirmed / Upcoming";
+  let label = RANK[r.rank].label + (r.manual ? " · Set by you" : "");
   return '<span class="badge ' + RANK[r.rank].cls + '">' + esc(label) + "</span>";
 }
 function renderPe(){
@@ -1824,66 +1773,42 @@ function renderPe(){
     return;
   }
   out.innerHTML = '<div class="tablewrap"><table><thead><tr>' +
-    "<th>Fund</th><th>Traction</th><th>Last contact</th><th>Touchpoints</th><th>Latest thread</th><th></th>" +
+    "<th>Fund</th><th>Traction</th><th>Last contact</th><th>Touchpoints</th><th>Supporting evidence</th><th></th>" +
     "</tr></thead><tbody>" + peRows.map(r =>
       "<tr>" +
         '<td><div class="firmcell">' + fmark(r.firm) + '<span class="name">' + esc(r.firm) + "</span></div></td>" +
-        "<td>" + badgeFor(r) + "</td>" +
+        "<td>" + badgeFor(r) + '<div style="margin-top:8px"><select class="win" data-progress="' + esc(r.key) + '" aria-label="Progress for ' + esc(r.firm) + '"><option value="auto"' + (!r.manual ? " selected" : "") + '>Use email evidence</option>' +
+        Object.keys(RANK).map(n => '<option value="' + n + '"' + (r.manual && r.rank === Number(n) ? " selected" : "") + '>' + esc(RANK[n].label) + '</option>').join("") + '</select></div></td>' +
         '<td class="num">' + fmtDate(r.last) + "</td>" +
         '<td class="num" style="color:var(--ink);font-weight:600">' + r.count + "</td>" +
-        '<td><span class="snip"><b>' + esc(r.subject) + "</b>" + esc(r.snippet) + "</span></td>" +
+        '<td><span class="snip"><b>' + esc(r.subject) + "</b></span>" + r.evidence.map(evidenceHtml).join("") + "</td>" +
         '<td><button class="btn danger" data-dismiss-pe="' + esc(r.key) + '">Dismiss</button></td>' +
       "</tr>").join("") + "</tbody></table></div>";
 }
-async function scanPe(){
-  const out = $("#peOut");
-  out.innerHTML = scanLine("Sweeping event mail");
-  try{
-    const threads = await sweepAll(SPEC_EVENTS, "Reading event threads");
-    peRows = buildPeRows(threads);
-    renderPe();
-    $("#peFoot").textContent = threads.length + " threads read" +
-      (threads.inboxes > 1 ? " across " + threads.inboxes + " inboxes" : "") + " · " + peRows.length + " funds matched · " +
-      dismissedPe.size + " dismissed · scored against " + PE_FIRMS.length + " fund name patterns" + partialNote(threads.partial) + ".";
-    renderConvos();
-    updateGauges();
-  }catch(e){ sectionError(e, out, "pe"); $("#peFoot").textContent = ""; throw e; }
-}
-
 /* ====================================================================
    TAB 5 — INBOX
    ==================================================================== */
 async function scanInbox(){
-  const out = $("#inboxOut");
-  out.innerHTML = scanLine("Loading " + (inboxQuery || inboxView));
-  try{
-    const live = liveAccounts();
-    if(!live.length) throw new ApiError("expired", "Session expired");
-    const res = await Promise.allSettled(live.map(a => a.inbox(inboxView, inboxQuery)));
-    const lists = [], failed = [];
-    res.forEach((r, i) => {
-      if(r.status === "fulfilled") lists.push(r.value);
-      else{ noteAccountFailure(live[i], r.reason); failed.push({ acct: live[i], err: r.reason }); }
-    });
-    if(!lists.length) throw failed[0].err;
-    const multi = ACCOUNTS.length > 1;
-    const threads = mergeThreads(lists).filter(t => t && t.msgs.length).sort((a, b) => b.last - a.last);
-    const rows = threads.map(t => {
-      const m = t.msgs[t.msgs.length - 1];
-      const unread = t.msgs.some(x => x.labels.indexOf("UNREAD") !== -1);
-      return '<tr class="' + (unread ? "unread" : "") + '">' +
-        '<td><div class="person"><span class="dot' + (unread ? "" : " off") + '"></span>' + avatar(displayOf(m.sender)) +
-          '<div><span class="name">' + esc(displayOf(m.sender)) + '</span><span class="role">' + esc(m.email) + "</span></div></div></td>" +
-        '<td><span class="snip"><b class="subj">' + esc(m.subject || "(no subject)") + "</b>" + esc(m.snippet.slice(0, 140)) + "</span></td>" +
-        (multi ? '<td><span class="srcbadge inboxtag" title="' + esc(acctEmail(t.acct)) + '">' + esc(acctEmail(t.acct)) + "</span></td>" : "") +
-        '<td class="num">' + fmtDate(t.last) + "</td></tr>";
-    }).join("");
-    const note = partialNote(failed);
-    out.innerHTML = (rows
-      ? '<div class="tablewrap"><table><thead><tr><th>From</th><th>Subject</th>' + (multi ? "<th>Inbox</th>" : "") + "<th>Date</th></tr></thead><tbody>" + rows + "</tbody></table></div>"
-      : '<div class="tablewrap"><div class="empty">Nothing matches.</div></div>') +
-      (note ? '<div class="foot">' + esc(note.replace(/^ · /, "")) + ".</div>" : "");
-  }catch(e){ sectionError(e, out, "inbox"); }
+  const out = $("#inboxOut"), query = inboxQuery.trim().toLowerCase();
+  const messages = indexedThreads().flatMap(t => t.msgs).filter(m => {
+    if(query) return [m.sender, m.subject, m.text, ...(m.to || [])].join(" ").toLowerCase().includes(query);
+    const label = { inbox: "INBOX", unread: "UNREAD", sent: "SENT", starred: "STARRED" }[inboxView];
+    return !label || m.labels.includes(label);
+  }).sort((a, b) => b.ts - a.ts);
+  const multi = ACCOUNTS.length > 1;
+  const rows = messages.slice(0, inboxLimit).map(m => {
+    const unread = m.labels.includes("UNREAD"), url = sourceUrl(m);
+    return '<tr class="' + (unread ? "unread" : "") + '">' +
+      '<td><div class="person">' + avatar(displayOf(m.sender)) + '<div><span class="name">' + esc(displayOf(m.sender)) + '</span><span class="role">' + esc(m.email) + '</span></div></div></td>' +
+      '<td><span class="snip"><b>' + esc(m.subject || "(no subject)") + '</b>' + esc((m.text || m.snippet).slice(0, 180)) + '</span>' +
+      (url ? '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Open email</a>' : "") + '</td>' +
+      (multi ? '<td>' + esc(acctEmail(m.acct)) + '</td>' : "") + '<td class="num">' + fmtDate(m.ts) + '</td></tr>';
+  }).join("");
+  out.innerHTML = rows
+    ? '<div class="tablewrap"><table><thead><tr><th>From</th><th>Subject</th>' + (multi ? '<th>Inbox</th>' : '') + '<th>Date</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="foot">Showing ' + Math.min(inboxLimit, messages.length) + ' of ' + messages.length + ' saved messages in this window.</div>' +
+      (messages.length > inboxLimit ? '<button class="btn" id="inboxMore">Show more</button>' : '')
+    : '<div class="empty">No saved mail matches. Sync your inbox or change the time window.</div>';
 }
 
 /* ====================================================================
@@ -1962,7 +1887,7 @@ function renderAccounts(){
       '<button class="kill" data-remove-acct="' + esc(a.key) + '" title="Unlink this inbox" aria-label="Unlink ' + esc(a.email) + '">✕</button>' +
     "</div>";
   }).join("");
-  $("#inboxQ").placeholder = ACCOUNTS.length > 1 ? "Search every linked inbox" : ACCOUNTS[0] ? ACCOUNTS[0].searchHint : "Search your mail";
+  $("#inboxQ").placeholder = "Search saved mail";
 }
 function renderReconnect(){
   const el = $("#reconnect");
@@ -1983,20 +1908,28 @@ async function addAccount(a){
   if(!a.email) throw new ApiError("auth", "The provider didn't return an email address.");
   const i = ACCOUNTS.findIndex(x => x.key === a.key);
   const result = i === -1 ? "added" : ACCOUNTS[i].expired ? "renewed" : "dup";
-  if(i === -1) ACCOUNTS.push(a); else { ACCOUNTS[i].signOut(); ACCOUNTS[i] = a; }
+  if(i === -1) ACCOUNTS.push(a); else { ACCOUNTS[i].token = null; ACCOUNTS[i] = a; }
   OWNERS.add(a.email);
   attachWorkspace(a.kind, a.email);
   ACCOUNTS.forEach(x => { if(x.cache) x.cache.clear(); if(x.convCache) x.convCache.clear(); });   // re-tag "sent" with the new owner list
   persistSessions();
   return result;
 }
-function enterDeck(){
+async function enterDeck(){
+  const epoch = ++syncEpoch;
   showDeck();
   loadUserState();                    // workspace may have just absorbed another inbox's notes
   $("#win").value = String(windowDays);
   renderAccounts(); renderReconnect();
   renderTargets(); renderConvos(); renderFirms(); renderPe(); updateGauges();
-  runAllScans();
+  try{
+    const snapshots = await Promise.all(ACCOUNTS.map(async a => [a.key, await mailStore.read(a.key)]));
+    if(epoch !== syncEpoch) return;
+    savedMail.clear(); snapshots.forEach(([key, data]) => savedMail.set(key, data));
+    renderSavedMail();
+    if(liveAccounts().length) runAllScans();
+    else setStatus("warn", "Saved results · reconnect to sync changes");
+  }catch(e){ if(epoch === syncEpoch){ setStatus("err", "Saved mail could not be opened"); notice(e.message); } }
 }
 function authFailed(e){
   if(ACCOUNTS.length) notice(authError(e)); else { showGate(); gateMsg(authError(e)); }
@@ -2025,6 +1958,7 @@ function reconnectAccount(key){
   if(a.kind === "google") connectGoogle(a.email); else connectMicrosoft(a.email);
 }
 function clearDeck(){
+  savedMail.clear();
   firmRows = []; peRows = []; firmFunds = new Map(); targets = []; convos = {};
   inboxLoaded = false;
   ["#firmsOut", "#peOut", "#inboxOut", "#convoOut", "#targetsOut"].forEach(s => { $(s).innerHTML = ""; });
@@ -2034,20 +1968,24 @@ function clearDeck(){
 function removeAccount(key){
   const a = ACCOUNTS.find(x => x.key === key);
   if(!a) return;
+  syncEpoch++;
   a.signOut();
   ACCOUNTS = ACCOUNTS.filter(x => x !== a);
   OWNERS.delete(a.email);
+  savedMail.delete(key);
   persistSessions();
   if(!ACCOUNTS.length) return signOutAll("Unlinked " + a.email + ". Your notes stay saved on this device for next time.");
-  renderAccounts(); renderReconnect();
+  renderAccounts(); renderReconnect(); renderSavedMail();
   notice("Unlinked " + a.email + ". Its mail drops out of the results; your notes stay.", true);
   runAllScans();
 }
 function signOutAll(msg){
+  syncEpoch++; rescanQueued = false;
   ACCOUNTS.forEach(a => a.signOut());
   ACCOUNTS = [];
   OWNERS.clear();
   clearSessions();
+  try{ localStorage.removeItem(REMEMBERED_KEY); }catch(_){}
   resetWorkspace();
   clearDeck();
   renderAccounts(); renderReconnect(); notice("");
@@ -2058,23 +1996,49 @@ function signOutAll(msg){
 async function runAllScans(){
   if(!ACCOUNTS.length) return;
   if(scanning){ rescanQueued = true; return; }
+  const live = liveAccounts();
+  if(!live.length){ renderReconnect(); setStatus("warn", "Saved results · reconnect to sync changes"); return; }
+  const epoch = syncEpoch, days = windowDays;
   scanning = true;
   $("#rescanAll").disabled = true;
-  setStatus("busy", "Reading " + linkedLabel().replace(/ linked$/, ""));
-  let failure = null;
-  try{ await scanFirms(); }catch(e){ failure = e; }
-  if(!failure || failure.code !== "expired"){ try{ await scanPe(); }catch(e){ failure = failure || e; } }
-  if(!failure || failure.code !== "expired"){ inboxLoaded = true; scanInbox(); }
-  scanning = false;
-  $("#rescanAll").disabled = false;
-  if(rescanQueued){ rescanQueued = false; return runAllScans(); }
-  const exp = ACCOUNTS.filter(a => a.expired).length;
-  if(failure){
-    setStatus(failure.code === "expired" ? "warn" : "err",
-      failure.code === "expired" ? "Session expired · reconnect to keep scanning" : "Some scans failed. See the affected tab.");
-  }else{
-    setStatus(exp ? "warn" : "ok", linkedLabel() + (exp ? " · " + exp + " need" + (exp === 1 ? "s" : "") + " to reconnect" : "") + " · " + windowLabel());
-    $("#stamp").textContent = "Last sweep " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const errors = [];
+  try{
+    for(const a of live){
+      if(epoch !== syncEpoch) break;
+      setStatus("busy", "Syncing " + a.email + " · saved results stay available");
+      const valid = () => epoch === syncEpoch && ACCOUNTS.includes(a);
+      try{
+        const syncAccount = async () => {
+        if(!valid()) return;
+        const snapshot = await mailStore.read(a.key);
+        let rendered = 0;
+        const worker = new MailSync(mailStore, a, snapshot, valid, (count) => {
+          if(!valid()) return;
+          savedMail.set(a.key, { state: worker.state, rows: [...worker.rows.values()] });
+          setStatus("busy", "Syncing " + a.email + " · " + count + " messages saved");
+          if(Date.now() - rendered > 1000){ renderSavedMail(); rendered = Date.now(); }
+        });
+        if(a.kind === "microsoft" && !a.deletedId) await a.profile();
+        const result = await worker.run(days);
+        if(valid()) savedMail.set(a.key, result);
+        };
+        if(navigator.locks) await navigator.locks.request("rcd-sync:" + a.key, syncAccount);
+        else await syncAccount();
+      }catch(e){
+        if(e.code === "cancelled" || !valid()) break;
+        noteAccountFailure(a, e); errors.push(a.email + ": " + e.message);
+        // Only read committed data back after a failed page or storage write.
+        try{ const snapshot = await mailStore.read(a.key); if(valid()) savedMail.set(a.key, snapshot); }catch(_){}
+      }
+    }
+    if(epoch !== syncEpoch) return;
+    renderSavedMail(); seedTargetsFromContacts(); renderReconnect();
+    const expired = ACCOUNTS.filter(a => a.expired).length;
+    if(errors.length){ setStatus("warn", "Sync incomplete · saved results retained"); notice(errors.join(" · ")); }
+    else setStatus(expired ? "warn" : "ok", expired ? "Saved results · some inboxes need reconnecting" : "Up to date · " + windowLabel());
+  }finally{
+    scanning = false; $("#rescanAll").disabled = false;
+    if(rescanQueued){ rescanQueued = false; runAllScans(); }
   }
 }
 
@@ -2099,14 +2063,23 @@ $("#connectMicrosoft").addEventListener("click", () => connectMicrosoft());
 $("#addGoogle").addEventListener("click", () => connectGoogle());
 $("#addMicrosoft").addEventListener("click", () => connectMicrosoft());
 $("#signOut").addEventListener("click", () => signOutAll());
-$("#eraseData").addEventListener("click", () => {
-  eraseNamespace();
-  loadUserState();
-  renderTargets(); renderConvos(); renderFirms(); renderPe(); updateGauges();
-  $("#eraseData").textContent = "Erased";
-  setTimeout(() => { $("#eraseData").textContent = "Erase my saved notes on this device"; }, 1800);
+$("#eraseData").addEventListener("click", async () => {
+  if(!confirm("Erase saved mail, progress, corrections and notes for this workspace from this browser? This does not delete emails from Gmail or Outlook.")) return;
+  syncEpoch++; rescanQueued = false;
+  const b = $("#eraseData"); b.disabled = true;
+  try{
+    while(scanning) await sleep(50);
+    const map = readWsMap();
+    const keys = [...new Set(ACCOUNTS.map(a => a.key).concat(Object.keys(map).filter(k => map[k] === WS)))];
+    await mailStore.erase(keys);
+    eraseNamespace(); savedMail.clear(); loadUserState();
+    renderTargets(); renderSavedMail();
+    $("#inboxOut").innerHTML = ""; inboxLoaded = false;
+    setStatus("warn", "Saved data erased · click Sync changes to start again");
+  }catch(e){ notice("Saved data could not be fully erased: " + e.message); }
+  finally{ b.disabled = false; }
 });
-$("#win").addEventListener("change", e => { windowDays = Number(e.target.value) || 0; runAllScans(); });
+$("#win").addEventListener("change", e => { windowDays = Number(e.target.value) || 0; save(K.window, windowDays); syncEpoch++; renderSavedMail(); runAllScans(); });
 $("#rescanAll").addEventListener("click", runAllScans);
 $("#inboxQ").addEventListener("keydown", ev => { if(ev.key === "Enter"){ ev.preventDefault(); $("#inboxGo").click(); } });
 
@@ -2129,12 +2102,12 @@ document.addEventListener("click", ev => {
   if(b.dataset.add){
     const input = document.querySelector('[data-addinput="' + b.dataset.add + '"]');
     const name = input && input.value.trim();
-    if(name){ targets.push({ id: b.dataset.add + "-x" + Date.now(), tier: b.dataset.add, name: name, on: false }); input.value = ""; saveTargets(); renderTargets(); updateGauges(); }
+    if(name){ targets.push({ id: b.dataset.add + "-x" + Date.now(), tier: b.dataset.add, name: name, on: false, manual: true }); input.value = ""; saveTargets(); renderTargets(); updateGauges(); }
     return;
   }
   if(b.dataset.retry){
-    if(b.dataset.retry === "firms") scanFirms().catch(() => {});
-    if(b.dataset.retry === "pe") scanPe().catch(() => {});
+    if(b.dataset.retry === "firms") runAllScans();
+    if(b.dataset.retry === "pe") runAllScans();
     if(b.dataset.retry === "inbox") scanInbox();
     return;
   }
@@ -2161,24 +2134,32 @@ document.addEventListener("click", ev => {
     seedTargetsFromContacts(); renderTargets(); updateGauges();
     return;
   }
-  if(b.id === "inboxRefresh"){ scanInbox(); return; }
+  if(b.id === "inboxMore"){ inboxLimit += 50; scanInbox(); return; }
+  if(b.id === "inboxRefresh"){ runAllScans(); return; }
   if(b.id === "inboxGo"){
     const v = $("#inboxQ").value.trim();
-    if(v){ inboxQuery = v; document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false")); scanInbox(); }
+    inboxLimit = 50;
+    { inboxQuery = v; document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false")); scanInbox(); }
     return;
   }
   if(b.classList.contains("chip")){
     document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
-    inboxView = b.dataset.view; inboxQuery = ""; $("#inboxQ").value = "";
+    inboxView = b.dataset.view; inboxQuery = ""; inboxLimit = 50; $("#inboxQ").value = "";
     scanInbox();
   }
 });
 document.addEventListener("change", ev => {
   const el = ev.target;
+  if(el?.dataset?.progress){
+    const key = el.dataset.progress, row = peRows.find(r => r.key === key);
+    if(el.value === "auto") delete progressOverrides[key];
+    else if(row && RANK[el.value]) progressOverrides[key] = { firm: row.firm, rank: Number(el.value), updatedAt: Date.now() };
+    save(K.overrides, progressOverrides); renderSavedMail(); return;
+  }
   if(el && el.dataset && el.dataset.cf){ writeConvoField(el); return; }
   if(el instanceof HTMLInputElement && el.dataset.toggle){
     const row = targets.find(x => x.id === el.dataset.toggle);
-    if(row){ row.on = el.checked; saveTargets(); renderTargets(); updateGauges(); }
+    if(row){ row.on = el.checked; row.manual = true; saveTargets(); renderTargets(); updateGauges(); }
   }
 });
 document.addEventListener("input", ev => {
@@ -2216,7 +2197,14 @@ document.addEventListener("input", ev => {
 
   /* Bring back the inboxes linked earlier in this tab (the Outlook redirect
      reloads the page), then finish an Outlook sign-in if we're returning from one. */
-  readSessions().forEach(s => {
+  let restored = readSessions();
+  try{
+    const remembered = JSON.parse(localStorage.getItem(REMEMBERED_KEY) || "[]");
+    if(Array.isArray(remembered)) remembered.forEach(s => {
+      if(s && s.email && ["google", "microsoft"].includes(s.kind) && !restored.some(r => r.kind === s.kind && r.email === s.email)) restored.push(s);
+    });
+  }catch(_){}
+  restored.forEach(s => {
     const a = adapterFrom(s);
     if(!a.token || Date.now() > a.exp - 30000) a.expired = true;
     if(ACCOUNTS.some(x => x.key === a.key)) return;

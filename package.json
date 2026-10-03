@@ -1,0 +1,6 @@
+{
+  "name": "recruiting-deck",
+  "private": true,
+  "scripts": { "test": "node --test tests/*.test.cjs" },
+  "devDependencies": { "fake-indexeddb": "^6.2.4", "linkedom": "^0.18.12" }
+}
