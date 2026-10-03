@@ -1,0 +1,1968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Recruiting Command Deck</title>
+<style>
+:root{
+  --void:#04090b;
+  --panel:#070f13;
+  --panel-2:#0a161b;
+  --line:#12333c;
+  --line-soft:#0d2229;
+  --cy:#29f4ff;
+  --cy-dim:#1a8f9b;
+  --cy-ghost:rgba(41,244,255,.10);
+  --ink:#cfeef3;
+  --ink-2:#7fa9b2;
+  --ink-3:#4d7079;
+  --amber:#ffc24d;
+  --lime:#7dff9b;
+  --rose:#ff5f7a;
+  --mono:"Consolas","Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  position:relative;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(to right,rgba(41,244,255,.045) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(41,244,255,.045) 1px,transparent 1px);
+  background-size:52px 52px;
+}
+body::after{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 90% 55% at 50% -10%,rgba(41,244,255,.10),transparent 70%);
+}
+.deck{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 20px 64px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:18px 0 14px;border-bottom:1px solid var(--line);
+}
+.brand{
+  font-size:17px;font-weight:700;letter-spacing:.20em;text-transform:uppercase;
+  color:var(--cy);text-shadow:0 0 12px rgba(41,244,255,.55),0 0 34px rgba(41,244,255,.22);
+}
+.brand .slash{color:var(--ink-3);text-shadow:none;margin:0 2px}
+.clockwrap{display:flex;align-items:baseline;gap:12px;font-variant-numeric:tabular-nums}
+.clock{font-size:15px;letter-spacing:.10em;color:var(--cy);text-shadow:0 0 10px rgba(41,244,255,.45)}
+.clock-date{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- status strip ---------- */
+.status{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 12px;margin-top:14px;
+  border:1px solid var(--line-soft);background:var(--panel);
+  font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-2);
+}
+.led{width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex:none}
+.led.ok{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.led.warn{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.led.err{background:var(--rose);box-shadow:0 0 8px var(--rose)}
+.led.busy{background:var(--cy);box-shadow:0 0 8px var(--cy);animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.status .spacer{flex:1}
+.status a{color:var(--cy);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- gauges ---------- */
+.gauges{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px;
+}
+.gauge{
+  display:flex;align-items:center;gap:16px;padding:16px 18px;
+  border:1px solid var(--line-soft);background:linear-gradient(180deg,var(--panel-2),var(--panel));
+}
+.gauge svg{flex:none;display:block}
+.ring-bg{fill:none;stroke:#0e262d;stroke-width:7}
+.ring-fg{
+  fill:none;stroke:var(--cy);stroke-width:7;stroke-linecap:round;
+  filter:drop-shadow(0 0 5px rgba(41,244,255,.85));
+  transition:stroke-dashoffset .9s cubic-bezier(.22,.9,.3,1);
+}
+.ring-num{
+  fill:var(--cy);font-family:var(--mono);font-size:22px;font-weight:700;
+  text-anchor:middle;dominant-baseline:central;
+}
+.g-label{font-size:10px;letter-spacing:.20em;text-transform:uppercase;color:var(--ink-2)}
+.g-sub{font-size:11px;color:var(--ink-3);margin-top:5px}
+.g-sub b{color:var(--ink);font-weight:400}
+
+/* ---------- on the books ---------- */
+.onbooks{
+  margin-top:14px;border:1px solid var(--line-soft);
+  background:linear-gradient(90deg,rgba(41,244,255,.055),var(--panel) 55%);
+  display:flex;align-items:stretch;flex-wrap:wrap;
+}
+.onbooks .ob-title{
+  display:flex;align-items:center;gap:9px;padding:12px 16px;
+  border-right:1px solid var(--line-soft);
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cy);
+  text-shadow:0 0 10px rgba(41,244,255,.4);white-space:nowrap;
+}
+.ob-list{display:flex;flex-wrap:wrap;flex:1;min-width:0}
+.ob-item{
+  display:flex;flex-direction:column;gap:3px;padding:10px 18px;
+  border-right:1px solid var(--line-soft);min-width:0;
+}
+.ob-item:last-child{border-right:0}
+.ob-firm{font-size:12.5px;color:var(--ink);font-weight:700}
+.ob-firm .who{color:var(--ink-3);font-weight:400}
+.ob-when{
+  font-size:10.5px;letter-spacing:.10em;color:var(--ink-2);
+  font-variant-numeric:tabular-nums;display:flex;gap:9px;align-items:center;
+}
+.ob-rel{
+  color:var(--cy);border:1px solid var(--cy-dim);background:var(--cy-ghost);
+  padding:0 6px;font-size:9.5px;letter-spacing:.12em;
+}
+.ob-rel.soon{color:var(--amber);border-color:var(--amber);background:rgba(255,194,77,.10)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:2px;margin-top:22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{
+  appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);padding:10px 16px;cursor:pointer;margin-bottom:-1px;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{
+  color:var(--cy);border-bottom-color:var(--cy);
+  text-shadow:0 0 10px rgba(41,244,255,.55);
+  box-shadow:0 6px 18px -12px rgba(41,244,255,.9);
+}
+.tab:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
+.panel{padding-top:20px}
+[hidden]{display:none !important}
+
+/* ---------- section head ---------- */
+.shead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.shead h2{
+  margin:0;font-size:12px;letter-spacing:.20em;text-transform:uppercase;font-weight:700;
+  color:var(--cy);text-shadow:0 0 10px rgba(41,244,255,.4);
+}
+.shead p{margin:5px 0 0;font-size:11px;color:var(--ink-3);max-width:70ch;letter-spacing:.02em}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line-soft);background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{
+  text-align:left;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-3);padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+  background:var(--panel-2);
+}
+td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:12.5px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(41,244,255,.035)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink-2)}
+.name{color:var(--ink);font-weight:700}
+.firm{color:var(--cy)}
+.role{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
+.snip{color:var(--ink-3);font-size:11px;max-width:46ch;display:block}
+.snip b{display:block;color:var(--ink-2);font-weight:400;font-size:11.5px;margin-bottom:2px}
+
+/* ---------- badges ---------- */
+.badge{
+  display:inline-block;padding:3px 9px;font-size:10px;letter-spacing:.10em;text-transform:uppercase;
+  border:1px solid currentColor;white-space:nowrap;
+}
+.b5{color:var(--lime);background:rgba(125,255,155,.09);box-shadow:0 0 12px -3px var(--lime)}
+.b4{color:var(--cy);background:var(--cy-ghost)}
+.b3{color:var(--amber);background:rgba(255,194,77,.08)}
+.b2{color:var(--ink-2);background:rgba(127,169,178,.07)}
+.b1{color:var(--ink-3)}
+.srcbadge{
+  display:inline-block;margin-left:8px;padding:1px 6px;font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line);
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  appearance:none;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-2);background:transparent;border:1px solid var(--line);
+  padding:5px 10px;cursor:pointer;
+}
+.btn:hover{color:var(--cy);border-color:var(--cy-dim);background:var(--cy-ghost)}
+.btn:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
+.btn.danger:hover{color:var(--rose);border-color:var(--rose);background:rgba(255,95,122,.08)}
+.btn.primary{color:var(--cy);border-color:var(--cy-dim)}
+.btn.primary:hover{box-shadow:0 0 16px -4px var(--cy)}
+
+/* ---------- chips ---------- */
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip{
+  appearance:none;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);background:var(--panel);border:1px solid var(--line-soft);
+  padding:7px 14px;cursor:pointer;
+}
+.chip:hover{color:var(--ink)}
+.chip[aria-pressed="true"]{
+  color:var(--cy);border-color:var(--cy);background:var(--cy-ghost);
+  box-shadow:0 0 16px -5px var(--cy),inset 0 0 18px -12px var(--cy);
+  text-shadow:0 0 8px rgba(41,244,255,.5);
+}
+.chip:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
+input[type="text"],input[type="search"]{
+  font-family:var(--mono);font-size:12px;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line-soft);padding:7px 11px;min-width:240px;
+}
+input[type="text"]:focus,input[type="search"]:focus{
+  outline:none;border-color:var(--cy-dim);box-shadow:0 0 14px -6px var(--cy)
+}
+input[type="text"]::placeholder{color:var(--ink-3)}
+input[type="checkbox"]{
+  appearance:none;width:14px;height:14px;border:1px solid var(--line);background:var(--panel-2);
+  cursor:pointer;position:relative;flex:none;margin:0;
+}
+input[type="checkbox"]:checked{border-color:var(--cy);background:var(--cy-ghost);box-shadow:0 0 12px -3px var(--cy)}
+input[type="checkbox"]:checked::after{
+  content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:solid var(--cy);border-width:0 2px 2px 0;transform:rotate(42deg);
+}
+input[type="checkbox"]:focus-visible{outline:1px solid var(--cy);outline-offset:2px}
+
+/* ---------- target list ---------- */
+.tier{margin-bottom:22px}
+.tier-head{
+  display:flex;align-items:baseline;gap:12px;padding-bottom:7px;margin-bottom:10px;
+  border-bottom:1px solid var(--line-soft);
+}
+.tier-head h3{margin:0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);font-weight:700}
+.tier-head .count{font-size:10px;letter-spacing:.14em;color:var(--cy);font-variant-numeric:tabular-nums}
+.tier-head .note{font-size:10.5px;color:var(--ink-3);letter-spacing:.02em;margin-left:auto;text-align:right}
+.tlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.trow{display:flex;align-items:center;gap:11px;padding:9px 12px;background:var(--panel)}
+.trow.on{background:linear-gradient(90deg,rgba(41,244,255,.09),var(--panel) 70%);box-shadow:inset 2px 0 0 var(--cy)}
+.trow .fname{
+  flex:1;font-family:var(--mono);font-size:12.5px;color:var(--ink);
+  background:transparent;border:0;border-bottom:1px dashed transparent;padding:1px 0;min-width:0;
+}
+.trow.on .fname{color:var(--cy)}
+.trow .fname:hover{border-bottom-color:var(--line)}
+.trow .fname:focus{outline:none;border-bottom-color:var(--cy);color:var(--ink)}
+.trow .kill{
+  appearance:none;background:none;border:0;color:var(--ink-3);cursor:pointer;
+  font-family:var(--mono);font-size:14px;line-height:1;padding:2px 4px;
+}
+.trow .kill:hover{color:var(--rose)}
+.trow .kill:focus-visible{outline:1px solid var(--rose);outline-offset:1px}
+.addrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* ---------- firm dossiers ---------- */
+.dossiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px}
+.dossier{border:1px solid var(--line-soft);background:var(--panel);display:flex;flex-direction:column}
+.dossier.hot{border-color:var(--cy-dim);box-shadow:0 0 26px -16px var(--cy)}
+.d-head{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  border-bottom:1px solid var(--line-soft);background:var(--panel-2);
+}
+.d-head .dfirm{
+  flex:1;min-width:0;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cy);
+  background:transparent;border:0;border-bottom:1px dashed transparent;padding:1px 0;
+}
+.d-head .dfirm:focus{outline:none;border-bottom-color:var(--cy)}
+.d-body{padding:13px 14px;display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field > label{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.field input[type="text"],.field input[type="date"],.field textarea,.field select{
+  font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--panel-2);
+  border:1px solid var(--line-soft);padding:7px 9px;width:100%;min-width:0;
+}
+.field textarea{resize:vertical;min-height:58px;line-height:1.6}
+.field textarea.prefs{min-height:104px;color:var(--ink)}
+.field input:focus,.field textarea:focus,.field select:focus{
+  outline:none;border-color:var(--cy-dim);box-shadow:0 0 14px -7px var(--cy)
+}
+.field ::placeholder{color:var(--ink-3)}
+.field select{appearance:none;cursor:pointer;letter-spacing:.08em}
+.field select option{background:var(--panel-2);color:var(--ink)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detected{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:22px}
+.fund{
+  display:inline-block;padding:2px 8px;font-size:10px;letter-spacing:.08em;
+  color:var(--cy);border:1px solid var(--cy-dim);background:var(--cy-ghost);
+}
+.detected .none{font-size:10.5px;color:var(--ink-3);letter-spacing:.06em}
+.readsel[data-read="Strong"]{color:var(--lime);border-color:var(--lime)}
+.readsel[data-read="Positive"]{color:var(--cy);border-color:var(--cy-dim)}
+.readsel[data-read="Lukewarm"]{color:var(--amber);border-color:var(--amber)}
+.readsel[data-read="Cold"]{color:var(--rose);border-color:var(--rose)}
+.d-foot{
+  display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--line-soft);
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+}
+.d-foot .spacer{flex:1}
+
+/* ---------- inbox ---------- */
+tr.unread{box-shadow:inset 3px 0 0 var(--cy),inset 26px 0 30px -30px var(--cy)}
+tr.unread .subj{color:var(--ink);font-weight:700}
+.dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cy);
+  box-shadow:0 0 8px var(--cy);margin-right:7px;vertical-align:middle;
+}
+.dot.off{background:transparent;box-shadow:none}
+.subj{color:var(--ink-2)}
+
+/* ---------- messages ---------- */
+.msg{
+  border:1px solid var(--line-soft);background:var(--panel);padding:18px 20px;
+  font-size:12px;color:var(--ink-2);line-height:1.7;
+}
+.msg h4{margin:0 0 7px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cy)}
+.msg.err h4{color:var(--rose)}
+.msg.warn h4{color:var(--amber)}
+.msg code{color:var(--ink);background:var(--panel-2);padding:1px 5px;border:1px solid var(--line-soft)}
+.msg .act{margin-top:12px}
+.empty{padding:26px 20px;text-align:center;color:var(--ink-3);font-size:11.5px;letter-spacing:.06em}
+.scan{display:flex;align-items:center;gap:10px;padding:20px;color:var(--ink-2);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.foot{margin-top:26px;font-size:10.5px;color:var(--ink-3);letter-spacing:.06em;line-height:1.8;border-top:1px solid var(--line-soft);padding-top:12px}
+
+@media (max-width:820px){
+  .gauges{grid-template-columns:1fr}
+  .gauge{padding:13px 15px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+html{color-scheme:dark;background:#04090b}
+
+/* ---------- sign-in gate ---------- */
+.gate{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.gate-card{
+  max-width:640px;width:100%;border:1px solid var(--line);
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  padding:34px 32px;box-shadow:0 0 70px -34px var(--cy);
+}
+.gate h1{font-size:21px;line-height:1.4;margin:20px 0 10px;color:var(--ink);font-weight:700;text-wrap:balance}
+.gate .lede{color:var(--ink-2);font-size:12.5px;line-height:1.75;margin:0 0 24px;max-width:62ch}
+.gate-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn.big{font-size:11.5px;padding:12px 20px;letter-spacing:.16em}
+.btn[disabled]{opacity:.38;cursor:not-allowed;box-shadow:none}
+.gate-works{margin-top:12px;font-size:10px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.gate-msg{margin-top:16px;border:1px solid var(--rose);background:rgba(255,95,122,.07);color:var(--ink);padding:11px 13px;font-size:12px;line-height:1.65}
+.gate-msg.info{border-color:var(--cy-dim);background:var(--cy-ghost)}
+.privacy{margin-top:26px;display:grid;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.privacy div{background:var(--panel);padding:11px 14px;display:grid;grid-template-columns:104px 1fr;gap:16px;font-size:11.5px;line-height:1.65;color:var(--ink-2)}
+.privacy b{color:var(--cy);font-weight:700;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding-top:2px}
+.heads{margin-top:16px;font-size:11.5px;color:var(--ink-2);line-height:1.7;border:1px solid var(--line-soft);padding:10px 14px;background:var(--panel)}
+.heads summary{cursor:pointer;color:var(--ink);letter-spacing:.08em;font-size:11px;text-transform:uppercase}
+.heads summary:focus-visible{outline:1px solid var(--cy);outline-offset:3px}
+.heads p{margin:10px 0 0}
+.heads b{color:var(--ink);font-weight:700}
+
+/* ---------- account + controls ---------- */
+.topright{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
+.acct{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-2)}
+.acct .kind{font-size:9px;letter-spacing:.16em;color:var(--cy);border:1px solid var(--cy-dim);padding:1px 6px}
+.ctl{display:flex;align-items:center;gap:7px;font-size:9.5px;letter-spacing:.16em;color:var(--ink-3);text-transform:uppercase}
+select.win{
+  font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--panel-2);
+  border:1px solid var(--line-soft);padding:4px 8px;cursor:pointer;
+}
+select.win:focus{outline:none;border-color:var(--cy-dim)}
+.reconnect{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:11px 14px;
+  border:1px solid var(--amber);background:rgba(255,194,77,.07);font-size:12px;color:var(--ink);
+}
+.erase{
+  appearance:none;background:none;border:0;padding:0;cursor:pointer;font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;
+}
+.erase:hover{color:var(--rose)}
+.appfoot{margin-top:34px;padding-top:12px;border-top:1px solid var(--line-soft);display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;line-height:1.7}
+.appfoot .spacer{flex:1}
+@media (max-width:560px){
+  .privacy div{grid-template-columns:1fr;gap:4px}
+  .gate-card{padding:26px 20px}
+}
+
+</style>
+</head>
+<body>
+<!-- ============================ SIGN-IN GATE ============================ -->
+<section class="gate" id="gate">
+  <div class="gate-card">
+    <div class="brand">RECRUITING <span class="slash">//</span> COMMAND DECK</div>
+    <h1>Every headhunter and fund event in your inbox, on one screen.</h1>
+    <p class="lede">Connect your email once. The deck finds search-firm outreach, recruiter LinkedIn invites and PE firm events, works out who actually wrote to you, and scores how far you've gotten with each fund.</p>
+
+    <div class="gate-btns">
+      <button class="btn primary big" id="connectGoogle">Connect Gmail</button>
+      <button class="btn primary big" id="connectMicrosoft">Connect Outlook</button>
+    </div>
+    <div class="gate-works">Gmail · Google Workspace · Outlook · Hotmail · Live · Microsoft 365</div>
+    <div class="gate-msg" id="gateMsg" hidden></div>
+
+    <div class="privacy" aria-label="How your data is handled">
+      <div><b>Read-only</b><span>The app asks only for permission to read mail. It cannot send, delete, move or change anything.</span></div>
+      <div><b>No server</b><span>Your mail goes straight from Google or Microsoft to this page in your browser. It is never uploaded anywhere else.</span></div>
+      <div><b>Stays here</b><span>Your checkmarks, notes and dossiers are saved in this browser only. Email content is never saved; it is re-read each time you scan.</span></div>
+    </div>
+
+    <details class="heads">
+      <summary>What you'll see when you connect</summary>
+      <p><b>Gmail:</b> Google will say <i>"Google hasn't verified this app."</i> That's expected for a private app shared between friends. Click <b>Advanced</b>, then <b>Go to Recruiting Command Deck (unsafe)</b>, then allow read access. If Google says access is blocked, the person who sent you this link needs to add your Gmail address as a tester first.</p>
+      <p><b>Outlook / Hotmail:</b> Microsoft will ask you to allow reading your mail. School or work accounts may show <i>"Need admin approval"</i>, which means your IT department blocks outside mail apps; a personal Outlook or Hotmail account works without it.</p>
+      <p><b>Yahoo, iCloud and others</b> aren't supported. They don't offer a sign-in based way to read mail, and the alternative means handing your password to a server, which this app deliberately never does.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============================ THE DECK ============================ -->
+<div class="deck" id="deck" hidden>
+
+  <header class="topbar">
+    <div class="brand">RECRUITING <span class="slash">//</span> COMMAND DECK</div>
+    <div class="topright">
+      <div class="acct"><span class="kind" id="acctKind">—</span><span id="acct">—</span><button class="btn" id="signOut">Sign out</button></div>
+      <div class="clockwrap">
+        <span class="clock-date" id="cdate">—</span>
+        <span class="clock" id="cclock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="status" id="status">
+    <span class="led busy" id="led"></span>
+    <span id="statusText">Connecting</span>
+    <span class="spacer"></span>
+    <label class="ctl" for="win">Window
+      <select class="win" id="win">
+        <option value="180">6 months</option>
+        <option value="365" selected>1 year</option>
+        <option value="730">2 years</option>
+        <option value="0">All time</option>
+      </select>
+    </label>
+    <button class="btn" id="rescanAll">Rescan</button>
+    <span id="stamp"></span>
+  </div>
+
+  <div class="reconnect" id="reconnect" hidden>
+    <span>Your mail session expired. Access lasts about an hour at a time; your notes are untouched.</span>
+    <button class="btn primary" id="reconnectBtn">Reconnect</button>
+  </div>
+
+  <section class="gauges" aria-label="Pipeline summary">
+    <div class="gauge">
+      <svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-labelledby="g1t">
+        <title id="g1t">Search firms in contact</title>
+        <circle class="ring-bg" cx="43" cy="43" r="34"></circle>
+        <circle class="ring-fg" id="ring1" cx="43" cy="43" r="34" transform="rotate(-90 43 43)" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
+        <text class="ring-num" id="num1" x="43" y="44">0</text>
+      </svg>
+      <div><div class="g-label">Search Firms</div><div class="g-sub">In live contact <b id="sub1">—</b></div></div>
+    </div>
+    <div class="gauge">
+      <svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-labelledby="g2t">
+        <title id="g2t">PE firms tracked</title>
+        <circle class="ring-bg" cx="43" cy="43" r="34"></circle>
+        <circle class="ring-fg" id="ring2" cx="43" cy="43" r="34" transform="rotate(-90 43 43)" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
+        <text class="ring-num" id="num2" x="43" y="44">0</text>
+      </svg>
+      <div><div class="g-label">PE Firms Tracked</div><div class="g-sub">Named in your inbox <b id="sub2">—</b></div></div>
+    </div>
+    <div class="gauge">
+      <svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-labelledby="g3t">
+        <title id="g3t">High traction firms</title>
+        <circle class="ring-bg" cx="43" cy="43" r="34"></circle>
+        <circle class="ring-fg" id="ring3" cx="43" cy="43" r="34" transform="rotate(-90 43 43)" stroke-dasharray="213.6" stroke-dashoffset="213.6"></circle>
+        <text class="ring-num" id="num3" x="43" y="44">0</text>
+      </svg>
+      <div><div class="g-label">High Traction</div><div class="g-sub">Attended + follow-up <b id="sub3">—</b></div></div>
+    </div>
+  </section>
+
+  <section class="onbooks" id="onbooks" aria-label="Scheduled meetings" hidden></section>
+
+  <nav class="tabs" role="tablist" aria-label="Command deck sections">
+    <button class="tab" role="tab" id="tab-firms"   aria-controls="p-firms"   aria-selected="true">Search Firms</button>
+    <button class="tab" role="tab" id="tab-targets" aria-controls="p-targets" aria-selected="false">Top 25 Search Firms</button>
+    <button class="tab" role="tab" id="tab-convos"  aria-controls="p-convos"  aria-selected="false">Conversations</button>
+    <button class="tab" role="tab" id="tab-pe"      aria-controls="p-pe"      aria-selected="false">PE Traction</button>
+    <button class="tab" role="tab" id="tab-inbox"   aria-controls="p-inbox"   aria-selected="false">Inbox</button>
+  </nav>
+
+  <section class="panel" id="p-firms" role="tabpanel" aria-labelledby="tab-firms">
+    <div class="shead">
+      <div>
+        <h2>Recruiter contact log</h2>
+        <p>Mail matched by recruiting keyword, by a known search-firm sender domain, or parsed out of LinkedIn connection requests where the sender's title or company reads as recruiting. Names come from the sender header or their email signature. Dismiss anything that slipped through.</p>
+      </div>
+    </div>
+    <div id="firmsOut"></div>
+    <div class="foot" id="firmsFoot"></div>
+  </section>
+
+  <section class="panel" id="p-targets" role="tabpanel" aria-labelledby="tab-targets" hidden>
+    <div class="shead">
+      <div>
+        <h2>Target list &mdash; 25 firms</h2>
+        <p>A fixed roster of firms that run PE associate and VP on-cycle processes. Firms you're already in touch with are checked automatically after your first scan. Check, rename, add or remove rows; it's saved on this device.</p>
+      </div>
+      <button class="btn" id="targetsReset">Restore default 25</button>
+    </div>
+    <div id="targetsOut"></div>
+  </section>
+
+  <section class="panel" id="p-convos" role="tabpanel" aria-labelledby="tab-convos" hidden>
+    <div class="shead">
+      <div>
+        <h2>Firm debriefs</h2>
+        <p>One dossier per search firm: what you asked them to put you up for, how the conversation went, when you're next meeting, and the funds they're steering you toward. Funds they've already surfaced over email are detected automatically. Saves as you type.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="convoSync">Sync firms from scan</button>
+        <button class="btn" id="convoExport">Copy as text</button>
+      </div>
+    </div>
+    <div id="convoOut"></div>
+    <div class="addrow" style="margin-top:4px">
+      <input type="text" id="convoAdd" placeholder="Add a firm dossier" aria-label="Add a firm dossier">
+      <button class="btn primary" id="convoAddBtn">Add firm</button>
+    </div>
+    <div class="foot" id="convoFoot"></div>
+  </section>
+
+  <section class="panel" id="p-pe" role="tabpanel" aria-labelledby="tab-pe" hidden>
+    <div class="shead">
+      <div>
+        <h2>Fund engagement ladder</h2>
+        <p>Event threads scored by the strongest signal anywhere in the thread. Attended plus a real follow-up outranks attendance, which outranks a confirmed RSVP, a registration, and a cold invite. Threads about the same fund are merged.</p>
+      </div>
+    </div>
+    <div id="peOut"></div>
+    <div class="foot" id="peFoot"></div>
+  </section>
+
+  <section class="panel" id="p-inbox" role="tabpanel" aria-labelledby="tab-inbox" hidden>
+    <div class="shead">
+      <div>
+        <h2>Raw mail feed</h2>
+        <p>The unfiltered view, in case the scanners missed something.</p>
+      </div>
+    </div>
+    <div class="chips">
+      <button class="chip" data-view="inbox" aria-pressed="true">Inbox</button>
+      <button class="chip" data-view="unread" aria-pressed="false">Unread</button>
+      <button class="chip" data-view="sent" aria-pressed="false">Sent</button>
+      <button class="chip" data-view="starred" aria-pressed="false">Starred</button>
+      <input type="text" id="inboxQ" placeholder="Search your mail" aria-label="Search your mail">
+      <button class="btn primary" id="inboxGo">Search</button>
+      <button class="btn" id="inboxRefresh">Refresh</button>
+    </div>
+    <div id="inboxOut"></div>
+  </section>
+
+  <footer class="appfoot">
+    <span>Read-only. Runs in your browser. Notes saved on this device only.</span>
+    <span class="spacer"></span>
+    <button class="erase" id="eraseData">Erase my saved notes on this device</button>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ====================================================================
+   CONFIG — the only block you edit.
+   Paste the IDs from your Google Cloud and Microsoft Entra app
+   registrations. Leave one as-is to ship with only the other provider.
+   ==================================================================== */
+const CONFIG = {
+  googleClientId:    "PASTE_GOOGLE_CLIENT_ID_HERE",
+  microsoftClientId: "PASTE_MICROSOFT_APPLICATION_ID_HERE"
+};
+const isConfigured = id => !!id && !/^PASTE_/.test(id);
+
+/* ====================================================================
+   STORAGE — namespaced per signed-in account, so two people sharing a
+   browser never see each other's notes. Only user-entered state is
+   stored. Email content never touches storage.
+   ==================================================================== */
+let NS = "rcd.app.v1.anon.";
+function hashStr(s){
+  let h = 5381;
+  for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+function setNamespace(kind, email){ NS = "rcd.app.v1." + hashStr(kind + ":" + email.toLowerCase()) + "."; }
+function load(key, fallback){
+  try{ const v = localStorage.getItem(NS + key); return v == null ? fallback : JSON.parse(v); }
+  catch(e){ return fallback; }
+}
+function save(key, val){ try{ localStorage.setItem(NS + key, JSON.stringify(val)); }catch(e){} }
+function eraseNamespace(){
+  try{ Object.keys(localStorage).filter(k => k.indexOf(NS) === 0).forEach(k => localStorage.removeItem(k)); }catch(e){}
+}
+const K = {
+  dismissFirms: "dismissed.firms",
+  dismissPe:    "dismissed.pe",
+  targets:      "targets",
+  seeded:       "targets.seeded",
+  convos:       "convos"
+};
+
+/* ====================================================================
+   REFERENCE DATA
+   ==================================================================== */
+const FIRM_DOMAINS = {
+  "dspny.com":                "Dynamics Search Partners (DSP)",
+  "bellcastpartners.com":     "BellCast Partners",
+  "ospsearch.com":            "Odyssey Search Partners",
+  "amitysearchpartners.com":  "Amity Search Partners",
+  "goldcoastsp.com":          "Gold Coast Search Partners",
+  "carterpierce.com":         "CarterPierce",
+  "cpiny.com":                "CPI",
+  "opusadvisors.com":         "Opus Advisors",
+  "opusadvisors.events":      "Opus Advisors",
+  "ratioadvisors.com":        "Ratio Advisors",
+  "henkelsearchpartners.com": "Henkel Search Partners",
+  "hspsearch.com":            "Henkel Search Partners",
+  "sgpartnersinc.com":        "SG Partners",
+  "glocap.com":               "Glocap Search",
+  "oxbridgegroup.com":        "The Oxbridge Group",
+  "gobuyside.com":            "GoBuyside",
+  "searchonellc.com":         "SearchOne",
+  "keaconsultants.com":       "Kea Consultants",
+  "walkerhamill.com":         "Walker Hamill",
+  "dartmouthpartners.com":    "Dartmouth Partners",
+  "per-people.com":           "PER",
+  "altus-partners.com":       "Altus Partners",
+  "blackwoodgroup.com":       "Blackwood",
+  "spencerstuart.com":        "Spencer Stuart",
+  "russellreynolds.com":      "Russell Reynolds",
+  "heidrick.com":             "Heidrick & Struggles",
+  "egonzehnder.com":          "Egon Zehnder",
+  "kornferry.com":            "Korn Ferry"
+};
+
+const TIERS = [
+  { id: "t1", name: "Tier 1 · US on-cycle boutiques", note: "Run the associate on-cycle process itself",
+    firms: ["CPI","Henkel Search Partners","Amity Search Partners","Ratio Advisors","SG Partners",
+            "Dynamics Search Partners (DSP)","Glocap Search","Gold Coast Search Partners","CarterPierce",
+            "BellCast Partners","The Oxbridge Group","Opus Advisors","GoBuyside","SearchOne"] },
+  { id: "t2", name: "Tier 2 · London & European PE", note: "Relevant if you look at LDN / EU funds",
+    firms: ["Kea Consultants","Walker Hamill","Blackwood","Dartmouth Partners","PER","Altus Partners"] },
+  { id: "t3", name: "Tier 3 · Generalist firms with PE practices", note: "Mostly senior mandates; useful long-term",
+    firms: ["Spencer Stuart","Russell Reynolds","Heidrick & Struggles","Egon Zehnder","Korn Ferry"] }
+];
+
+const PE_FIRMS = [
+  ["Apollo",/\bApollo\s?(Global)?\b/i],["Blackstone",/\bBlackstone\b/i],["KKR",/\bKKR\b/i],
+  ["Carlyle",/\bCarlyle\b/i],["TPG",/\bTPG\b/i],["Warburg Pincus",/Warburg\s?Pincus/i],
+  ["Bain Capital",/Bain\s?Capital/i],["Advent International",/Advent\s?(International)?\b/i],
+  ["Vista Equity",/Vista\s?Equity/i],["Thoma Bravo",/Thoma\s?Bravo/i],["Silver Lake",/Silver\s?Lake/i],
+  ["Hellman & Friedman",/Hellman\s?&?\s?Friedman|\bH&F\b/i],["General Atlantic",/General\s?Atlantic/i],
+  ["Insight Partners",/Insight\s?Partners/i],["Francisco Partners",/Francisco\s?Partners/i],
+  ["Clearlake",/Clearlake/i],["Leonard Green",/Leonard\s?Green/i],["Berkshire Partners",/Berkshire\s?Partners/i],
+  ["CD&R",/CD\s?&\s?R\b|Clayton,?\s?Dubilier/i],["L Catterton",/L\.?\s?Catterton/i],
+  ["Turn/River Capital",/Turn\s?\/?\s?River/i],["Arctos",/\bArctos\b/i],["Quad-C",/\bQuad-?\s?C\b/i],
+  ["Audax",/\bAudax\b/i],["ABRY Partners",/\bABRY\b/i],["American Securities",/American\s?Securities/i],
+  ["Apax",/\bApax\b/i],["Ares",/\bAres\s?(Management)?\b/i],["Bregal Sagemount",/Bregal\s?Sagemount/i],
+  ["Bridgepoint",/\bBridgepoint\b/i],["Brentwood Associates",/Brentwood\s?Associates/i],
+  ["Charlesbank",/Charlesbank/i],["Cinven",/\bCinven\b/i],["Court Square",/Court\s?Square/i],
+  ["CVC Capital",/\bCVC\b/i],["EQT",/\bEQT\b/i],["Genstar",/Genstar/i],["GTCR",/\bGTCR\b/i],
+  ["Harvest Partners",/Harvest\s?Partners/i],["HIG Capital",/\bH\.?I\.?G\.?\b/i],
+  ["JMI Equity",/\bJMI\b/i],["KPS Capital",/\bKPS\b/i],["Lindsay Goldberg",/Lindsay\s?Goldberg/i],
+  ["Madison Dearborn",/Madison\s?Dearborn|\bMDP\b/i],["New Mountain",/New\s?Mountain/i],
+  ["Nordic Capital",/Nordic\s?Capital/i],["Oak Hill Capital",/Oak\s?Hill\s?Capital/i],
+  ["Odyssey Investment",/Odyssey\s?Investment/i],["Onex",/\bOnex\b/i],["Permira",/\bPermira\b/i],
+  ["Platinum Equity",/Platinum\s?Equity/i],["Providence Equity",/Providence\s?Equity/i],
+  ["Roark Capital",/Roark/i],["Sentinel Capital",/Sentinel\s?Capital/i],["Sixth Street",/Sixth\s?Street/i],
+  ["Stone Point",/Stone\s?Point/i],["Sycamore Partners",/Sycamore\s?Partners/i],
+  ["TA Associates",/\bTA\s?Associates\b/i],["Thomas H. Lee",/Thomas\s?H\.?\s?Lee|\bTHL\b/i],
+  ["Trilantic",/Trilantic/i],["Veritas Capital",/Veritas\s?Capital/i],["Vector Capital",/Vector\s?Capital/i],
+  ["Waud Capital",/Waud\s?Capital/i],["Welsh Carson",/Welsh,?\s?Carson|\bWCAS\b/i],
+  ["26North",/\b26\s?North\b/i],["Searchlight Capital",/Searchlight/i],
+  ["D1 Capital",/D1\s?Capital/i],["Greenoaks",/Greenoaks/i],["Alpha Wave",/Alpha\s?Wave/i],
+  ["Tiger Global",/Tiger\s?Global/i],["Coatue",/Coatue/i],["Dragoneer",/Dragoneer/i],
+  ["Durable Capital",/Durable\s?Capital/i],["Whale Rock",/Whale\s?Rock/i],
+  ["Hg Capital",/\bHg\s?Capital\b|\bHgCapital\b/i],["ICONIQ",/\bICONIQ\b/i],["Stonepeak",/Stonepeak/i],
+  ["Siris Capital",/Siris\s?Capital/i],["TowerBrook",/TowerBrook/i],["Elliott",/Elliott\s?(Private Equity|Investment)/i],
+  ["GI Partners",/\bGI\s?Partners\b/i],["Blue Wolf",/Blue\s?Wolf/i],["Lead Edge",/Lead\s?Edge/i]
+];
+
+/* Traction language, strongest first. */
+const RE_STRONG = /would love to|open to relocat|coffee chat|happy to (chat|connect|discuss|speak)|send (over|me) some times|your availability|availability for (next|the)|looking forward to connecting|select candidates|next steps|schedule (a|some) time|find time to speak/i;
+const RE_ATTENDED = /thank(s| you)?\s+(you\s+)?for\s+(attending|joining|coming)|glad you (were able to|could) (join|attend|make)|great (to see|seeing) you at|hope you enjoyed|following up (on|from) (the|your|our)|follow up on (see )?how the|since (the|our) event|it was (great|nice) (to meet|meeting|seeing) you/i;
+const RE_CONFIRMED = /(you(\s|')?re|you are|rsvp)\s*confirmed|rsvp (is )?confirmed|confirmed your (spot|attendance|rsvp)|we look forward to seeing you|i have signed up|signed up for the webinar|your seat (is|awaits)|added you to the (list|invite)|see you (on|at) (monday|tuesday|wednesday|thursday|friday|the)/i;
+const RE_REGISTERED = /thank(s| you)?\s+(you\s+)?for\s+registering|registration (is )?(confirm|complete|received)|you are (now )?registered|successfully registered|your webinar will begin|cancel your registration/i;
+
+/* A fund named in parentheses right after a person's name is that
+   person's background, e.g. "founded by Jane Doe (Apollo)", not a fund
+   being pitched to you. Drop that one occurrence before matching; a fund
+   named anywhere else in the thread still counts. */
+const RE_PERSON_PAREN = /\b[A-Z][a-z'’\-]{1,19}(?:\s+[A-Z]\.?)?\s+[A-Z][a-z'’\-]{1,19}\s*\([^)]{1,80}\)/g;
+function stripPersonParens(text){
+  return String(text || "").replace(RE_PERSON_PAREN, m => m.replace(/\s*\([^)]*\)$/, " "));
+}
+
+const RANK = {
+  5: { label: "High Traction — Attended + Follow-up", cls: "b5" },
+  4: { label: "Attended",   cls: "b4" },
+  3: { label: "Confirmed",  cls: "b3" },
+  2: { label: "Registered", cls: "b2" },
+  1: { label: "Invited",    cls: "b1" }
+};
+
+const RE_LINKEDIN = /^([\w'’.\-]+),\s*(.*?)\s*\bfrom\s+(.+?)\s+is waiting/i;
+const RE_RECRUITER_ROLE = /recruit|talent|search|sourc|staffing|headhunt/i;
+const LINKEDIN_FROM = "invitations@linkedin.com";
+
+/* Provider-neutral scan specs; each adapter turns these into its own query language. */
+const SPEC_RECRUITERS = {
+  terms: ["recruiter", '"executive search"', '"search partners"', '"search firm"', '"buyside recruiting"', '"candidate registration"'],
+  domains: Object.keys(FIRM_DOMAINS),
+  linkedin: true
+};
+const SPEC_EVENTS = {
+  terms: ["invite", "RSVP", "webinar", "cocktail", "reception", "networking",
+          '"save the date"', '"thank you for attending"', '"following up from"'],
+  domains: [],
+  linkedin: false
+};
+const CAP_SWEEP = 250;   // threads per sweep
+const CAP_INBOX = 50;
+
+/* ====================================================================
+   UTILITIES
+   ==================================================================== */
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const ENT = document.createElement("textarea");
+function deent(s){
+  if(!s) return "";
+  ENT.innerHTML = String(s);
+  return ENT.value.replace(/[͏​‌‍­﻿᠎]/g, "").replace(/\s+/g, " ").trim();
+}
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function fmtDate(ms){
+  if(!ms) return "—";
+  return new Date(ms).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "2-digit" }).toUpperCase();
+}
+function daysAgo(ms){ return (Date.now() - ms) / 86400000; }
+function emailOf(sender){
+  const m = String(sender || "").match(/<([^>]+)>/);
+  return (m ? m[1] : String(sender || "")).trim().toLowerCase();
+}
+function splitAddrs(v){
+  return String(v || "").split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(emailOf).filter(x => x.indexOf("@") > 0);
+}
+function normKey(s){ return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+function setParams(u, params){
+  Object.keys(params || {}).forEach(k => {
+    const v = params[k];
+    if(v == null || v === "") return;
+    if(Array.isArray(v)) v.forEach(x => u.searchParams.append(k, x));
+    else u.searchParams.set(k, v);
+  });
+}
+function fuzzyFirmMatch(a, b){
+  const x = normKey(a), y = normKey(b);
+  if(!x || !y) return false;
+  if(x === y) return true;
+  if(x.length >= 5 && y.length >= 5 && (x.includes(y) || y.includes(x))) return true;
+  const strip = s => s.replace(/(searchpartners|partners|search|advisors|group|llc|inc|the)/g, "");
+  const sx = strip(x), sy = strip(y);
+  return sx.length >= 4 && sy.length >= 4 && (sx === sy || sx.includes(sy) || sy.includes(sx));
+}
+
+/* ---------- names: header, then signature, then how you addressed them ---------- */
+function headerName(sender){
+  const m = String(sender || "").trim().match(/^\s*"?([^"<]+?)"?\s*<[^>]+>\s*$/);
+  return (m && m[1].trim()) ? m[1].trim() : null;
+}
+function localName(sender){
+  const local = emailOf(sender).split("@")[0];
+  if(!local) return { name: String(sender || ""), rank: 0 };
+  if(local.length <= 3 && !/[._\-]/.test(local)) return { name: local.toUpperCase(), rank: 0 };
+  const words = local.replace(/\d+/g, "").split(/[._\-]+/).filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1));
+  if(!words.length) return { name: local.toUpperCase(), rank: 0 };
+  return { name: words.join(" "), rank: words.length >= 2 ? 3 : 1 };
+}
+function displayOf(sender){ return headerName(sender) || localName(sender).name; }
+
+const NAME_WORD = /^[A-Z][A-Za-z'’\-]{1,19}$/;
+const NAME_STOP = new Set([
+  "best","regards","thanks","thank","sincerely","cheers","warmly","warm","kind","wishes",
+  "hi","hey","hello","dear","team","please","sent","from","subject","re","fwd","fw",
+  "cell","mobile","office","phone","direct","tel","fax","email","linkedin","www","http","https",
+  "monday","tuesday","wednesday","thursday","friday","saturday","sunday",
+  "january","february","march","april","may","june","july","august","september","october",
+  "november","december","all","the","and","llc","inc","llp","ltd","co","corp","group",
+  "capital","partners","search","advisors","associates","consultants","management","talent"
+]);
+const RE_SIGNOFF = /\b(?:best regards|kind regards|warm regards|best wishes|all the best|many thanks|best|regards|thanks|thank you|sincerely|cheers|warmly|talk soon)\s*[,!]\s+([A-Z][A-Za-z'’\-]{1,19}(?:\s+[A-Z][A-Za-z'’\-]{1,19}){0,4})/gi;
+const RE_GREET = /^\s*(?:hi|hey|hello|dear|good morning|good afternoon)\s+([A-Z][a-z'’\-]{1,19})\s*[,!:–—\-]/i;
+const RE_LABEL = /(?:e-?mail|cell|mobile|direct|office|phone|tel|fax|linkedin|www)\s*:/gi;
+
+function firmTokens(firm){ return new Set(String(firm || "").toLowerCase().split(/[^a-z]+/).filter(Boolean)); }
+function nameRun(words, ftoks, blacklist){
+  let w = words.filter(x => NAME_WORD.test(x));
+  while(w.length && (ftoks.has(w[w.length-1].toLowerCase()) || NAME_STOP.has(w[w.length-1].toLowerCase()))) w.pop();
+  while(w.length && (NAME_STOP.has(w[0].toLowerCase()) || ftoks.has(w[0].toLowerCase()))) w.shift();
+  w = w.slice(0, 3);
+  if(!w.length) return null;
+  if(blacklist.has(w[0].toLowerCase())) return null;
+  return w.join(" ");
+}
+/* The name sitting just above the sender's own address in a signature block,
+   e.g. "Jane Smith Cell: (555) 010-0000 jsmith@firm.com". */
+function nameFromSigBlock(text, email, ftoks, blacklist){
+  const i = text.toLowerCase().indexOf(email);
+  if(i < 0) return null;
+  let pre = text.slice(Math.max(0, i - 160), i);
+  let last = -1, m;
+  RE_LABEL.lastIndex = 0;
+  while((m = RE_LABEL.exec(pre))) last = m.index;
+  if(last >= 0) pre = pre.slice(0, last);
+  pre = pre.replace(/[\s|,;:·•–—\-()+\d.]+$/, "");
+  const seg = (pre.split(/[.!?;|]\s+|\s{2,}/).pop() || "").trim();
+  return nameRun(seg.split(/\s+/).slice(-6), ftoks, blacklist);
+}
+/* A sign-off name, trusted only where it sits like a signature: late in the
+   message or right next to the sender's own address. Stops a "Thanks, Sam."
+   at the top of a colleague's reply from naming the wrong person. */
+function nameFromSignoff(text, email, ftoks, blacklist){
+  let m, best = null;
+  RE_SIGNOFF.lastIndex = 0;
+  while((m = RE_SIGNOFF.exec(text))){
+    const late = text.length > 0 && (m.index / text.length) > 0.4;
+    const at = email ? text.toLowerCase().indexOf(email, m.index) : -1;
+    const near = at > -1 && at - m.index < 140;
+    if(!late && !near) continue;
+    const cand = nameRun(m[1].split(/\s+/), ftoks, blacklist);
+    if(cand && (!best || cand.length > best.length)) best = cand;
+  }
+  return best;
+}
+function resolveName(sender, email, msgs, greetNames, firm, blacklist){
+  const ftoks = firmTokens(firm);
+  const cands = [];
+  const hdr = headerName(sender);
+  if(hdr && !/@/.test(hdr)) cands.push({ name: hdr, rank: 6, via: "header" });
+  msgs.forEach(m => {
+    const sig = nameFromSigBlock(m.text, email, ftoks, blacklist);
+    if(sig) cands.push({ name: sig, rank: sig.split(" ").length >= 2 ? 5 : 2, via: "signature" });
+    const so = nameFromSignoff(m.text, email, ftoks, blacklist);
+    if(so) cands.push({ name: so, rank: so.split(" ").length >= 2 ? 4 : 2, via: "sign-off" });
+  });
+  (greetNames || []).forEach(g => {
+    if(!blacklist.has(g.toLowerCase())) cands.push({ name: g, rank: 2, via: "your reply" });
+  });
+  const loc = localName(sender);
+  cands.push({ name: loc.name, rank: loc.rank, via: "address" });
+  cands.sort((a, b) => (b.rank - a.rank) || (b.name.length - a.name.length));
+  return cands[0];
+}
+
+/* ====================================================================
+   NORMALIZED THREAD SHAPE (what every provider adapter returns)
+   { id, msgs:[{id,sender,email,to[],subject,snippet,text,ts,labels[],sent}],
+     first, last, text, subject }
+   ==================================================================== */
+let OWNER = "";
+function finishThread(id, msgs){
+  const seen = new Set();
+  msgs = msgs.filter(m => m.ts && !seen.has(m.id) && seen.add(m.id)).sort((a, b) => a.ts - b.ts);
+  msgs.forEach(m => {
+    m.text = m.snippet;
+    if(OWNER && m.email === OWNER){ m.sent = true; if(m.labels.indexOf("SENT") === -1) m.labels.push("SENT"); }
+  });
+  return {
+    id: id,
+    msgs: msgs,
+    first: msgs.length ? msgs[0].ts : 0,
+    last:  msgs.length ? msgs[msgs.length - 1].ts : 0,
+    text:  msgs.map(m => m.subject + " " + m.snippet).join(" · "),
+    subject: msgs.length ? msgs[0].subject : "(no subject)"
+  };
+}
+
+/* ====================================================================
+   HTTP — shared retry/backoff and error classification
+   ==================================================================== */
+class ApiError extends Error{
+  constructor(code, message, status){ super(message || code); this.code = code; this.status = status; }
+}
+function makePool(n){
+  let active = 0; const q = [];
+  const pump = () => {
+    while(active < n && q.length){
+      const j = q.shift(); active++;
+      Promise.resolve().then(j.fn).then(j.ok, j.no).finally(() => { active--; pump(); });
+    }
+  };
+  return fn => new Promise((ok, no) => { q.push({ fn, ok, no }); pump(); });
+}
+async function http(url, opts, who){
+  for(let attempt = 0; ; attempt++){
+    let res;
+    try{ res = await fetch(url, opts); }
+    catch(e){
+      if(attempt < 2){ await sleep(500 * (attempt + 1)); continue; }
+      throw new ApiError("network", "Couldn't reach " + who + ".");
+    }
+    if(res.ok) return res.status === 204 ? null : res.json();
+    let body = {};
+    try{ body = await res.json(); }catch(_){}
+    const err = body.error || {};
+    const reasons = [
+      err.status, err.code,
+      err.errors && err.errors[0] && err.errors[0].reason,
+      err.details && err.details.map(d => d.reason).join(" ")
+    ].filter(Boolean).join(" ");
+    const msg = err.message || res.statusText || ("HTTP " + res.status);
+    if(res.status === 401) throw new ApiError("expired", msg, 401);
+    const retryAfter = Number(res.headers.get("Retry-After")) * 1000;
+    if((res.status === 429 || res.status >= 500 || (res.status === 403 && /rateLimit/i.test(reasons))) && attempt < 4){
+      await sleep(retryAfter || (Math.min(8000, 600 * Math.pow(2, attempt)) + Math.random() * 400));
+      continue;
+    }
+    if(res.status === 403 && /accessNotConfigured|SERVICE_DISABLED|has not been used|is disabled/i.test(reasons + " " + msg))
+      throw new ApiError("disabled", msg, 403);
+    if(res.status === 403 && /insufficient|PERMISSION_DENIED|scope|AccessDenied/i.test(reasons + " " + msg))
+      throw new ApiError("scope", msg, 403);
+    throw new ApiError("api", msg, res.status);
+  }
+}
+
+/* ====================================================================
+   PROVIDER: GOOGLE (Gmail REST API, Google Identity Services token flow)
+   Browser-only: the access token lives in memory and is never stored.
+   ==================================================================== */
+const G_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
+const G_API = "https://gmail.googleapis.com/gmail/v1/users/me";
+
+function gHeader(m, name){
+  const hs = (m.payload && m.payload.headers) || [];
+  const n = name.toLowerCase();
+  for(let i = 0; i < hs.length; i++) if(String(hs[i].name).toLowerCase() === n) return hs[i].value || "";
+  return "";
+}
+function gmMsg(m){
+  const from = gHeader(m, "From");
+  const labels = (m.labelIds || []).slice();
+  return {
+    id: m.id,
+    sender: from,
+    email: emailOf(from),
+    to: splitAddrs(gHeader(m, "To")).concat(splitAddrs(gHeader(m, "Cc"))),
+    subject: deent(gHeader(m, "Subject")),
+    snippet: deent(m.snippet || ""),
+    ts: Number(m.internalDate) || Date.parse(gHeader(m, "Date")) || 0,
+    labels: labels,
+    sent: labels.indexOf("SENT") !== -1
+  };
+}
+
+const GoogleAdapter = {
+  kind: "google", label: "Gmail",
+  token: null, exp: 0,
+  pool: makePool(6),
+  cache: new Map(),
+  searchHint: "Gmail search, e.g. from:dspny.com newer_than:30d",
+
+  ready(){ return !!(window.google && google.accounts && google.accounts.oauth2); },
+
+  /* Must be called synchronously inside a click handler, or the popup is blocked. */
+  signIn(){
+    return new Promise((resolve, reject) => {
+      if(!this.ready()) return reject(new ApiError("loading", "Google sign-in is still loading. Give it a second and click again."));
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: CONFIG.googleClientId,
+        scope: G_SCOPE,
+        callback: resp => {
+          if(resp.error) return reject(new ApiError(resp.error === "access_denied" ? "denied" : "auth", resp.error_description || resp.error));
+          if(!google.accounts.oauth2.hasGrantedAllScopes(resp, G_SCOPE))
+            return reject(new ApiError("unchecked", "Google finished sign-in without mail access."));
+          this.token = resp.access_token;
+          this.exp = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
+          resolve();
+        },
+        error_callback: e => reject(new ApiError(
+          e && e.type === "popup_closed" ? "closed" : e && e.type === "popup_failed_to_open" ? "popup" : "auth",
+          (e && (e.message || e.type)) || "Sign-in failed"))
+      });
+      client.requestAccessToken();
+    });
+  },
+  headers(){
+    if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
+    return { Authorization: "Bearer " + this.token };
+  },
+  async get(path, params){
+    const u = new URL(G_API + path);
+    setParams(u, params);
+    return http(u, { headers: this.headers() }, "Google");
+  },
+  async profile(){
+    const p = await this.get("/profile");
+    return String(p.emailAddress || "").toLowerCase();
+  },
+  thread(id){
+    if(!this.cache.has(id)){
+      const p = this.pool(() => this.get("/threads/" + encodeURIComponent(id), {
+        format: "metadata", metadataHeaders: ["From", "To", "Cc", "Subject", "Date"]
+      })).then(t => finishThread(t.id, (t.messages || []).map(gmMsg)));
+      p.catch(() => this.cache.delete(id));
+      this.cache.set(id, p);
+    }
+    return this.cache.get(id);
+  },
+  async listIds(q, cap){
+    const ids = []; let pageToken;
+    while(ids.length < cap){
+      const r = await this.pool(() => this.get("/threads", { q: q, maxResults: Math.min(100, cap - ids.length), pageToken: pageToken }));
+      (r.threads || []).forEach(t => ids.push(t.id));
+      pageToken = r.nextPageToken;
+      if(!pageToken || !(r.threads || []).length) break;
+    }
+    return ids;
+  },
+  async fetchThreads(ids, onProgress){
+    let done = 0;
+    const tick = () => onProgress && onProgress(++done, ids.length);
+    const out = await Promise.all(ids.map(id => this.thread(id).then(
+      t => { tick(); return t; },
+      e => { tick(); if(e.code === "api") return null; throw e; })));   // one deleted thread shouldn't sink the scan
+    return out.filter(Boolean);
+  },
+  async sweep(spec, cap, days, onProgress){
+    const parts = spec.terms.slice();
+    spec.domains.forEach(d => parts.push("from:" + d));
+    if(spec.linkedin) parts.push("from:" + LINKEDIN_FROM);
+    const q = "{" + parts.join(" ") + "}" + (days ? " newer_than:" + days + "d" : "");
+    const ids = await this.listIds(q, cap);
+    const threads = await this.fetchThreads(ids, onProgress);
+    threads.failedTerms = [];
+    return threads;
+  },
+  async inbox(view, query, onProgress){
+    const q = query || { inbox: "in:inbox", unread: "is:unread", sent: "in:sent", starred: "is:starred" }[view] || "in:inbox";
+    return this.fetchThreads(await this.listIds(q, CAP_INBOX), onProgress);
+  },
+  signOut(){
+    try{ if(this.token && this.ready()) google.accounts.oauth2.revoke(this.token, () => {}); }catch(e){}
+    this.token = null; this.cache.clear();
+  }
+};
+
+/* ====================================================================
+   PROVIDER: MICROSOFT (Graph API, auth-code + PKCE redirect, SPA)
+   Covers Outlook.com, Hotmail, Live and Microsoft 365 work/school.
+   No client secret exists or is needed; the token lives in memory only.
+   ==================================================================== */
+const MS_AUTH = "https://login.microsoftonline.com/common/oauth2/v2.0";
+const MS_SCOPE = "openid profile https://graph.microsoft.com/User.Read https://graph.microsoft.com/Mail.Read";
+const MS_GRAPH = "https://graph.microsoft.com/v1.0";
+const MS_SELECT = "id,conversationId,subject,bodyPreview,from,sender,toRecipients,ccRecipients,receivedDateTime,sentDateTime,isRead,flag,parentFolderId";
+
+function b64url(bytes){
+  let s = "";
+  bytes.forEach(b => { s += String.fromCharCode(b); });
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function randToken(){ const a = new Uint8Array(32); crypto.getRandomValues(a); return b64url(a); }
+async function pkceChallenge(verifier){
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+  return b64url(new Uint8Array(d));
+}
+function msMsg(m){
+  const fa = (m.from && m.from.emailAddress) || (m.sender && m.sender.emailAddress) || {};
+  const addr = String(fa.address || "").toLowerCase();
+  const sender = fa.name && fa.name.toLowerCase() !== addr ? fa.name + " <" + addr + ">" : addr;
+  const labels = [];
+  if(m.isRead === false) labels.push("UNREAD");
+  if(m.flag && m.flag.flagStatus === "flagged") labels.push("STARRED");
+  if(MicrosoftAdapter.inboxId && m.parentFolderId === MicrosoftAdapter.inboxId) labels.push("INBOX");
+  const sent = (OWNER && addr === OWNER) || (MicrosoftAdapter.sentId && m.parentFolderId === MicrosoftAdapter.sentId);
+  if(sent) labels.push("SENT");
+  return {
+    id: m.id,
+    sender: sender,
+    email: addr,
+    to: (m.toRecipients || []).concat(m.ccRecipients || [])
+          .map(r => String((r.emailAddress && r.emailAddress.address) || "").toLowerCase()).filter(Boolean),
+    subject: deent(m.subject || ""),
+    snippet: deent(m.bodyPreview || "").slice(0, 300),
+    ts: Date.parse(m.receivedDateTime || m.sentDateTime) || 0,
+    labels: labels,
+    sent: !!sent
+  };
+}
+
+const MicrosoftAdapter = {
+  kind: "microsoft", label: "Outlook",
+  token: null, exp: 0, inboxId: null, sentId: null,
+  pool: makePool(4),            // Outlook allows 4 concurrent requests per mailbox
+  convCache: new Map(),
+  searchHint: "Outlook search, e.g. dspny.com or coffee chat",
+
+  redirectUri(){ return location.origin + location.pathname.replace(/index\.html$/i, ""); },
+
+  async signIn(){
+    const verifier = randToken(), state = randToken();
+    const challenge = await pkceChallenge(verifier);
+    sessionStorage.setItem("rcd.pkce", JSON.stringify({ verifier: verifier, state: state }));
+    const u = new URL(MS_AUTH + "/authorize");
+    setParams(u, {
+      client_id: CONFIG.microsoftClientId, response_type: "code", redirect_uri: this.redirectUri(),
+      response_mode: "query", scope: MS_SCOPE, state: state,
+      code_challenge: challenge, code_challenge_method: "S256", prompt: "select_account"
+    });
+    location.assign(u.toString());
+  },
+  /* On return from Microsoft: exchange the code. Returns true if this page load was a sign-in return. */
+  async completeRedirect(){
+    const p = new URLSearchParams(location.search);
+    if(!p.has("code") && !p.has("error")) return false;
+    let saved = null;
+    try{ saved = JSON.parse(sessionStorage.getItem("rcd.pkce") || "null"); }catch(e){}
+    sessionStorage.removeItem("rcd.pkce");
+    history.replaceState(null, "", this.redirectUri());
+    if(p.has("error")){
+      const d = p.get("error_description") || p.get("error");
+      throw new ApiError(p.get("error") === "access_denied" ? "denied" : /AADSTS65001|AADSTS90094|admin/i.test(d) ? "admin" : "auth", d);
+    }
+    if(!saved || saved.state !== p.get("state")) throw new ApiError("auth", "This sign-in response didn't match the browser that started it. Try again.");
+    const res = await fetch(MS_AUTH + "/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: CONFIG.microsoftClientId, scope: MS_SCOPE, code: p.get("code"),
+        redirect_uri: this.redirectUri(), grant_type: "authorization_code", code_verifier: saved.verifier
+      })
+    });
+    const j = await res.json().catch(() => ({}));
+    if(!res.ok || !j.access_token) throw new ApiError("auth", j.error_description || j.error || "Microsoft token exchange failed.");
+    this.token = j.access_token;
+    this.exp = Date.now() + (Number(j.expires_in) || 3600) * 1000;
+    return true;
+  },
+  headers(){
+    if(!this.token || Date.now() > this.exp - 20000) throw new ApiError("expired", "Session expired");
+    return { Authorization: "Bearer " + this.token };
+  },
+  async get(pathOrUrl, params){
+    const u = /^https:/.test(pathOrUrl) ? new URL(pathOrUrl) : new URL(MS_GRAPH + pathOrUrl);
+    if(params) setParams(u, params);
+    return http(u, { headers: this.headers() }, "Microsoft");
+  },
+  async profile(){
+    const me = await this.get("/me", { $select: "mail,userPrincipalName" });
+    try{
+      const f = await Promise.all([
+        this.get("/me/mailFolders/inbox", { $select: "id" }),
+        this.get("/me/mailFolders/sentitems", { $select: "id" })
+      ]);
+      this.inboxId = f[0].id; this.sentId = f[1].id;
+    }catch(e){ if(e.code === "expired" || e.code === "scope") throw e; }
+    return String(me.mail || me.userPrincipalName || "").toLowerCase();
+  },
+  /* Graph $search is KQL and can't be combined with $filter/$orderby, so each
+     term runs as its own search, time windows are applied client-side, and a
+     term Graph rejects is retried unquoted, then skipped rather than failing the scan. */
+  async search(term, cap){
+    const out = [];
+    let page;
+    try{
+      page = await this.pool(() => this.get("/me/messages", {
+        $search: '"' + term.replace(/"/g, '\\"') + '"', $top: 50, $select: MS_SELECT
+      }));
+    }catch(e){
+      if(e.code === "api" && /"/.test(term)) return this.search(term.replace(/"/g, ""), cap);
+      throw e;
+    }
+    for(;;){
+      (page.value || []).forEach(m => out.push(m));
+      const next = page["@odata.nextLink"];
+      if(!next || out.length >= cap) break;
+      page = await this.pool(() => this.get(next));
+    }
+    return out.slice(0, cap);
+  },
+  conversation(cid){
+    if(!this.convCache.has(cid)){
+      const p = this.pool(() => this.get("/me/messages", {
+        $filter: "conversationId eq '" + cid.replace(/'/g, "''") + "'", $top: 50, $select: MS_SELECT
+      })).then(r => r.value || []);
+      p.catch(() => this.convCache.delete(cid));
+      this.convCache.set(cid, p);
+    }
+    return this.convCache.get(cid);
+  },
+  async threadsFrom(hits, cap, days, onProgress, expand){
+    const cutoff = days ? Date.now() - days * 86400000 : 0;
+    const byConv = new Map();
+    hits.forEach(m => {
+      const ts = Date.parse(m.receivedDateTime || m.sentDateTime) || 0;
+      if(ts < cutoff) return;
+      const c = m.conversationId || m.id;
+      if(!byConv.has(c)) byConv.set(c, { list: [], last: 0 });
+      const g = byConv.get(c); g.list.push(m); g.last = Math.max(g.last, ts);
+    });
+    const convs = Array.from(byConv.entries()).sort((a, b) => b[1].last - a[1].last).slice(0, cap);
+    let done = 0;
+    return Promise.all(convs.map(([cid, g]) => {
+      const full = expand
+        ? this.conversation(cid).then(all => all.length ? all.concat(g.list) : g.list,
+                                      e => { if(e.code === "expired" || e.code === "scope") throw e; return g.list; })
+        : Promise.resolve(g.list);
+      return full.then(list => { onProgress && onProgress(++done, convs.length); return finishThread(cid, list.map(msMsg)); });
+    }));
+  },
+  async sweep(spec, cap, days, onProgress){
+    const terms = spec.terms.concat(spec.domains).concat(spec.linkedin ? [LINKEDIN_FROM] : []);
+    const hits = [], failed = [];
+    await Promise.all(terms.map(t => this.search(t, 100).then(
+      r => { r.forEach(m => hits.push(m)); },
+      e => { if(e.code === "expired" || e.code === "scope" || e.code === "disabled") throw e; failed.push(t); })));
+    const threads = await this.threadsFrom(hits, cap, days, onProgress, true);
+    threads.failedTerms = failed;
+    return threads;
+  },
+  async inbox(view, query, onProgress){
+    let list;
+    if(query) list = await this.search(query, CAP_INBOX);
+    else {
+      const req = {
+        inbox:   ["/me/mailFolders/inbox/messages",     { $orderby: "receivedDateTime desc" }],
+        unread:  ["/me/mailFolders/inbox/messages",     { $filter: "isRead eq false" }],
+        sent:    ["/me/mailFolders/sentitems/messages", { $orderby: "sentDateTime desc" }],
+        starred: ["/me/messages",                       { $filter: "flag/flagStatus eq 'flagged'" }]
+      }[view] || ["/me/mailFolders/inbox/messages", { $orderby: "receivedDateTime desc" }];
+      const r = await this.pool(() => this.get(req[0], Object.assign({ $top: CAP_INBOX, $select: MS_SELECT }, req[1])));
+      list = r.value || [];
+    }
+    return this.threadsFrom(list, CAP_INBOX, 0, onProgress, false);
+  },
+  signOut(){ this.token = null; this.convCache.clear(); }
+};
+
+/* ====================================================================
+   SESSION STATE
+   ==================================================================== */
+let PROVIDER = null;
+let windowDays = 365;
+let firmRows = [], firmFunds = new Map(), peRows = [];
+let targets = [], convos = {};
+let dismissedFirms = new Set(), dismissedPe = new Set();
+let inboxView = "inbox", inboxQuery = "", inboxLoaded = false;
+let scanning = false;
+
+function loadUserState(){
+  dismissedFirms = new Set(load(K.dismissFirms, []));
+  dismissedPe    = new Set(load(K.dismissPe, []));
+  targets        = load(K.targets, null) || defaultTargets();
+  convos         = load(K.convos, null) || {};
+  firmRows = []; peRows = []; firmFunds = new Map();
+}
+
+/* ====================================================================
+   ERRORS — each one says what happened and what fixes it
+   ==================================================================== */
+const ERR_COPY = {
+  expired:  ["Session expired", "Mail access lasts about an hour at a time. Reconnect to keep scanning; your notes are untouched."],
+  scope:    ["Mail access wasn't granted", "Sign-in finished without permission to read mail. Sign out, connect again, and leave the mail permission checked."],
+  disabled: ["This copy of the app isn't fully set up", "The mail API is switched off in the app's developer settings. Let the person who shared the link know."],
+  network:  ["Can't reach your mail provider", "Check your connection and try again."],
+  api:      ["Your mail provider returned an error", "Try again in a moment."]
+};
+function errBlock(e, retryId){
+  const c = ERR_COPY[e && e.code] || ["Something went wrong", "Try again in a moment."];
+  const kind = e && (e.code === "network" || e.code === "expired") ? "warn" : "err";
+  const detail = e && e.message && e.code !== "expired" ? '<div style="margin-top:8px;color:var(--ink-3)">' + esc(e.message) + "</div>" : "";
+  const act = retryId && e && e.code !== "expired" && e.code !== "disabled"
+    ? '<div class="act"><button class="btn" data-retry="' + retryId + '">Try again</button></div>' : "";
+  return '<div class="msg ' + kind + '"><h4>' + esc(c[0]) + "</h4><div>" + esc(c[1]) + "</div>" + detail + act + "</div>";
+}
+function sectionError(e, out, retryId){
+  out.innerHTML = errBlock(e, retryId);
+  if(e && e.code === "expired") $("#reconnect").hidden = false;
+}
+const scanLine = label => '<div class="scan"><span class="led busy"></span> ' + esc(label) + "</div>";
+function progress(label){
+  return (done, total) => setStatus("busy", label + " · " + done + " / " + total);
+}
+
+/* ====================================================================
+   TAB 1 — SEARCH FIRM CONTACTS
+   ==================================================================== */
+function domainFirm(email){
+  const dom = email.split("@")[1] || "";
+  if(FIRM_DOMAINS[dom]) return FIRM_DOMAINS[dom];
+  const parts = dom.split(".");
+  for(let i = 0; i < parts.length - 1; i++){
+    const suffix = parts.slice(i).join(".");
+    if(FIRM_DOMAINS[suffix]) return FIRM_DOMAINS[suffix];
+  }
+  return null;
+}
+
+/* Index the sweep once: who wrote what, how you addressed them, and which
+   first names are you being greeted rather than a contact. */
+function buildCorpus(threads){
+  const norm = threads.filter(t => t && t.msgs.length);
+  const owners = new Set(OWNER ? [OWNER] : []);
+  norm.forEach(t => t.msgs.forEach(m => { if(m.sent) owners.add(m.email); }));
+  const byEmail = new Map(), greets = new Map(), blacklist = new Set();
+  norm.forEach(t => t.msgs.forEach(m => {
+    const mine = m.sent || owners.has(m.email);
+    const g = RE_GREET.exec(m.text);
+    if(mine){
+      if(g) m.to.forEach(addr => {
+        if(!addr || owners.has(addr)) return;
+        if(!greets.has(addr)) greets.set(addr, []);
+        const arr = greets.get(addr);
+        if(arr.indexOf(g[1]) === -1) arr.push(g[1]);
+      });
+      return;
+    }
+    if(g) blacklist.add(g[1].toLowerCase());
+    if(!byEmail.has(m.email)) byEmail.set(m.email, []);
+    byEmail.get(m.email).push(m);
+  }));
+  return { norm: norm, owners: owners, byEmail: byEmail, greets: greets, blacklist: blacklist };
+}
+
+function buildFirmRows(threads){
+  const corpus = buildCorpus(threads);
+  const acc = new Map();
+  function touch(key, seed, ts){
+    let r = acc.get(key);
+    if(!r){ r = Object.assign({ key: key, first: ts, last: ts, count: 0 }, seed); acc.set(key, r); }
+    r.first = Math.min(r.first, ts); r.last = Math.max(r.last, ts); r.count += 1;
+    return r;
+  }
+  corpus.norm.forEach(t => t.msgs.forEach(m => {
+    if(m.email === LINKEDIN_FROM){
+      const hit = RE_LINKEDIN.exec(m.snippet);
+      if(!hit) return;
+      const person = hit[1].trim(), title = hit[2].trim(), org = hit[3].trim();
+      if(!(RE_RECRUITER_ROLE.test(title) || RE_RECRUITER_ROLE.test(org))) return;
+      touch("li:" + normKey(person) + ":" + normKey(org), { name: person, firm: org, role: title, src: "LinkedIn", via: "invite" }, m.ts);
+      return;
+    }
+    if(corpus.owners.has(m.email)) return;
+    const firm = domainFirm(m.email);
+    if(!firm) return;
+    const r = touch("dm:" + m.email, { firm: firm, role: m.email, src: "Email" }, m.ts);
+    if(!r.name){
+      const pick = resolveName(m.sender, m.email, corpus.byEmail.get(m.email) || [m],
+                               corpus.greets.get(m.email), firm, corpus.blacklist);
+      r.name = pick.name; r.via = pick.via;
+    }
+  }));
+
+  firmFunds = new Map();
+  corpus.norm.forEach(t => {
+    const firms = new Set();
+    t.msgs.forEach(m => { const f = domainFirm(m.email); if(f) firms.add(f); });
+    if(!firms.size) return;
+    const clean = stripPersonParens(t.text);
+    const funds = PE_FIRMS.filter(p => p[1].test(clean)).map(p => p[0]);
+    if(!funds.length) return;
+    firms.forEach(f => {
+      const k = normKey(f);
+      if(!firmFunds.has(k)) firmFunds.set(k, new Set());
+      funds.forEach(x => firmFunds.get(k).add(x));
+    });
+  });
+
+  return Array.from(acc.values()).filter(r => !dismissedFirms.has(r.key)).sort((a, b) => b.last - a.last);
+}
+
+function renderFirms(){
+  const out = $("#firmsOut");
+  if(!firmRows.length){
+    out.innerHTML = '<div class="tablewrap"><div class="empty">No recruiter contact found in this window. Try a longer window above, or check the Inbox tab.</div></div>';
+    return;
+  }
+  out.innerHTML = '<div class="tablewrap"><table><thead><tr>' +
+    "<th>Contact</th><th>Firm</th><th>First contact</th><th>Last contact</th><th>Touchpoints</th><th></th>" +
+    "</tr></thead><tbody>" + firmRows.map(r =>
+      "<tr>" +
+        '<td><span class="name">' + esc(r.name) + '</span><span class="role">' + esc(r.role || "") +
+          (r.via && r.via !== "address" ? ' <span style="color:var(--cy-dim)">· from ' + esc(r.via) + "</span>" : "") + "</span></td>" +
+        '<td><span class="firm">' + esc(r.firm) + '</span><span class="srcbadge">' + esc(r.src) + "</span></td>" +
+        '<td class="num">' + fmtDate(r.first) + "</td>" +
+        '<td class="num">' + fmtDate(r.last) + "</td>" +
+        '<td class="num" style="color:var(--cy)">' + r.count + "</td>" +
+        '<td><button class="btn danger" data-dismiss-firm="' + esc(r.key) + '">Dismiss</button></td>' +
+      "</tr>").join("") + "</tbody></table></div>";
+}
+
+async function scanFirms(){
+  const out = $("#firmsOut");
+  out.innerHTML = scanLine("Sweeping recruiter mail");
+  try{
+    const threads = await PROVIDER.sweep(SPEC_RECRUITERS, CAP_SWEEP, windowDays, progress("Reading recruiter threads"));
+    firmRows = buildFirmRows(threads);
+    renderFirms();
+    const skipped = threads.failedTerms && threads.failedTerms.length
+      ? " · " + threads.failedTerms.length + " search terms skipped by " + PROVIDER.label : "";
+    $("#firmsFoot").textContent = threads.length + " threads read · " + firmRows.length + " contacts · " +
+      dismissedFirms.size + " dismissed" + skipped + ".";
+    seedTargetsFromContacts();
+    renderConvos();
+    updateGauges();
+  }catch(e){ sectionError(e, out, "firms"); $("#firmsFoot").textContent = ""; throw e; }
+}
+
+/* ====================================================================
+   TAB 2 — TOP 25
+   ==================================================================== */
+function defaultTargets(){
+  const list = [];
+  TIERS.forEach(t => t.firms.forEach((f, i) => list.push({ id: t.id + "-" + i + "-" + normKey(f), tier: t.id, name: f, on: false })));
+  return list;
+}
+function saveTargets(){ save(K.targets, targets); }
+function seedTargetsFromContacts(){
+  if(load(K.seeded, false) || !firmRows.length) return;
+  let changed = false;
+  targets.forEach(t => {
+    if(!t.on && firmRows.some(r => fuzzyFirmMatch(r.firm, t.name))){ t.on = true; changed = true; }
+  });
+  save(K.seeded, true);
+  if(changed){ saveTargets(); renderTargets(); }
+}
+function renderTargets(){
+  $("#targetsOut").innerHTML = TIERS.map(tier => {
+    const rows = targets.filter(t => t.tier === tier.id);
+    const on = rows.filter(t => t.on).length;
+    const body = rows.length
+      ? '<div class="tlist">' + rows.map(t =>
+          '<div class="trow' + (t.on ? " on" : "") + '">' +
+            '<input type="checkbox" data-toggle="' + esc(t.id) + '"' + (t.on ? " checked" : "") + ' aria-label="Connected with ' + esc(t.name) + '">' +
+            '<input class="fname" type="text" value="' + esc(t.name) + '" data-rename="' + esc(t.id) + '" aria-label="Firm name" spellcheck="false">' +
+            '<button class="kill" data-remove="' + esc(t.id) + '" title="Remove" aria-label="Remove ' + esc(t.name) + '">✕</button>' +
+          "</div>").join("") + "</div>"
+      : '<div class="empty">No firms in this tier.</div>';
+    return '<div class="tier"><div class="tier-head"><h3>' + esc(tier.name) + "</h3>" +
+      '<span class="count">' + on + "/" + rows.length + " CONNECTED</span>" +
+      '<span class="note">' + esc(tier.note) + "</span></div>" + body +
+      '<div class="addrow"><input type="text" placeholder="Add firm to this tier" data-addinput="' + tier.id +
+      '" aria-label="Add firm to ' + esc(tier.name) + '"><button class="btn" data-add="' + tier.id + '">Add</button></div></div>';
+  }).join("");
+}
+
+/* ====================================================================
+   TAB 3 — FIRM DEBRIEFS
+   ==================================================================== */
+const READS = ["Not spoken yet","Strong","Positive","Neutral","Lukewarm","Cold"];
+const CONVO_FIELDS = ["contact","read","lastConvo","meeting","next","prefs","pushing","strategy","notes"];
+function saveConvos(){ save(K.convos, convos); }
+function convoFor(firm){
+  const k = normKey(firm);
+  if(!convos[k]) convos[k] = { firm: firm, contact: "", read: "Not spoken yet", lastConvo: "", meeting: "",
+                               next: "", prefs: "", pushing: "", strategy: "", notes: "" };
+  if(firm && convos[k].firm !== firm) convos[k].firm = firm;
+  return convos[k];
+}
+function syncConvoFirms(){
+  let added = 0;
+  firmRows.forEach(r => {
+    const fresh = !convos[normKey(r.firm)];
+    const c = convoFor(r.firm);
+    if(fresh) added++;
+    if(!c.contact) c.contact = r.name;
+  });
+  targets.filter(t => t.on).forEach(t => { if(!convos[normKey(t.name)]){ convoFor(t.name); added++; } });
+  saveConvos(); renderConvos();
+  return added;
+}
+function detectedFunds(firm){ const s = firmFunds.get(normKey(firm)); return s ? Array.from(s) : []; }
+function fmtMeeting(v){
+  if(!v) return null;
+  const d = new Date(v);
+  if(isNaN(d)) return null;
+  const when = d.toLocaleString("en-US", { weekday: "short", month: "short", day: "2-digit", hour: "numeric", minute: "2-digit" })
+    .toUpperCase().replace(",", "");
+  const days = Math.ceil((d - Date.now()) / 86400000);
+  const rel = days < 0 ? Math.abs(days) + "D AGO" : days === 0 ? "TODAY" : days === 1 ? "TOMORROW" : "IN " + days + "D";
+  return { when: when, rel: rel, ts: d.getTime(), future: d.getTime() >= Date.now() - 3600000 };
+}
+function renderOnBooks(){
+  const el = $("#onbooks");
+  const items = Object.keys(convos).map(k => ({ c: convos[k], m: fmtMeeting(convos[k].meeting) }))
+    .filter(x => x.m && x.m.future).sort((a, b) => a.m.ts - b.m.ts);
+  if(!items.length){ el.hidden = true; el.innerHTML = ""; return; }
+  el.hidden = false;
+  el.innerHTML = '<div class="ob-title"><span class="led ok"></span>On the books</div><div class="ob-list">' +
+    items.map(x => {
+      const soon = (x.m.ts - Date.now()) < 3 * 86400000;
+      return '<div class="ob-item"><span class="ob-firm">' + esc(x.c.firm) +
+        (x.c.contact ? ' <span class="who">· ' + esc(x.c.contact) + "</span>" : "") + "</span>" +
+        '<span class="ob-when">' + esc(x.m.when) + '<span class="ob-rel' + (soon ? " soon" : "") + '">' + esc(x.m.rel) + "</span>" +
+        (x.c.next ? '<span style="color:var(--ink-3)">' + esc(x.c.next) + "</span>" : "") + "</span></div>";
+    }).join("") + "</div>";
+}
+function footFor(c, mt){
+  return mt && mt.future ? '<span style="color:var(--cy)">' + esc(mt.when) + " · " + esc(mt.rel) + "</span>"
+       : c.lastConvo ? "LAST " + esc(c.lastConvo) : "NO DATE LOGGED";
+}
+function renderConvos(){
+  const out = $("#convoOut");
+  const keys = Object.keys(convos).sort((a, b) => {
+    const ma = fmtMeeting(convos[a].meeting), mb = fmtMeeting(convos[b].meeting);
+    const ua = ma && ma.future ? ma.ts : Infinity, ub = mb && mb.future ? mb.ts : Infinity;
+    if(ua !== ub) return ua - ub;
+    const ra = READS.indexOf(convos[a].read), rb = READS.indexOf(convos[b].read);
+    const wa = ra <= 0 ? 99 : ra, wb = rb <= 0 ? 99 : rb;
+    return wa - wb || convos[a].firm.localeCompare(convos[b].firm);
+  });
+  if(!keys.length){
+    out.innerHTML = '<div class="msg"><h4>No dossiers yet</h4><div>Once your scan finishes, hit <code>Sync firms from scan</code> to create a card for every search firm you\'re in contact with. You can also add any firm by name below.</div></div>';
+    $("#convoFoot").textContent = "";
+    renderOnBooks();
+    return;
+  }
+  out.innerHTML = '<div class="dossiers">' + keys.map(k => {
+    const c = convos[k], det = detectedFunds(c.firm), mt = fmtMeeting(c.meeting);
+    const hot = c.read === "Strong" || c.read === "Positive" || (mt && mt.future);
+    const id = esc(k);
+    return '<article class="dossier' + (hot ? " hot" : "") + '">' +
+      '<div class="d-head"><input class="dfirm" type="text" value="' + esc(c.firm) + '" data-cfirm="' + id + '" aria-label="Firm name" spellcheck="false">' +
+        '<button class="kill" data-cremove="' + id + '" title="Remove dossier" aria-label="Remove ' + esc(c.firm) + '">✕</button></div>' +
+      '<div class="d-body">' +
+        '<div class="frow">' +
+          '<div class="field"><label for="c-contact-' + id + '">Contact</label><input id="c-contact-' + id + '" type="text" value="' + esc(c.contact) + '" placeholder="Who you spoke with" data-cf="contact" data-ck="' + id + '"></div>' +
+          '<div class="field"><label for="c-read-' + id + '">How it went</label><select id="c-read-' + id + '" class="readsel" data-read="' + esc(c.read) + '" data-cf="read" data-ck="' + id + '">' +
+            READS.map(r => "<option" + (r === c.read ? " selected" : "") + ">" + esc(r) + "</option>").join("") + "</select></div>" +
+        "</div>" +
+        '<div class="frow">' +
+          '<div class="field"><label for="c-meet-' + id + '">Next meeting</label><input id="c-meet-' + id + '" type="datetime-local" value="' + esc(c.meeting || "") + '" data-cf="meeting" data-ck="' + id + '"></div>' +
+          '<div class="field"><label for="c-date-' + id + '">Last conversation</label><input id="c-date-' + id + '" type="date" value="' + esc(c.lastConvo) + '" data-cf="lastConvo" data-ck="' + id + '"></div>' +
+        "</div>" +
+        '<div class="field"><label for="c-next-' + id + '">Next step</label><input id="c-next-' + id + '" type="text" value="' + esc(c.next) + '" placeholder="e.g. in-person coffee chat" data-cf="next" data-ck="' + id + '"></div>' +
+        '<div class="field"><label for="c-prefs-' + id + '">What you told them you want</label><textarea id="c-prefs-' + id + '" class="prefs" placeholder="Strategy, fund size, shops, geography you asked to be put up for" data-cf="prefs" data-ck="' + id + '">' + esc(c.prefs || "") + "</textarea></div>" +
+        '<div class="field"><label>Funds already surfaced over email</label><div class="detected">' +
+          (det.length ? det.map(f => '<span class="fund">' + esc(f) + "</span>").join("") : '<span class="none">Nothing detected in the sweep yet</span>') + "</div></div>" +
+        '<div class="field"><label for="c-push-' + id + '">Funds they are pushing you toward</label><input id="c-push-' + id + '" type="text" value="' + esc(c.pushing) + '" placeholder="Comma separated" data-cf="pushing" data-ck="' + id + '"></div>' +
+        '<div class="field"><label for="c-strat-' + id + '">Their angle / strategy for you</label><textarea id="c-strat-' + id + '" placeholder="How they are positioning you: sector, fund size, geography, timing" data-cf="strategy" data-ck="' + id + '">' + esc(c.strategy) + "</textarea></div>" +
+        '<div class="field"><label for="c-notes-' + id + '">How the conversation went</label><textarea id="c-notes-' + id + '" placeholder="What was said, what they pressed on, what they promised" data-cf="notes" data-ck="' + id + '">' + esc(c.notes) + "</textarea></div>" +
+      "</div>" +
+      '<div class="d-foot"><span>' + esc(c.read.toUpperCase()) + '</span><span class="spacer"></span><span>' + footFor(c, mt) + "</span></div>" +
+    "</article>";
+  }).join("") + "</div>";
+  const spoken = keys.filter(k => convos[k].read !== "Not spoken yet").length;
+  const booked = keys.filter(k => { const m = fmtMeeting(convos[k].meeting); return m && m.future; }).length;
+  $("#convoFoot").textContent = keys.length + " dossiers · " + booked + " meeting" + (booked === 1 ? "" : "s") +
+    " on the books · " + spoken + " with a logged conversation.";
+  renderOnBooks();
+}
+function convoText(){
+  return Object.keys(convos).map(k => {
+    const c = convos[k], det = detectedFunds(c.firm), mt = fmtMeeting(c.meeting);
+    return [
+      "== " + c.firm + " ==",
+      "Contact: " + (c.contact || "—"),
+      "Read: " + c.read + (c.lastConvo ? "  (last spoke " + c.lastConvo + ")" : ""),
+      "Next meeting: " + (mt ? mt.when : "—"),
+      "You asked for: " + (c.prefs ? "\n  " + c.prefs.split("\n").join("\n  ") : "—"),
+      "Pushing: " + (c.pushing || "—"),
+      "Detected over email: " + (det.length ? det.join(", ") : "—"),
+      "Angle: " + (c.strategy || "—"),
+      "Notes: " + (c.notes || "—"),
+      "Next: " + (c.next || "—")
+    ].join("\n");
+  }).join("\n\n");
+}
+function writeConvoField(el){
+  const c = convos[el.dataset.ck];
+  if(!c || CONVO_FIELDS.indexOf(el.dataset.cf) === -1) return;
+  c[el.dataset.cf] = el.value;
+  saveConvos();
+  const card = el.closest(".dossier");
+  const mt = fmtMeeting(c.meeting);
+  if(el.dataset.cf === "meeting"){
+    renderOnBooks();
+    const spans = card && card.querySelectorAll(".d-foot span");
+    if(spans && spans.length) spans[spans.length - 1].innerHTML = footFor(c, mt);
+  }
+  if(el.dataset.cf === "read"){
+    el.setAttribute("data-read", el.value);
+    const foot = card && card.querySelector(".d-foot span");
+    if(foot) foot.textContent = el.value.toUpperCase();
+  }
+  if(card) card.classList.toggle("hot", c.read === "Strong" || c.read === "Positive" || !!(mt && mt.future));
+}
+
+/* ====================================================================
+   TAB 4 — PE TRACTION
+   ==================================================================== */
+function scoreThread(t){
+  const attended = RE_ATTENDED.test(t.text), strong = RE_STRONG.test(t.text);
+  if(attended && strong) return 5;
+  if(attended) return 4;
+  if(RE_CONFIRMED.test(t.text)) return 3;
+  if(RE_REGISTERED.test(t.text)) return 2;
+  return 1;
+}
+function buildPeRows(threads){
+  const acc = new Map();
+  threads.forEach(t => {
+    if(!t || !t.msgs.length) return;
+    const hay = stripPersonParens(t.text + " " + t.msgs.map(m => m.sender).join(" "));
+    const rank = scoreThread(t);
+    PE_FIRMS.forEach(pair => {
+      if(!pair[1].test(hay)) return;
+      const key = normKey(pair[0]);
+      let r = acc.get(key);
+      if(!r){ r = { key: key, firm: pair[0], rank: 0, last: 0, count: 0, subject: t.subject, snippet: "" }; acc.set(key, r); }
+      r.count += t.msgs.length;
+      if(rank > r.rank || (rank === r.rank && t.last > r.last)){
+        r.subject = t.subject;
+        r.snippet = t.msgs[t.msgs.length - 1].snippet.slice(0, 150);
+      }
+      r.rank = Math.max(r.rank, rank);
+      r.last = Math.max(r.last, t.last);
+    });
+  });
+  return Array.from(acc.values()).filter(r => !dismissedPe.has(r.key)).sort((a, b) => (b.rank - a.rank) || (b.last - a.last));
+}
+function badgeFor(r){
+  let label = RANK[r.rank].label;
+  if(r.rank === 3) label = daysAgo(r.last) > 5 ? "Confirmed (Event Likely Occurred)" : "Confirmed / Upcoming";
+  return '<span class="badge ' + RANK[r.rank].cls + '">' + esc(label) + "</span>";
+}
+function renderPe(){
+  const out = $("#peOut");
+  if(!peRows.length){
+    out.innerHTML = '<div class="tablewrap"><div class="empty">No tracked fund matched an event thread in this window.</div></div>';
+    return;
+  }
+  out.innerHTML = '<div class="tablewrap"><table><thead><tr>' +
+    "<th>Fund</th><th>Traction</th><th>Last contact</th><th>Touchpoints</th><th>Latest thread</th><th></th>" +
+    "</tr></thead><tbody>" + peRows.map(r =>
+      "<tr>" +
+        '<td><span class="name firm">' + esc(r.firm) + "</span></td>" +
+        "<td>" + badgeFor(r) + "</td>" +
+        '<td class="num">' + fmtDate(r.last) + "</td>" +
+        '<td class="num" style="color:var(--cy)">' + r.count + "</td>" +
+        '<td><span class="snip"><b>' + esc(r.subject) + "</b>" + esc(r.snippet) + "</span></td>" +
+        '<td><button class="btn danger" data-dismiss-pe="' + esc(r.key) + '">Dismiss</button></td>' +
+      "</tr>").join("") + "</tbody></table></div>";
+}
+async function scanPe(){
+  const out = $("#peOut");
+  out.innerHTML = scanLine("Sweeping event mail");
+  try{
+    const threads = await PROVIDER.sweep(SPEC_EVENTS, CAP_SWEEP, windowDays, progress("Reading event threads"));
+    peRows = buildPeRows(threads);
+    renderPe();
+    $("#peFoot").textContent = threads.length + " threads read · " + peRows.length + " funds matched · " +
+      dismissedPe.size + " dismissed · scored against " + PE_FIRMS.length + " fund name patterns.";
+    renderConvos();
+    updateGauges();
+  }catch(e){ sectionError(e, out, "pe"); $("#peFoot").textContent = ""; throw e; }
+}
+
+/* ====================================================================
+   TAB 5 — INBOX
+   ==================================================================== */
+async function scanInbox(){
+  const out = $("#inboxOut");
+  out.innerHTML = scanLine("Loading " + (inboxQuery || inboxView));
+  try{
+    const threads = (await PROVIDER.inbox(inboxView, inboxQuery)).filter(t => t && t.msgs.length).sort((a, b) => b.last - a.last);
+    const rows = threads.map(t => {
+      const m = t.msgs[t.msgs.length - 1];
+      const unread = t.msgs.some(x => x.labels.indexOf("UNREAD") !== -1);
+      return '<tr class="' + (unread ? "unread" : "") + '">' +
+        '<td><span class="dot' + (unread ? "" : " off") + '"></span><span class="name">' + esc(displayOf(m.sender)) +
+          '</span><span class="role">' + esc(m.email) + "</span></td>" +
+        '<td><span class="snip"><b class="subj">' + esc(m.subject || "(no subject)") + "</b>" + esc(m.snippet.slice(0, 140)) + "</span></td>" +
+        '<td class="num">' + fmtDate(t.last) + "</td></tr>";
+    }).join("");
+    out.innerHTML = rows
+      ? '<div class="tablewrap"><table><thead><tr><th>From</th><th>Subject</th><th>Date</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
+      : '<div class="tablewrap"><div class="empty">Nothing matches.</div></div>';
+  }catch(e){ sectionError(e, out, "inbox"); }
+}
+
+/* ====================================================================
+   GAUGES · STATUS · CLOCK
+   ==================================================================== */
+const C = 213.6;
+function setRing(ringId, numId, value, denom){
+  const frac = denom > 0 ? Math.max(0, Math.min(1, value / denom)) : 0;
+  document.getElementById(ringId).setAttribute("stroke-dashoffset", String(C * (1 - frac)));
+  document.getElementById(numId).textContent = String(value);
+}
+function updateGauges(){
+  const contactFirms = new Set(firmRows.map(r => normKey(r.firm)));
+  const connected = targets.filter(t => t.on).length;
+  setRing("ring1", "num1", contactFirms.size, Math.max(targets.length, 1));
+  $("#sub1").textContent = "of " + targets.length + " tracked · " + connected + " checked";
+  setRing("ring2", "num2", peRows.length, Math.max(peRows.length, 12));
+  $("#sub2").textContent = peRows.length ? "across your event mail" : "awaiting scan";
+  const high = peRows.filter(r => r.rank === 5).length;
+  setRing("ring3", "num3", high, Math.max(peRows.length, 1));
+  $("#sub3").textContent = peRows.length ? high + " of " + peRows.length + " funds" : "awaiting scan";
+}
+function setStatus(cls, text){ $("#led").className = "led " + cls; $("#statusText").textContent = text; }
+function tick(){
+  const now = new Date();
+  $("#cclock").textContent = now.toLocaleTimeString("en-US", { hour12: false });
+  $("#cdate").textContent = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "2-digit", year: "numeric" }).toUpperCase();
+}
+
+/* ====================================================================
+   SIGN-IN / SESSION
+   ==================================================================== */
+function gateMsg(text, info){
+  const el = $("#gateMsg");
+  el.textContent = text;
+  el.className = "gate-msg" + (info ? " info" : "");
+  el.hidden = !text;
+}
+const AUTH_COPY = {
+  loading:   "Google sign-in is still loading. Give it a second and click again.",
+  closed:    "The Google window closed before you finished. If Google said access is blocked, the person who shared this link needs to add your Gmail address as a tester first. Otherwise, click Connect Gmail to try again.",
+  popup:     "Your browser blocked the Google sign-in window. Allow pop-ups for this site, then click Connect Gmail again.",
+  denied:    "Sign-in was cancelled. Click a connect button whenever you're ready.",
+  unchecked: "Google finished sign-in without mail access, which happens if the Gmail permission box is unchecked. Connect again and leave it checked.",
+  admin:     "Your organization requires an administrator to approve outside mail apps. Try a personal Outlook or Hotmail account instead.",
+  scope:     ERR_COPY.scope[1],
+  disabled:  ERR_COPY.disabled[1]
+};
+function authError(e){
+  return AUTH_COPY[e && e.code] || ("Sign-in failed: " + ((e && e.message) || "unknown error") + ".");
+}
+function showGate(){ $("#deck").hidden = true; $("#gate").hidden = false; }
+function showDeck(){ $("#gate").hidden = true; $("#deck").hidden = false; }
+
+async function startSession(adapter){
+  PROVIDER = adapter;
+  showDeck();
+  setStatus("busy", "Connecting to " + adapter.label);
+  $("#reconnect").hidden = true;
+  try{
+    OWNER = await adapter.profile();
+  }catch(e){
+    showGate();
+    gateMsg(AUTH_COPY[e.code] || ERR_COPY[e.code] && ERR_COPY[e.code][1] || authError(e));
+    return;
+  }
+  setNamespace(adapter.kind, OWNER);
+  loadUserState();
+  $("#acct").textContent = OWNER;
+  $("#acctKind").textContent = adapter.label.toUpperCase();
+  $("#inboxQ").placeholder = adapter.searchHint;
+  $("#win").value = String(windowDays);
+  renderTargets(); renderConvos(); updateGauges();
+  runAllScans();
+}
+
+async function runAllScans(){
+  if(scanning || !PROVIDER) return;
+  scanning = true;
+  $("#rescanAll").disabled = true;
+  let failure = null;
+  try{ await scanFirms(); }catch(e){ failure = e; }
+  if(!failure || failure.code !== "expired"){ try{ await scanPe(); }catch(e){ failure = failure || e; } }
+  if(!failure || failure.code !== "expired"){ inboxLoaded = true; scanInbox(); }
+  scanning = false;
+  $("#rescanAll").disabled = false;
+  if(failure){
+    setStatus(failure.code === "expired" ? "warn" : "err",
+      failure.code === "expired" ? "Session expired" : "Some scans failed. See the affected tab.");
+  }else{
+    setStatus("ok", PROVIDER.label + " linked · " + (windowDays ? "last " + ({180:"6 months",365:"year",730:"2 years"}[windowDays] || windowDays + " days") : "all time"));
+    $("#stamp").textContent = "LAST SWEEP " + new Date().toLocaleTimeString("en-US", { hour12: false });
+  }
+}
+
+function signOut(){
+  if(PROVIDER) PROVIDER.signOut();
+  PROVIDER = null; OWNER = "";
+  firmRows = []; peRows = []; firmFunds = new Map(); targets = []; convos = {};
+  inboxLoaded = false;
+  ["#firmsOut", "#peOut", "#inboxOut", "#convoOut", "#targetsOut"].forEach(s => { $(s).innerHTML = ""; });
+  $("#onbooks").hidden = true;
+  showGate();
+  gateMsg("Signed out. Your notes stay saved on this device for next time.", true);
+}
+
+/* ====================================================================
+   EVENTS
+   ==================================================================== */
+const TABS = [["tab-firms","p-firms"],["tab-targets","p-targets"],["tab-convos","p-convos"],["tab-pe","p-pe"],["tab-inbox","p-inbox"]];
+TABS.forEach(pair => {
+  document.getElementById(pair[0]).addEventListener("click", () => {
+    TABS.forEach(p => {
+      const sel = p[0] === pair[0];
+      document.getElementById(p[0]).setAttribute("aria-selected", sel ? "true" : "false");
+      document.getElementById(p[1]).hidden = !sel;
+    });
+    if(pair[0] === "tab-inbox" && !inboxLoaded && PROVIDER){ inboxLoaded = true; scanInbox(); }
+  });
+});
+
+$("#connectGoogle").addEventListener("click", () => {
+  gateMsg("");
+  GoogleAdapter.signIn().then(() => startSession(GoogleAdapter), e => gateMsg(authError(e)));   // no await before signIn: keeps the popup user-initiated
+});
+$("#connectMicrosoft").addEventListener("click", () => {
+  gateMsg("Opening Microsoft sign-in…", true);
+  MicrosoftAdapter.signIn().catch(e => gateMsg(authError(e)));
+});
+$("#reconnectBtn").addEventListener("click", () => {
+  if(!PROVIDER) return;
+  if(PROVIDER.kind === "google"){
+    GoogleAdapter.signIn().then(() => { $("#reconnect").hidden = true; runAllScans(); }, e => setStatus("err", authError(e)));
+  }else{
+    MicrosoftAdapter.signIn();
+  }
+});
+$("#signOut").addEventListener("click", signOut);
+$("#eraseData").addEventListener("click", () => {
+  eraseNamespace();
+  loadUserState();
+  renderTargets(); renderConvos(); renderFirms(); renderPe(); updateGauges();
+  $("#eraseData").textContent = "Erased";
+  setTimeout(() => { $("#eraseData").textContent = "Erase my saved notes on this device"; }, 1800);
+});
+$("#win").addEventListener("change", e => { windowDays = Number(e.target.value) || 0; runAllScans(); });
+$("#rescanAll").addEventListener("click", runAllScans);
+$("#inboxQ").addEventListener("keydown", ev => { if(ev.key === "Enter"){ ev.preventDefault(); $("#inboxGo").click(); } });
+
+document.addEventListener("click", ev => {
+  const t = ev.target;
+  if(!(t instanceof Element)) return;
+  const b = t.closest("button");
+  if(!b) return;
+  if(b.dataset.dismissFirm){
+    dismissedFirms.add(b.dataset.dismissFirm); save(K.dismissFirms, Array.from(dismissedFirms));
+    firmRows = firmRows.filter(r => r.key !== b.dataset.dismissFirm); renderFirms(); updateGauges(); return;
+  }
+  if(b.dataset.dismissPe){
+    dismissedPe.add(b.dataset.dismissPe); save(K.dismissPe, Array.from(dismissedPe));
+    peRows = peRows.filter(r => r.key !== b.dataset.dismissPe); renderPe(); updateGauges(); return;
+  }
+  if(b.dataset.remove){ targets = targets.filter(x => x.id !== b.dataset.remove); saveTargets(); renderTargets(); updateGauges(); return; }
+  if(b.dataset.add){
+    const input = document.querySelector('[data-addinput="' + b.dataset.add + '"]');
+    const name = input && input.value.trim();
+    if(name){ targets.push({ id: b.dataset.add + "-x" + Date.now(), tier: b.dataset.add, name: name, on: false }); input.value = ""; saveTargets(); renderTargets(); updateGauges(); }
+    return;
+  }
+  if(b.dataset.retry){
+    if(b.dataset.retry === "firms") scanFirms().catch(() => {});
+    if(b.dataset.retry === "pe") scanPe().catch(() => {});
+    if(b.dataset.retry === "inbox") scanInbox();
+    return;
+  }
+  if(b.dataset.cremove){ delete convos[b.dataset.cremove]; saveConvos(); renderConvos(); return; }
+  if(b.id === "convoSync"){
+    const n = syncConvoFirms();
+    b.textContent = n ? "Added " + n : "Up to date";
+    setTimeout(() => { b.textContent = "Sync firms from scan"; }, 1800);
+    return;
+  }
+  if(b.id === "convoAddBtn"){
+    const input = $("#convoAdd"), name = input.value.trim();
+    if(name){ convoFor(name); input.value = ""; saveConvos(); renderConvos(); }
+    return;
+  }
+  if(b.id === "convoExport"){
+    const done = () => { b.textContent = "Copied"; setTimeout(() => { b.textContent = "Copy as text"; }, 1600); };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(convoText()).then(done, () => { b.textContent = "Copy blocked"; });
+    else b.textContent = "Copy blocked";
+    return;
+  }
+  if(b.id === "targetsReset"){
+    targets = defaultTargets(); saveTargets(); save(K.seeded, false);
+    seedTargetsFromContacts(); renderTargets(); updateGauges();
+    return;
+  }
+  if(b.id === "inboxRefresh"){ scanInbox(); return; }
+  if(b.id === "inboxGo"){
+    const v = $("#inboxQ").value.trim();
+    if(v){ inboxQuery = v; document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false")); scanInbox(); }
+    return;
+  }
+  if(b.classList.contains("chip")){
+    document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b ? "true" : "false"));
+    inboxView = b.dataset.view; inboxQuery = ""; $("#inboxQ").value = "";
+    scanInbox();
+  }
+});
+document.addEventListener("change", ev => {
+  const el = ev.target;
+  if(el && el.dataset && el.dataset.cf){ writeConvoField(el); return; }
+  if(el instanceof HTMLInputElement && el.dataset.toggle){
+    const row = targets.find(x => x.id === el.dataset.toggle);
+    if(row){ row.on = el.checked; saveTargets(); renderTargets(); updateGauges(); }
+  }
+});
+document.addEventListener("input", ev => {
+  const el = ev.target;
+  if(el && el.dataset && el.dataset.cf){ writeConvoField(el); return; }
+  if(el && el.dataset && el.dataset.cfirm){ const c = convos[el.dataset.cfirm]; if(c){ c.firm = el.value; saveConvos(); } return; }
+  if(el instanceof HTMLInputElement && el.dataset.rename){
+    const row = targets.find(x => x.id === el.dataset.rename);
+    if(row){ row.name = el.value; saveTargets(); }
+  }
+});
+
+/* ====================================================================
+   BOOT
+   ==================================================================== */
+(async function boot(){
+  tick(); setInterval(tick, 1000);
+
+  const gOk = isConfigured(CONFIG.googleClientId), mOk = isConfigured(CONFIG.microsoftClientId);
+  if(!gOk){ $("#connectGoogle").disabled = true; $("#connectGoogle").title = "Gmail sign-in isn't configured in this copy"; }
+  if(!mOk){ $("#connectMicrosoft").disabled = true; $("#connectMicrosoft").title = "Outlook sign-in isn't configured in this copy"; }
+
+  if(location.protocol === "file:"){
+    gateMsg("Open this page from its web address, not as a file on your computer. Google and Microsoft only allow sign-in from a registered URL.");
+    return;
+  }
+  if(!window.isSecureContext){
+    gateMsg("This page must be served over https (or localhost) for sign-in to work.");
+    return;
+  }
+  if(!gOk && !mOk){
+    gateMsg("Setup needed: paste your Google and/or Microsoft client IDs into the CONFIG block at the top of the script.", true);
+    return;
+  }
+
+  const q = new URLSearchParams(location.search);
+  if(q.has("code") || q.has("error")){
+    gateMsg("Finishing Microsoft sign-in…", true);
+    try{
+      if(await MicrosoftAdapter.completeRedirect()){ gateMsg(""); return startSession(MicrosoftAdapter); }
+    }catch(e){ gateMsg(authError(e)); }
+  }
+})();
+
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
